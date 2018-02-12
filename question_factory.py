@@ -1,6 +1,7 @@
 import multiprocessing as mp
 from simple_question import SimpleQuestion
 import time
+import argparse
 
 dimension = 300
 
@@ -67,10 +68,13 @@ def generateQuestions(numProcess, startNo, endNo) :
     print("Generated {} images in {:.2f} seconds".format(endNo - startNo, time.time() - start))
         
 if __name__ == '__main__':
+    
     NUMBER_OF_PROCESSES = 4
     mp.freeze_support()
     
-    generateQuestions(NUMBER_OF_PROCESSES, 1, 10000)
+    
+    
+    generateQuestions(NUMBER_OF_PROCESSES, 1000, 10000)
     
     #for i in range(10) :
     #    print(makeQuestion(i))
