@@ -56,7 +56,7 @@ def generateQuestions(numProcess, startNo, endNo) :
     totalTime = 0.0
     
     for i in range(len(TASKS)):
-        totalTime += done_queue.get()
+        totalTime += float(done_queue.get())
         counter += 1
         if counter % 500 == 0 :
             print("Generated {} images, average {:2f} seconds per image".format(
