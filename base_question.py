@@ -352,7 +352,7 @@ class Question(dict) :
         if self.options.get("saveTiles", False) :
             self.saveTiles(dirname, output_size)
         else :        
-            self.savePage(dirname, output_size)
+            self.savePage(dirname)
             
     def savePage(self, dirname, size = None) :
         filename = os.path.join(dirname, "{}.{}".format(self.name, self.imageFormat))
@@ -362,18 +362,20 @@ class Question(dict) :
             questionFrames = resizeRects(self.questionFrames, (self.width, self.height), size)
             questionTextFrames = resizeRects(self.questionTextFrames, (self.width, self.height), size)
             
-            metaData = {
-                "enclosedQuestions" : questionFrames,
-                "enclosedText" : questionTextFrames,
-                "overlapQuestions" : questionFrames,
-                "overlapText" : questionTextFrames,                
-            }
-            
-            self.saveMetaData(filename, metaData)
             #Draw.debugRects(img, self.questionFrames, "1" + ".png")
         else :
             self.draw.save(filename) 
-            self.saveMetaData(filename, self.questionFrames, self.questionTextFrames)
+            questionFrames = self.questionFrames
+            questionTextFrames = self.questionTextFrames
+
+        metaData = {
+            "enclosedQuestions" : questionFrames,
+            "enclosedText" : questionTextFrames,
+            "overlapQuestions" : questionFrames,
+            "overlapText" : questionTextFrames,
+        }
+
+        self.saveMetaData(filename, metaData)
             
     def saveTiles(self, dirname, size) :
         increment = int((self.height - self.width) / 2)

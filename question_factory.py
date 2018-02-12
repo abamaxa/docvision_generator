@@ -79,7 +79,7 @@ def main() :
         "saveTiles" : args.tile,
     }    
     
-    print("Question dimensions {dimensions} => {outputSize} output {outputDir} format {format}".format_map(options))   
+    print("Tile: {saveTiles} dimensions {dimensions} => {outputSize} output {outputDir} format {format}".format_map(options))   
   
     if args.process == 0 :
         print(makeQuestion(1, options))
