@@ -2,41 +2,25 @@ import multiprocessing as mp
 from simple_question import SimpleQuestion
 import time
 import argparse
-
-dimension = 300
-
-options = {
-    "format" : "png",
-    "outputDir" : "output_png_{}".format(dimension),
-    "dimensions" : (600, 1000),
-    #"dimensions" : (300, 424),
-    #"dimensions" : (1275, 1755),
-    "outputSize" : (dimension, dimension),
-    #outputSize" : (600,int(600 * (1755 / 1275)),
-    "saveTiles" : True,
-}
-
-print("Question dimensions {dimensions} => {outputSize} output {outputDir} format {format}".format_map(options))
-
-questionFactory = SimpleQuestion(options)
         
-def worker(input, output):
+def worker(input, output) :
     for func, args in iter(input.get, 'STOP'):
         result = func(*args)
         output.put(result)
         
-def makeQuestion(idno) :
+def makeQuestion(idno, options) :
     start = time.time()
         
+    questionFactory = SimpleQuestion(options)
     questionFactory.createPage(idno)
     questionFactory.save()
     
     return (idno, time.time() - start)
     
-def generateQuestions(numProcess, startNo, endNo) :
+def generateQuestions(numProcess, options, startNo, endNo) :
     start = time.time()
     
-    TASKS = [(makeQuestion, (i,)) for i in range(startNo, endNo + 1)]
+    TASKS = [(makeQuestion, (i,options)) for i in range(startNo, endNo + 1)]
 
     # Create queues
     task_queue = mp.Queue()
@@ -50,8 +34,6 @@ def generateQuestions(numProcess, startNo, endNo) :
     for i in range(numProcess):
         mp.Process(target=worker, args=(task_queue, done_queue)).start()
 
-    # Get and print results
-    print('Unordered results:')
     counter = 0
     totalTime = 0.0
     
@@ -68,13 +50,45 @@ def generateQuestions(numProcess, startNo, endNo) :
         
     print("Generated {} images in {:.2f} seconds".format(endNo - startNo, time.time() - start))
         
-if __name__ == '__main__':
+        
+def main() :
+    parser = argparse.ArgumentParser()
     
-    NUMBER_OF_PROCESSES = 4
-    mp.freeze_support()
+    parser.add_argument("-t", "--tile", help="Whether to generate square tiles of" \
+                        "top, middle and bottom of generated image", action="store_false")
+    parser.add_argument("-o", "--output", help="Directory to write images to", default="output")
+    parser.add_argument("-w", "--width", type=int, help="Width of generated image", default=600)
+    parser.add_argument("-l", "--height", type=int, help="Height of generated image", default=1000)
+    parser.add_argument("-d", "--dimension", type=int, help="Width of output image", default=300)
+    parser.add_argument("-s", "--start", type=int, help="Index of first image", default=1)
+    parser.add_argument("-p", "--process", type=int, help="Number of processes to spawn", default=4)
+    parser.add_argument("-f", "--format", help="File format to generate, png (default) or jpg", default="png")
+    
+    parser.add_argument("count", type=int, help="Number of images to create")
+    
+    args = parser.parse_args()
+    
+    options = {
+        "format" : args.format,
+        "outputDir" : args.output,
+        "dimensions" : (args.width, args.height),
+        #"dimensions" : (300, 424),
+        #"dimensions" : (1275, 1755),
+        "outputSize" : (args.dimension, args.dimension),
+        #outputSize" : (600,int(600 * (1755 / 1275)),
+        "saveTiles" : args.tile,
+    }    
+    
+    print("Question dimensions {dimensions} => {outputSize} output {outputDir} format {format}".format_map(options))   
+  
+    if args.process == 0 :
+        print(makeQuestion(1, options))
+    else :
+        mp.freeze_support()
+    
+        generateQuestions(args.process, options, args.start, args.start + args.count)
 
     
-    generateQuestions(NUMBER_OF_PROCESSES, 1000, 10000)
+if __name__ == '__main__':
+    main()
     
-    #for i in range(10) :
-    #    print(makeQuestion(i))
