@@ -2,16 +2,20 @@ import multiprocessing as mp
 from simple_question import SimpleQuestion
 import time
 
+dimension = 300
+
 options = {
     "format" : "png",
-    "outputDir" : "output_png_300",
+    "outputDir" : "output_png_{}".format(dimension),
     "dimensions" : (600, 1000),
     #"dimensions" : (300, 424),
     #"dimensions" : (1275, 1755),
-    "outputSize" : (300, 300),
+    "outputSize" : (dimension, dimension),
     #outputSize" : (600,int(600 * (1755 / 1275)),
     "saveTiles" : True,
 }
+
+print("Question dimensions {dimensions} => {outputSize} output {outputDir} format {format}".format_map(options))
 
 questionFactory = SimpleQuestion(options)
         
@@ -47,8 +51,15 @@ def generateQuestions(numProcess, startNo, endNo) :
 
     # Get and print results
     print('Unordered results:')
+    counter = 0
+    totalTime = 0.0
+    
     for i in range(len(TASKS)):
-        print('\t', done_queue.get())
+        totalTime += done_queue.get()
+        counter += 1
+        if counter % 500 == 0 :
+            print("Generated {} images, average {:2f} seconds per image".format(
+                counter, totalTime / counter))
 
     for i in range(numProcess):
         task_queue.put('STOP') 
@@ -59,7 +70,7 @@ if __name__ == '__main__':
     NUMBER_OF_PROCESSES = 4
     mp.freeze_support()
     
-    #generateQuestions(NUMBER_OF_PROCESSES, 1, 1000)
+    generateQuestions(NUMBER_OF_PROCESSES, 1, 10000)
     
-    for i in range(10) :
-        print(makeQuestion(i))
+    #for i in range(10) :
+    #    print(makeQuestion(i))
