@@ -31,7 +31,7 @@ def makeQuestion(idno) :
     questionFactory.createPage(idno)
     questionFactory.save()
     
-    return "Generated image id {} in {:.2f} seconds".format(idno, time.time() - start)
+    return (idno, time.time() - start)
     
 def generateQuestions(numProcess, startNo, endNo) :
     start = time.time()
@@ -56,7 +56,8 @@ def generateQuestions(numProcess, startNo, endNo) :
     totalTime = 0.0
     
     for i in range(len(TASKS)):
-        totalTime += float(done_queue.get())
+        idno, timeTaken = done_queue.get()
+        totalTime += float(timeTaken)
         counter += 1
         if counter % 500 == 0 :
             print("Generated {} images, average {:2f} seconds per image".format(
@@ -71,8 +72,7 @@ if __name__ == '__main__':
     
     NUMBER_OF_PROCESSES = 4
     mp.freeze_support()
-    
-    
+
     
     generateQuestions(NUMBER_OF_PROCESSES, 1000, 10000)
     
