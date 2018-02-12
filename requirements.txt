@@ -1,0 +1,6 @@
+loremipsum
+numpy
+Pillow
+pylint
+requests
+six
