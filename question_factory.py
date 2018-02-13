@@ -135,7 +135,7 @@ def main():
 
     if args.process == 0:
         for i in range(args.start, args.start + args.count) :
-            print(make_question(i, options))
+            print(make_question(str(i), options))
     else:
         mp.freeze_support()
 
