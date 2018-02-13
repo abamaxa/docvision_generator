@@ -36,10 +36,10 @@ class Question(object):
     Layout_VLine_Internal = 0x40
     Layout_VLine_ExternalAndInternal = 0x80
 
-    def __init__(self, options):
+    def __init__(self, name, options):
         super(Question, self).__init__()
 
-        self.name = "Unset"
+        self.name = name
         self.options = options
         dimensions = options["dimensions"]
         self.width = dimensions[0]
@@ -319,8 +319,7 @@ class Question(object):
 
         return line_gap + line_gap
 
-    def create_page(self, name):
-        self.name = name
+    def create_page(self):
         self.draw_page_background()
 
         question_number = random.randint(1, 20)
@@ -361,6 +360,7 @@ class Question(object):
         filename = os.path.join(
             dirname, "{}.{}".format(
                 self.name, self.image_format))
+        
         if size:
             img = self.draw.save(
                 filename, rect=(
@@ -436,8 +436,36 @@ class Question(object):
             "filename": os.path.basename(filename),
         })
 
-        with open(os.path.join("{}.json".format(os.path.splitext(filename)[0])), "w") as jsonfile:
+        filepath = os.path.join("{}.json".format(os.path.splitext(filename)[0]))
+        tmp_path = "{}.tmp".format(filepath)
+        with open(tmp_path, "w") as jsonfile:
             json.dump(metadata, jsonfile, indent=2)
+            
+        os.rename(tmp_path, filepath)
+            
+    @staticmethod
+    def should_write(name, options) :
+        if options.get("overwrite", False) :
+            return True
+        
+        dirname = options.get("outputDir", "output")
+        image_format = options.get("format", "png")
+
+        if options.get("save_tiles", False):
+            file_stems = [os.path.join(
+                dirname, "{}-{}".format(name, part))
+                          for part in ("top","middle","bottom")]
+        else:
+            file_stems = [os.path.join(dirname, name)]        
+        
+        for stem in file_stems :
+            if not os.path.exists("{}.{}".format(stem, image_format)) :
+                return True
+            
+            if not os.path.exists("{}.json".format(stem)) :
+                return True  
+            
+        return False
 
     def generate_question_texts(self):
         pass

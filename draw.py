@@ -180,6 +180,7 @@ class Draw:
             img = self.copy_rect(rect, resize_to)
 
         img.save(filename)
+        
         return img
 
     def copy_rect(self, rect, resize_to):

@@ -11,10 +11,13 @@ def worker(input_queue, output_queue):
 
 
 def make_question(idno, options):
+    if not SimpleQuestion.should_write(idno, options) :
+        return (idno, 0)
+    
     start = time.time()
 
-    question = SimpleQuestion(options)
-    question.create_page(idno)
+    question = SimpleQuestion(idno, options)
+    question.create_page()
     question.save()
 
     return (idno, time.time() - start)
@@ -64,7 +67,7 @@ def main():
         "--tile",
         help="Whether to generate square tiles of"
         "top, middle and bottom of generated image",
-        action="store_false")
+        action="store_true")
     parser.add_argument(
         "-o",
         "--output",
@@ -105,6 +108,11 @@ def main():
         "--format",
         help="File format to generate, png (default) or jpg",
         default="png")
+    parser.add_argument(
+        "-x",
+        "--overwrite",
+        help="Overwrite existing files",
+        action="store_true")    
 
     parser.add_argument("count", type=int, help="Number of images to create")
 
@@ -119,6 +127,7 @@ def main():
         "outputSize": (args.dimension, args.dimension),
         # outputSize" : (600,int(600 * (1755 / 1275)),
         "save_tiles": args.tile,
+        "overwrite": args.overwrite
     }
 
     print("Tile: {save_tiles} dimensions {dimensions} => {outputSize} " \
