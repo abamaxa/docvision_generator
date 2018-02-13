@@ -4,3 +4,4 @@ Pillow
 pylint
 requests
 six
+aiohttp

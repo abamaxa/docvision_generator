@@ -11,10 +11,9 @@ class Webserver :
         self.app = self.task_queue = self.done_queue = None
         self.image_counter = 1
         
-    async def handle(self, request):
+    async def get_a_question(self, request):
         # Make sure there is work in the queue  
-        while not self.task_queue.full() :
-            self.request_question()
+        self.request_question()
                     
         # Don't block
         try :
@@ -29,12 +28,34 @@ class Webserver :
             "Content-Disposition" : 'attachment; filename="image.zip"'
         }
         return web.Response(content_type="application/zip", body=zipdata, headers=headers)
+    
+    async def status(self, request) :
+        try :
+            task_size = self.task_queue.qsize()
+            done_size = self.done_queue.qsize()
+        except :
+            task_size = -1
+            done_size = -1
+            
+        html = """
+        <html>
+        <body>
+        Task Queue length: {}<br>
+        Done Queue length: {}<br>
+        Image no: {}<br>
+        <a href="/question">Question</a>
+        </body>
+        </html>
+        """.format(task_size, done_size, self.image_counter)
+        
+        return web.Response(content_type="html", text=html)
         
     def start_server(self) :
         self.setup_workers()
         
         self.app = web.Application()
-        self.app.router.add_get('/', self.handle)
+        self.app.router.add_get('/', self.status)
+        self.app.router.add_get('/question', self.get_a_question)
         
         web.run_app(self.app)        
         
