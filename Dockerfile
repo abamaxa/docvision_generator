@@ -16,4 +16,4 @@ EXPOSE 8080
 ENV NAME QuestionFactory
 
 # Run app.py when the container launches
-CMD ["python", "question_factory.py", "-p 0", "10"]
+CMD ["python", "question_factory.py", "--daemon", "20"]
