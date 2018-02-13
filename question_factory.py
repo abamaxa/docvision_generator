@@ -70,6 +70,16 @@ def main():
         "top, middle and bottom of generated image",
         action="store_true")
     parser.add_argument(
+        "-x",
+        "--overwrite",
+        help="Overwrite existing files",
+        action="store_true") 
+    parser.add_argument(
+        "--daemon",
+        help="Instead of writing files to a directory, the process server images over HTTP",
+        action="store_true") 
+    
+    parser.add_argument(
         "-o",
         "--output",
         help="Directory to write images to",
@@ -109,17 +119,9 @@ def main():
         "--format",
         help="File format to generate, png (default) or jpg",
         default="png")
-    parser.add_argument(
-        "-x",
-        "--overwrite",
-        help="Overwrite existing files",
-        action="store_true") 
-    parser.add_argument(
-        "--daemon",
-        help="Instead of writing files to a directory, the process server images over HTTP",
-        action="store_true")    
+   
 
-    parser.add_argument("count", type=int, help="Number of images to create")
+    parser.add_argument("count", type=int, help="Number of images to create or queue size if in daemon mode")
 
     args = parser.parse_args()
 
@@ -135,25 +137,30 @@ def main():
         "overwrite": args.overwrite
     }
 
-    print("Tile: {save_tiles} dimensions {dimensions} => {outputSize} " \
-          "output {outputDir} format {format}".format_map(options))
+    print("Image dimensions: {dimensions} format: {format}".format_map(options))
+    if args.tile :
+        print("Creating tiles of size {outputSize}".format_map(options))
 
-    if args.daemon :        
+    if args.daemon :     
+        print("Starting webserver, queue size {count}".format_map(options))
         server = webserver.Webserver(args.process, args.count, options)
         server.start_server()
+    else :
+        print("Writing images to: {outputDir} overwrite existing: {overwrite}".format_map(options))
+        print("Generating {count} images starting at {start}".format_map(options))
         
-    elif args.process == 0:
-        for i in range(args.start, args.start + args.count) :
-            print(make_question(str(i), options))
-    else:
-        mp.freeze_support()
-
-        generate_questions(
-            args.process,
-            options,
-            args.start,
-            args.start +
-            args.count)
+        if args.process == 0:
+            for i in range(args.start, args.start + args.count) :
+                print(make_question(str(i), options))
+        else:
+            mp.freeze_support()
+    
+            generate_questions(
+                args.process,
+                options,
+                args.start,
+                args.start +
+                args.count)
 
 
 if __name__ == '__main__':

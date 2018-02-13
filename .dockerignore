@@ -1,0 +1,7 @@
+output/
+state/
+env/
+*.pyc
+__pycache__/
+*.wpr
+*.wpu

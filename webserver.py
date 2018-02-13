@@ -15,17 +15,17 @@ class Webserver :
         # Make sure there is work in the queue  
         self.request_question()
                     
-        # Don't block
         try :
-            result = self.done_queue.get(False)
+            # Don't block
+            result, filename = self.done_queue.get(False)
         except mp.Queue.Empty :
-            # Error
+            # No files available
             return web.Response(status=404, text="No images ready")
               
         zipdata = result.getvalue()
         headers = {
             "Cache-Control": "no-cache, no-store",
-            "Content-Disposition" : 'attachment; filename="image.zip"'
+            "Content-Disposition" : 'attachment; filename="{image.zip}"'.format(filename)
         }
         return web.Response(content_type="application/zip", body=zipdata, headers=headers)
     

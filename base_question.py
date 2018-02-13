@@ -489,9 +489,11 @@ class Question(object):
     
     def as_zip(self) :
         zipbuffer = BytesIO()
+        filename = self.name + ".zip"
         with zipfile.ZipFile(zipbuffer, 'w') as image_zip:
             image_buffer = BytesIO()
-            self.draw.image.save(image_buffer, self.image_format.upper())
+            self.draw.image.save(image_buffer, 
+                    self.image_format.upper() == "PNG" and "PNG" or "JPEG")
             
             image_zip.writestr(self.name + "." + self.image_format, 
                            data = image_buffer.getvalue())  
@@ -500,9 +502,9 @@ class Question(object):
             json_buffer = json.dumps(metadata, indent=4)
             image_zip.writestr(self.name + ".json", data = json_buffer)
             
-            image_zip.filename = self.name + ".zip"
+            image_zip.filename = filename
             
-        return zipbuffer
+        return zipbuffer, filename
 
     def generate_question_texts(self):
         pass

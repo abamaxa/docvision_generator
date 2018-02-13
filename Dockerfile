@@ -12,8 +12,6 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 # Make port 80 available to the world outside this container
 EXPOSE 8080
 
-# Define environment variable
-ENV NAME QuestionFactory
-
 # Run app.py when the container launches
-CMD ["python", "question_factory.py", "--daemon", "20"]
+ENTRYPOINT ["python", "question_factory.py"]
+CMD ["--help"]
