@@ -1,117 +1,126 @@
 import os
 import re
 import json
-from loremipsum import Generator
 import random
 import time
+import gzip
 
-class TextGen :
+from loremipsum import Generator
+
+class TextGen:
     sentences = None
     dictionary = None
-    
+
     @classmethod
-    def getGenerator(cls) :
-        if cls.sentences is None :
-            with open("wordlist.txt", "r",encoding="utf-8") as fin :
+    def get_generator(cls):
+        if cls.sentences is None:
+            with gzip.open("wordlist.txt.gz", "rt", encoding="utf-8") as fin:
                 cls.sentences = fin.readlines()
-         
-        if cls.dictionary is None:   
-            with open("worddict.json", "r",encoding="utf-8") as fjson : 
+
+        if cls.dictionary is None:
+            with gzip.open("worddict.json.gz", "rt", encoding="utf-8") as fjson:
                 cls.dictionary = json.load(fjson)
 
-        sample = random.randint(0, len(cls.sentences) - 1) 
+        sample = random.randint(0, len(cls.sentences) - 1)
         sentence = cls.sentences[sample]
-           
-        generator = Generator(sentence, cls.dictionary)      
-        
+
+        generator = Generator(sentence, cls.dictionary)
+
         return generator
-    
+
     @staticmethod
-    def cleanWordList() : 
-        with open("wordlist1.txt", "r",encoding="utf-8") as fin :
-            words = fin.read()   
-        
-        with open("wordlist.txt", "w",encoding="utf-8") as fout :    
+    def clean_word_list():
+        with open("webdump.txt", "r", encoding="utf-8") as fin:
+            words = fin.read()
+
+        with gzip.open("wordlist.txt.gz", "wt", encoding="utf-8") as fout:
             sentencelist = words.split(".")
-            for sentence in sentencelist :
-                sentence = sentence.replace(".","")
-                sentence = sentence.replace(",","")   
+            for sentence in sentencelist:
+                sentence = sentence.replace(".", "")
+                sentence = sentence.replace(",", "")
                 parts = sentence.split(" ")
                 if len(set(parts)) < 20 or len(parts) > 40:
                     continue
-                
+
                 fout.write(sentence + "\n")
-                
-        with open("worddict.json", "w",encoding="utf-8") as fout : 
-            wordlist = [w.replace(".","").replace(",","") for w in words.split(' ')]
+
+        with gzip.open("worddict.json.gz", "wt", encoding="utf-8") as fout:
+            wordlist = [w.replace(".", "").replace(",", "")
+                        for w in words.split(' ')]
             dictionary = sorted(list(set(wordlist)))
             json.dump(dictionary, fout)
 
-        
     @staticmethod
-    def readText() :
+    def read_text():
         allwords = []
-        nononalpha = re.compile("[\W\d]+")
-        lowercase = re.compile("[a-z]+")
+        nononalpha = re.compile(r"[\W\d]+")
+        lowercase = re.compile(r"[a-z]+")
         filelist = os.listdir('papers')
         counter = 0
-        
-        for f in filelist :
+
+        for filename in filelist:
             counter += 1
-            if counter % 50 == 0 :
+            if counter % 50 == 0:
                 print("Processed {} of {}".format(counter, len(filelist)))
-                
-            if not f.endswith('.txt' ):
+
+            if not filename.endswith('.txt'):
                 continue
-        
-            with open("papers/" + f, "r", encoding="utf-8") as fin :
+
+            with open("papers/" + filename, "r", encoding="utf-8") as fin:
                 words = fin.read()
-                
-            words = words.replace("\n"," ")
-            
-            
-            # words = re.sub('\W+',' ', words)
-            words = re.sub(' +',' ', words)
-            words2 = []
+
+            words = words.replace("\n", " ")
+            words = re.sub(' +', ' ', words)
+            word_list = []
             #words = [w for w in words.split(' ') if len(w) > 2]
-            for w in words.split(' ') :
-                if re.search(nononalpha, w) :
-                    w2 = w.replace(".","")
-                    w2 = w2.replace(",","")  
-                    if re.search(nononalpha, w2) :
+            for word in words.split(' '):
+                if re.search(nononalpha, word):
+                    word_test = w.replace(".", "").replace(",", "")
+                    if re.search(nononalpha, word_test):
                         continue
-                
-                if not re.search(lowercase, w) :
-                    continue                
-                
-                words2.append(w.lower())
-            
-            allwords.extend(words2)
-          
-        with open("wordlist1.txt", "w", encoding="utf-8") as fout :
+
+                if not re.search(lowercase, word):
+                    continue
+
+                word_list.append(word.lower())
+
+            allwords.extend(word_list)
+
+        with open("webdump.txt", "w", encoding="utf-8") as fout:
             fout.write(" ".join(allwords))
-        
+
+    @staticmethod
+    def randomize_list():
+        with gzip.open("wordlist.txt.gz", "rt", encoding="utf-8") as fin:
+            sentences = fin.readlines()
+            random.shuffle(sentences)
+
+        with gzip.open("wordlist.txt.gz", "wt", encoding="utf-8") as fout:
+            fout.write(sentences)
 
 
-if __name__ == '__main__' :
-    #TextGen.readText()
-    
-    TextGen.cleanWordList()
-    
-    start = time.time()
-    
-    g = TextGen.getGenerator()
-    
-    load = time.time()
-    
-    p1 = g.generate_paragraph()[2]
-    p2 = g.generate_paragraph()[2]
-    p3 = g.generate_paragraph()[2]
-    
-    para = time.time()
-    
-    print(p1)
-    print(p2)
-    print(p3)
-    
-    print("Generator in %.3f and 3 paragraphs in %.3f" % (load - start, para - load))
+def test():
+    start_time = time.time()
+
+    generator = TextGen.get_generator()
+
+    load_time = time.time()
+
+    paragraphs = []
+
+    for _ in range(10):
+        paragraphs.append(generator.generate_paragraph()[2])
+
+    finish_time = time.time()
+
+    for text in paragraphs:
+        print(text)
+
+    print(
+        "Generator created in {:.2f} seconds, average time to generate a " \
+        "paragraph: {:.2f} seconds".format(
+        load_time - start_time, finish_time - load_time))
+
+
+if __name__ == '__main__':
+    test()

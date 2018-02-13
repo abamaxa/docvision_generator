@@ -1,428 +1,446 @@
 import os
 import random
-from collections import UserDict
-import pickle
 import json
 
 from dictionary_generator import TextGen
-from question_state import QuestionState
 from util import *
 from draw import Draw
 
-class Question(dict) :
+class Question(object):
     Layout_HSep_None = 0
     Layout_HSep_BlankLine1 = 0.5
     Layout_HSep_BlankLine2 = 0.75
     Layout_HSep_BlankLine3 = 1.
     Layout_HSep_BlankLine4 = 1.25
-    
+
     Layout_HSep_SolidLine = 0x8
     Layout_HSep_DashedLine = 0x10
     Layout_HSep_DottedLine = 0x20
-    
+
     Layout_HLine_Top = 0x40
     Layout_HLine_Bottom = 0x80
-    
+
     Layout_VSep_None = 0
     Layout_VSep_BlankLine1 = 1
     Layout_VSep_BlankLine2 = 1.25
     Layout_VSep_BlankLine3 = 1.5
     Layout_VSep_BlankLine4 = 1.75
-    
+
     Layout_VSep_SolidLine = 0x8
     Layout_VSep_DashedLine = 0x10
-    Layout_VSep_DottedLine = 0x20  
-    
+    Layout_VSep_DottedLine = 0x20
+
     Layout_VLine_Left = 0x40
-    Layout_VLine_Right = 0x80  
-    Layout_VLine_LeftAndRight = 0x100  
+    Layout_VLine_Right = 0x80
+    Layout_VLine_LeftAndRight = 0x100
     Layout_VLine_Internal = 0x40
-    Layout_VLine_ExternalAndInternal = 0x80   
-            
-    def __init__(self, options) :
-    #def __init__(self, *args, **kwargs):
+    Layout_VLine_ExternalAndInternal = 0x80
+
+    def __init__(self, options):
         super(Question, self).__init__()
-        self.__dict__ = self  
 
         self.name = "Unset"
         self.options = options
         dimensions = options["dimensions"]
         self.width = dimensions[0]
         self.height = dimensions[1]
-        self.imageFormat = options.get("format", "png")
-                        
-        self.drawDebugRects = False
-        
-        self.draw = Draw(self)
-        self.draw.initImage()        
-        
-    def generatePage(self) :
+        self.image_format = options.get("format", "png")
+
+        self.draw_debug_rects = False
+
+        self.generate_page()
+
+    def generate_page(self):
         self.left_margin = self.width * (0.03 + (0.05 * random.random()))
         self.right_margin = self.width * (0.03 + (0.05 * random.random()))
         self.top_margin = self.height * (0.04 + (0.05 * random.random()))
         self.bottom_margin = self.height * (0.04 + (0.05 * random.random()))
-    
+
         fontnames = ["verdana.ttf", "times.ttf", "georgia.ttf", "arial.ttf"]
 
         # Assume that its A4 size, calculate relative to width
-        #self.lineHeight = self.fontSize = random.randint(18,24)  
-        self.lineHeight = self.fontSize = random.randint(int(self.width / 70), int(self.width / 50))  
-        self.fontName = random.choice(fontnames)
-        self.questionFrames = []
-        self.questionTextFrames = []
-    
-        self.generateRandomStyle()
-    
-        self.minimumQuestionGap = self.paraSpacing * 1.5
+        #self.line_height = self.font_size = random.randint(18,24)
+        self.line_height = self.font_size = random.randint(
+            int(self.width / 70), int(self.width / 50))
+        self.font_name = random.choice(fontnames)
+        self.question_frames = []
+        self.question_text_frames = []
+
+        self.generate_random_style()
+
+        self.minimum_question_gap = self.para_spacing * 1.5
+
+        self.draw = Draw(self)
+        self.draw.init_image()        
+        self.draw.create_draw()
         
-        self.draw.createDraw()
-        self.generator = TextGen.getGenerator()
-    
-        self.lineHeight = self.draw.getLineHeight()
-    
-        self.generateLayout() 
-        self.draw.drawBackground()
-    
-        self.drawColumns()        
-        
-    #def saveState(self) :
-        #os.makedirs("state", exist_ok=True)
-        #with open(os.path.join("state", self.name + ".state.bin"), "wb") as pickleFile :
-            #pickle.dump(self, pickleFile)
-        
-    #@classmethod
-    #def restoreState(cls, name) :
-        #with open(os.path.join("state", str(name) + ".state.bin"), "rb") as pickleFile :
-            #return pickle.load(pickleFile)
-    
-    def generateRandomStyle(self) :        
-        columns = ( (0.66, 1), (0.9, 2), (1., 3) )
+        self.generator = TextGen.get_generator()
+
+        self.line_height = self.draw.get_line_height()
+
+        self.generate_layout()
+                
+    def draw_page_background(self) :
+        self.draw.draw_background()
+        self.draw_columns()        
+
+    def generate_random_style(self):
+        columns = ((0.66, 1), (0.9, 2), (1., 3))
         hseps_lines = (
-            (0.2,  Question.Layout_HSep_BlankLine1),
-            (0.6,  Question.Layout_HSep_BlankLine2),
+            (0.2, Question.Layout_HSep_BlankLine1),
+            (0.6, Question.Layout_HSep_BlankLine2),
             (0.85, Question.Layout_HSep_BlankLine3),
-            (1.0,  Question.Layout_HSep_BlankLine4),
+            (1.0, Question.Layout_HSep_BlankLine4),
         )
-        
+
         vseps_lines = (
-            (0.2,  Question.Layout_VSep_BlankLine1),
-            (0.6,  Question.Layout_VSep_BlankLine2),
+            (0.2, Question.Layout_VSep_BlankLine1),
+            (0.6, Question.Layout_VSep_BlankLine2),
             (0.85, Question.Layout_VSep_BlankLine3),
-            (1.0,  Question.Layout_VSep_BlankLine4),
+            (1.0, Question.Layout_VSep_BlankLine4),
         )
 
         hseps_styles = (
-            (0.7,  Question.Layout_HSep_None),
-            (0.8,  Question.Layout_HSep_SolidLine),
-            (0.9,  Question.Layout_HSep_DashedLine),
-            (1.0,  Question.Layout_HSep_DottedLine),
-        )    
-        
-        vseps_styles = (
-            (0.7,  Question.Layout_VSep_None),
-            (0.8,  Question.Layout_VSep_SolidLine),
-            (0.9,  Question.Layout_VSep_DashedLine),
-            (1.0,  Question.Layout_VSep_DottedLine),
+            (0.7, Question.Layout_HSep_None),
+            (0.8, Question.Layout_HSep_SolidLine),
+            (0.9, Question.Layout_HSep_DashedLine),
+            (1.0, Question.Layout_HSep_DottedLine),
         )
-        
+
+        vseps_styles = (
+            (0.7, Question.Layout_VSep_None),
+            (0.8, Question.Layout_VSep_SolidLine),
+            (0.9, Question.Layout_VSep_DashedLine),
+            (1.0, Question.Layout_VSep_DottedLine),
+        )
+
         hseps_positions = (
             #(0.65, Question.Layout_HSep_None),
             (0.9, Question.Layout_HLine_Bottom),
             (1.0, Question.Layout_HLine_Top),
         )
-        
+
         vseps_positions = (
             #(0.65, Question.Layout_VSep_None),
             (0.85, Question.Layout_VLine_LeftAndRight),
             (0.93, Question.Layout_VLine_Left),
             (1.0, Question.Layout_VLine_Right),
         )
-        
+
         alignment = (
             (0.65, Draw.AlignLeft),
             (0.85, Draw.AlignJustify),
-        )  
-        
-        self.lineSpacing = probChoiceList(((0.65, 1.2), (0.85, 1.3), (1.0,1.5)))
-        self.paraSpacing = self.lineHeight * self.lineSpacing * (0.25 + (random.random() * 0.5))
-        
-        self.textAlign = probChoiceList(alignment)
-        self.columns = probChoiceList(columns)
-        
-        if self.columns > 1 :
+        )
+
+        self.line_spacing = pick_from_list(
+            ((0.65, 1.2), (0.85, 1.3), (1.0, 1.5)))
+        self.para_spacing = self.line_height * \
+            self.line_spacing * (0.25 + (random.random() * 0.5))
+
+        self.text_align = pick_from_list(alignment)
+        self.columns = pick_from_list(columns)
+
+        if self.columns > 1:
             vseps_styles = [(p * .5, a) for p, a in vseps_styles]
+
+        self.horizontal_space = pick_from_list(hseps_lines)
+        self.horizontal_linestyle = pick_from_list(hseps_styles)
+        self.horizontal_lineposition = pick_from_list(hseps_positions)
+
+        self.vertical_space = pick_from_list(vseps_lines)
+        self.vertical_linestyle = pick_from_list(vseps_styles)
+        self.vertical_lineposition = pick_from_list(vseps_positions)
+
+        self.horizontal_priority = random.random()
         
-        self.horizontal_space = probChoiceList(hseps_lines)    
-        self.horizontal_linestyle = probChoiceList(hseps_styles) 
-        self.horizontal_lineposition = probChoiceList(hseps_positions)
-        
-        self.vertical_space = probChoiceList(vseps_lines)    
-        self.vertical_linestyle = probChoiceList(vseps_styles)    
-        self.vertical_lineposition = probChoiceList(vseps_positions)     
-        
-        self.horizontalPriority = random.random()
-        self.setMeasureOnlyMode(False)
-        
-        self.backgroundColor = generateColor(random.randint(245,255))
-        self.textColour = generateColor(random.randint(4,96))
-        
-        if random.random() > 0.7 :
-            self.borderColour = generateColor(random.randint(245,255))
-        else :
-            self.borderColour = self.textColour 
-            
-        self.horizontal_line_width = random.choice(list(range(1,5)))
-        self.vertical_line_width = random.choice(list(range(1,5)))
-        
-        self.questionFillColour = random.choice([self.borderColour, self.textColour,
-                                                 "blue", "grey", "green", "purple"])
-            
-    def setMeasureOnlyMode(self, mode) :
+        self.background_color = generate_color(random.randint(245, 255))
+        self.text_color = generate_color(random.randint(4, 96))
+
+        if random.random() > 0.7:
+            self.border_color = generate_color(random.randint(245, 255))
+        else:
+            self.border_color = self.text_color
+
+        self.horizontal_line_width = random.choice(list(range(1, 5)))
+        self.vertical_line_width = random.choice(list(range(1, 5)))
+
+        self.question_fill_color = random.choice(
+            [self.border_color, self.text_color, "blue", "grey", "green", "purple"])
+
+    def set_measure_only_mode(self, mode):
         self.draw.measure_only = mode
-        
-    def adjustRectForStyle(self, rect, column = 0) :
+
+    def adjust_rect_for_style(self, rect, column=0):
         top = rect[0][1]
-        if self.horizontal_lineposition == Question.Layout_HLine_Top :
-            top += (self.lineHeight * self.horizontal_space)
-        
+        if self.horizontal_lineposition == Question.Layout_HLine_Top:
+            top += (self.line_height * self.horizontal_space)
+
         bottom = rect[1][1]
-        if self.horizontal_lineposition == Question.Layout_HLine_Bottom :
-            bottom -= (self.lineHeight * self.horizontal_space)     
-                   
+        if self.horizontal_lineposition == Question.Layout_HLine_Bottom:
+            bottom -= (self.line_height * self.horizontal_space)
+
         left = rect[0][0]
-        if column != 0 :
+        if column != 0:
             if self.columns == 1 and self.vertical_lineposition in \
-               (Question.Layout_VLine_Left, 
-                Question.Layout_VLine_LeftAndRight) :
-                left += self.lineHeight * self.vertical_space   
+               (Question.Layout_VLine_Left,
+                    Question.Layout_VLine_LeftAndRight):
+                left += self.line_height * self.vertical_space
             elif self.columns > 1 and self.vertical_lineposition == \
-                 Question.Layout_VLine_ExternalAndInternal :
-                left += self.lineHeight * self.vertical_space          
+                    Question.Layout_VLine_ExternalAndInternal:
+                left += self.line_height * self.vertical_space
             elif self.columns > 1 and self.vertical_lineposition == \
-                 Question.Layout_VLine_Internal :
-                if column != 1 :
-                    left += self.lineHeight * self.vertical_space
-                
-        right = rect[1][0]  
-        if column != 0 :
-            if self.columns == 1 and self.vertical_lineposition  in \
-               (Question.Layout_VLine_Right, Question.Layout_VLine_LeftAndRight) :
-                right -= self.lineHeight * self.vertical_space   
+                    Question.Layout_VLine_Internal:
+                if column != 1:
+                    left += self.line_height * self.vertical_space
+
+        right = rect[1][0]
+        if column != 0:
+            if self.columns == 1 and self.vertical_lineposition in (
+                    Question.Layout_VLine_Right, Question.Layout_VLine_LeftAndRight):
+                right -= self.line_height * self.vertical_space
             elif self.columns > 1 and self.vertical_lineposition == \
-                 Question.Layout_VLine_ExternalAndInternal :
-                right -= self.lineHeight * self.vertical_space          
+                    Question.Layout_VLine_ExternalAndInternal:
+                right -= self.line_height * self.vertical_space
             elif self.columns > 1 and self.vertical_lineposition == \
-                 Question.Layout_VLine_Internal :
-                if column != self.columns :
-                    left -= self.lineHeight * self.vertical_space        
+                    Question.Layout_VLine_Internal:
+                if column != self.columns:
+                    left -= self.line_height * self.vertical_space
 
         return ((left, top), (right, bottom))
 
-    def drawColumns(self) :       
+    def draw_columns(self):
         column = 1
-        
-        if self.horizontalPriority > 0.5 :
+
+        if self.horizontal_priority > 0.5:
             pass
-        
-        for rect in self.rawFrames :
-            if (self.columns == 1 and self.vertical_lineposition in \
+
+        for rect in self.raw_frames:
+            if (self.columns == 1 and self.vertical_lineposition in
                 (Question.Layout_VLine_Left, Question.Layout_VLine_LeftAndRight)) or \
-               (self.columns > 1 and self.vertical_lineposition == \
+               (self.columns > 1 and self.vertical_lineposition ==
                 Question.Layout_VLine_ExternalAndInternal) or \
-               (self.columns > 1 and self.vertical_lineposition == \
-                Question.Layout_VLine_Internal and column != 1) :
-                line = (rect[0], (rect[0][0],rect[1][1]))
-                self.draw.drawLine(line, self.vertical_line_width, style=self.vertical_linestyle)                
-      
-            if (self.columns == 1 and self.vertical_lineposition  in \
+               (self.columns > 1 and self.vertical_lineposition ==
+                    Question.Layout_VLine_Internal and column != 1):
+                line = (rect[0], (rect[0][0], rect[1][1]))
+                self.draw.draw_line(
+                    line,
+                    self.vertical_line_width,
+                    style=self.vertical_linestyle)
+
+            if (self.columns == 1 and self.vertical_lineposition in
                 (Question.Layout_VLine_Right, Question.Layout_VLine_LeftAndRight)) or \
-               (self.columns > 1 and self.vertical_lineposition == \
+               (self.columns > 1 and self.vertical_lineposition ==
                 Question.Layout_VLine_ExternalAndInternal) or \
-               (self.columns > 1 and self.vertical_lineposition == \
-                Question.Layout_VLine_Internal and column != self.columns) :
-                line = ((rect[1][0],rect[0][1]), rect[1])
-                self.draw.drawLine(line, self.vertical_line_width, style=self.vertical_linestyle)    
-                    
-            column += 1    
-    
-    def generateLayout(self) :
+               (self.columns > 1 and self.vertical_lineposition ==
+                    Question.Layout_VLine_Internal and column != self.columns):
+                line = ((rect[1][0], rect[0][1]), rect[1])
+                self.draw.draw_line(
+                    line,
+                    self.vertical_line_width,
+                    style=self.vertical_linestyle)
+
+            column += 1
+
+    def generate_layout(self):
         available_width = self.width - self.left_margin - self.right_margin
         column_width = available_width / self.columns
-        available_height = self.height - self.top_margin - self.bottom_margin
-        
-        self.textFrames = []
-        self.rawFrames = []
-        
-        for i in range(self.columns) :
-            rect = (
-                ( self.left_margin + (i * column_width), self.top_margin),
-                ( self.left_margin + ((1 + i) * column_width), self.height - self.bottom_margin)
-            )
-            
-            self.rawFrames.append(rect)
-            textRect = rect # self.adjustRectForStyle(rect, i + 1)
-            self.textFrames.append(textRect)
+       
+        self.text_frames = []
+        self.raw_frames = []
 
-    def getCurrentWriteLocation(self) :
+        for i in range(self.columns):
+            rect = (
+                (self.left_margin + (i * column_width), self.top_margin),
+                (self.left_margin + ((1 + i) * column_width), self.height - self.bottom_margin)
+            )
+
+            self.raw_frames.append(rect)
+            text_rect = rect  # self.adjust_rect_for_style(rect, i + 1)
+            self.text_frames.append(text_rect)
+
+    def get_current_write_location(self):
         """
-        This should return a rectangle specifiying where to write the next 
-        question. 
+        This should return a rectangle specifiying where to write the next
+        question.
         """
-        if self.textFrames :
-            return self.textFrames[0]
-        else :
-            return None
+        if self.text_frames:
+            return self.text_frames[0]
         
-    def rectFitsInCurrentFrame(self, removeRect) :
-        height = removeRect[1][1] - removeRect[0][1]
-        currentFrame = self.textFrames[0]
-    
-        remainingHeight = currentFrame[1][1] - currentFrame[0][1]
-        return (height < remainingHeight)        
-    
-    def updateCurrentWriteLocation(self, removeRect) :
+    def rect_fits_in_current_frame(self, remove_rect):
+        height = remove_rect[1][1] - remove_rect[0][1]
+        current_frame = self.text_frames[0]
+
+        remaining_height = current_frame[1][1] - current_frame[0][1]
+        return height < remaining_height
+
+    def update_current_write_location(self, remove_rect):
         """
-        Remove rect specifies an area to remove from the available space, either 
+        Remove rect specifies an area to remove from the available space, either
         because a question has been written to it or because its too small to
         write the next question into.
         """
-        height = removeRect[1][1] - removeRect[0][1]
-        currentFrame = self.textFrames[0]
-        
-        remainingHeight = currentFrame[1][1] - currentFrame[0][1]
-        if height >= remainingHeight :
-            self.textFrames.remove(currentFrame)
-        else :
-            self.textFrames.remove(currentFrame)
-            self.textFrames.insert(0, ((currentFrame[0][0], currentFrame[0][1] + height) , currentFrame[1]))
-            
-    def drawHorizontalStyles(self, rect, isTop) :
-        height = 0 
+        height = remove_rect[1][1] - remove_rect[0][1]
+        current_frame = self.text_frames[0]
+
+        remaining_height = current_frame[1][1] - current_frame[0][1]
+        if height >= remaining_height:
+            self.text_frames.remove(current_frame)
+        else:
+            self.text_frames.remove(current_frame)
+            self.text_frames.insert(
+                0, ((current_frame[0][0], current_frame[0][1] + height), current_frame[1]))
+
+    def draw_horizontal_styles(self, rect, is_top):
         left = rect[0][0]
         right = rect[1][0]
-        line_gap = int(self.horizontal_space * self.lineHeight * 0.5)
-        if line_gap < self.minimumQuestionGap * 0.5 :
-            line_gap = self.minimumQuestionGap * 0.5 
-        
-        if self.horizontal_lineposition == Question.Layout_HLine_Top and isTop :
+        line_gap = int(self.horizontal_space * self.line_height * 0.5)
+        if line_gap < self.minimum_question_gap * 0.5:
+            line_gap = self.minimum_question_gap * 0.5
+
+        if self.horizontal_lineposition == Question.Layout_HLine_Top and is_top:
             line_top = rect[0][1]
-            self.draw.drawLine(((left, line_top), (right, line_top)), 
-                          self.horizontal_line_width, style=self.horizontal_linestyle)
-            
-        elif self.horizontal_lineposition == Question.Layout_HLine_Bottom and not isTop :
+            self.draw.draw_line(
+                ((left,
+                  line_top),
+                 (right,
+                  line_top)),
+                self.horizontal_line_width,
+                style=self.horizontal_linestyle)
+
+        elif self.horizontal_lineposition == Question.Layout_HLine_Bottom and not is_top:
             line_top = rect[0][1] + line_gap
-            self.draw.drawLine(((left, line_top), (right, line_top)), 
-                          self.horizontal_line_width, style=self.horizontal_linestyle)   
+            self.draw.draw_line(
+                ((left,
+                  line_top),
+                 (right,
+                  line_top)),
+                self.horizontal_line_width,
+                style=self.horizontal_linestyle)
 
         return line_gap + line_gap
- 
-    def createPage(self, name) :
+
+    def create_page(self, name):
         self.name = name
-        self.generatePage()
-        
-        questionNumber = random.randint(1,20)
-        while True :
-            rect = self.getCurrentWriteLocation()
-            if rect is None :
+        self.draw_page_background()
+
+        question_number = random.randint(1, 20)
+        while True:
+            rect = self.get_current_write_location()
+            if rect is None:
                 break
-            
-            new_rect, scan_rect = self.writeQuestion(questionNumber)
-            
-            if scan_rect and self.rectFitsInCurrentFrame(new_rect) :
-                self.questionTextFrames.append(scan_rect)
-                self.questionFrames.append(inflateRect(
-                    new_rect, self.lineHeight * 0.5, self.lineHeight * 0.5))
-                
-                if self.drawDebugRects :
+
+            new_rect, scan_rect = self.write_question(question_number)
+
+            if scan_rect and self.rect_fits_in_current_frame(new_rect):
+                self.question_text_frames.append(scan_rect)
+                self.question_frames.append(inflate_rect(
+                    new_rect, self.line_height * 0.5, self.line_height * 0.5))
+
+                if self.draw_debug_rects:
                     #self.draw.rectangle(scan_rect, outline="red")
                     self.draw.rectangle(new_rect, outline="blue")
-                    
-                questionNumber += 1
 
-            self.updateCurrentWriteLocation(new_rect)  
-             
-    def save(self, size = None) :
-        if size :
+                question_number += 1
+
+            self.update_current_write_location(new_rect)
+
+    def save(self, size=None):
+        if size:
             output_size = size
-        else :
+        else:
             output_size = self.options.get("outputSize")
-            
-        dirname = self.options.get("outputDir", "output")
-        
-        if self.options.get("saveTiles", False) :
-            self.saveTiles(dirname, output_size)
-        else :        
-            self.savePage(dirname)
-            
-    def savePage(self, dirname, size = None) :
-        filename = os.path.join(dirname, "{}.{}".format(self.name, self.imageFormat))
-        if size :
-            img = self.draw.save(filename, rect = ((0,0),(self.width, self.height)), resizeTo = size)
-            
-            questionFrames = resizeRects(self.questionFrames, (self.width, self.height), size)
-            questionTextFrames = resizeRects(self.questionTextFrames, (self.width, self.height), size)
-            
-            #Draw.debugRects(img, self.questionFrames, "1" + ".png")
-        else :
-            self.draw.save(filename) 
-            questionFrames = self.questionFrames
-            questionTextFrames = self.questionTextFrames
 
-        metaData = {
-            "enclosedQuestions" : questionFrames,
-            "enclosedText" : questionTextFrames,
-            "overlapQuestions" : questionFrames,
-            "overlapText" : questionTextFrames,
+        dirname = self.options.get("outputDir", "output")
+
+        if self.options.get("save_tiles", False):
+            self.save_tiles(dirname, output_size)
+        else:
+            self.save_page(dirname)
+
+    def save_page(self, dirname, size=None):
+        filename = os.path.join(
+            dirname, "{}.{}".format(
+                self.name, self.image_format))
+        if size:
+            img = self.draw.save(
+                filename, rect=(
+                    (0, 0), (self.width, self.height)), resize_to=size)
+
+            question_frames = resize_rects(
+                self.question_frames, (self.width, self.height), size)
+            question_text_frames = resize_rects(
+                self.question_text_frames, (self.width, self.height), size)
+
+            #Draw.debug_rects(img, self.question_frames, "1" + ".png")
+        else:
+            self.draw.save(filename)
+            question_frames = self.question_frames
+            question_text_frames = self.question_text_frames
+
+        meta_data = {
+            "enclosedQuestions": question_frames,
+            "enclosedText": question_text_frames,
+            "overlapQuestions": question_frames,
+            "overlapText": question_text_frames,
         }
 
-        self.saveMetaData(filename, metaData)
-            
-    def saveTiles(self, dirname, size) :
+        self.save_meta_data(filename, meta_data)
+
+    def save_tiles(self, dirname, size):
         increment = int((self.height - self.width) / 2)
-        
+
         tiles = [
-            ("top", ((0,0), (self.width, self.width))),
-            ("middle", ((0,increment), (self.width, self.width + increment))),
-            ("bottom", ((0,increment * 2), (self.width, self.width + (increment * 2)))),
+            ("top", ((0, 0), (self.width, self.width))),
+            ("middle", ((0, increment), (self.width, self.width + increment))),
+            ("bottom", ((0, increment * 2), (self.width, self.width + (increment * 2)))),
         ]
-        
-        for name, tile in tiles :
-            filename = os.path.join(dirname, "{}-{}.{}".format(self.name, name, self.imageFormat))
-  
+
+        for name, tile in tiles:
+            filename = os.path.join(
+                dirname, "{}-{}.{}".format(self.name, name, self.image_format))
+
             img = self.draw.save(filename, tile, size)
-            
-            offset = tile[0]
-    
-            questionFrames = resizeOffsetRects(self.questionFrames, tile[0], (self.width, self.width), size)
-            questionTextFrames = resizeOffsetRects(self.questionTextFrames, tile[0], (self.width, self.width), size)
-            
-            enclosedQuestionFrames = [r for r in questionFrames if rectEnclosedByRect(((0,0), size), r)]
-            enclosedQuestionTextFrames = [r for r in questionTextFrames if rectEnclosedByRect(((0,0), size), r)]
-            overlappedQuestionFrames = [r for r in questionFrames if overlapRect(((0,0), size), r)]
-            overlappedQuestionTextFrames = [r for r in questionTextFrames if overlapRect(((0,0), size), r)]   
-            
-            metaData = {
-                "enclosedQuestions" : enclosedQuestionFrames,
-                "enclosedText" : enclosedQuestionTextFrames,
-                "overlapQuestions" : overlappedQuestionFrames,
-                "overlapText" : overlappedQuestionTextFrames,                
+
+            question_frames = resize_offset_rects(
+                self.question_frames, tile[0], (self.width, self.width), size)
+            question_text_frames = resize_offset_rects(
+                self.question_text_frames, tile[0], (self.width, self.width), size)
+
+            enclosed_question_frames = [
+                r for r in question_frames if rect_enclosed_by_rect(
+                    ((0, 0), size), r)]
+            enclosed_question_text_frames = [
+                r for r in question_text_frames if rect_enclosed_by_rect(
+                    ((0, 0), size), r)]
+            overlapped_question_frames = [
+                r for r in question_frames if overlap_rect(
+                    ((0, 0), size), r)]
+            overlapped_question_text_frames = [
+                r for r in question_text_frames if overlap_rect(
+                    ((0, 0), size), r)]
+
+            meta_data = {
+                "enclosedQuestions": enclosed_question_frames,
+                "enclosedText": enclosed_question_text_frames,
+                "overlapQuestions": overlapped_question_frames,
+                "overlapText": overlapped_question_text_frames,
             }
 
-            #Draw.debugRects(img, questionTextFrames, filename + ".png")
-            self.saveMetaData(filename, metaData)
-                            
-    def saveMetaData(self, filename, metadata) :
-        metadata.update({
-            "width" : self.width,
-            "height" : self.height,
-            "filename" : os.path.basename(filename),
-        })
-        
-        with open(os.path.join("{}.json".format(os.path.splitext(filename)[0])), "w")  as jsonfile:  
-            json.dump(metadata, jsonfile, indent=2)         
+            #Draw.debug_rects(img, question_text_frames, filename + ".png")
+            self.save_meta_data(filename, meta_data)
 
-    def generateQuestionTexts(self) :
+    def save_meta_data(self, filename, metadata):
+        metadata.update({
+            "width": self.width,
+            "height": self.height,
+            "filename": os.path.basename(filename),
+        })
+
+        with open(os.path.join("{}.json".format(os.path.splitext(filename)[0])), "w") as jsonfile:
+            json.dump(metadata, jsonfile, indent=2)
+
+    def generate_question_texts(self):
         pass
-      
-    def writeQuestion(self, questionNumber) :
-        pass  
+
+    def write_question(self, question_number):
+        pass
