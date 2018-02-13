@@ -1,6 +1,8 @@
 import os
 import random
 import json
+import zipfile
+from io import BytesIO
 
 from dictionary_generator import TextGen
 from util import *
@@ -39,7 +41,7 @@ class Question(object):
     def __init__(self, name, options):
         super(Question, self).__init__()
 
-        self.name = name
+        self.name = str(name)
         self.options = options
         dimensions = options["dimensions"]
         self.width = dimensions[0]
@@ -442,6 +444,24 @@ class Question(object):
             json.dump(metadata, jsonfile, indent=2)
             
         os.rename(tmp_path, filepath)
+        
+    def get_meta_data_dict(self, filename = None) :
+        enclosed_question_frames = overlapped_question_frames = self.question_frames
+        enclosed_question_text_frames = overlapped_question_text_frames = self.question_text_frames
+            
+        meta_data = {
+            "enclosedQuestions": enclosed_question_frames,
+            "enclosedText": enclosed_question_text_frames,
+            "overlapQuestions": overlapped_question_frames,
+            "overlapText": overlapped_question_text_frames,            
+            "width": self.width,
+            "height": self.height
+        }
+        
+        if filename :
+            meta_data["filename"] = os.path.basename(filename)
+        
+        return meta_data
             
     @staticmethod
     def should_write(name, options) :
@@ -466,6 +486,23 @@ class Question(object):
                 return True  
             
         return False
+    
+    def as_zip(self) :
+        zipbuffer = BytesIO()
+        with zipfile.ZipFile(zipbuffer, 'w') as image_zip:
+            image_buffer = BytesIO()
+            self.draw.image.save(image_buffer, self.image_format.upper())
+            
+            image_zip.writestr(self.name + "." + self.image_format, 
+                           data = image_buffer.getvalue())  
+            
+            metadata = self.get_meta_data_dict()
+            json_buffer = json.dumps(metadata, indent=4)
+            image_zip.writestr(self.name + ".json", data = json_buffer)
+            
+            image_zip.filename = self.name + ".zip"
+            
+        return zipbuffer
 
     def generate_question_texts(self):
         pass

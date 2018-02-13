@@ -1,6 +1,7 @@
 import time
 import argparse
 import multiprocessing as mp
+import webserver
 
 from simple_question import SimpleQuestion
 
@@ -112,6 +113,10 @@ def main():
         "-x",
         "--overwrite",
         help="Overwrite existing files",
+        action="store_true") 
+    parser.add_argument(
+        "--daemon",
+        help="Instead of writing files to a directory, the process server images over HTTP",
         action="store_true")    
 
     parser.add_argument("count", type=int, help="Number of images to create")
@@ -133,7 +138,11 @@ def main():
     print("Tile: {save_tiles} dimensions {dimensions} => {outputSize} " \
           "output {outputDir} format {format}".format_map(options))
 
-    if args.process == 0:
+    if args.daemon :        
+        server = webserver.Webserver(args.process, args.count, options)
+        server.start_server()
+        
+    elif args.process == 0:
         for i in range(args.start, args.start + args.count) :
             print(make_question(str(i), options))
     else:
