@@ -6,13 +6,14 @@ import os
 from simple_question import SimpleQuestion
 
 class Webserver :
-    def __init__(self, num_process, queue_size, options) :
+    def __init__(self, num_process, queue_size, port, options) :
         self.queue_size = queue_size
         self.options = options
         self.num_process = num_process
         self.app = self.task_queue = self.done_queue = None
         self.image_counter = 1
-        
+        self.port = port
+         
     async def get_a_question(self, request):
                     
         try :
@@ -81,7 +82,7 @@ class Webserver :
         self.app.router.add_get('/', self.status)
         self.app.router.add_get('/question', self.get_a_question)
         
-        web.run_app(self.app)        
+        web.run_app(self.app, port = self.port)        
         
     def __setup_workers(self) :
         self.task_queue = mp.Queue(self.queue_size)

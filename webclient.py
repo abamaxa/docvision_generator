@@ -11,6 +11,7 @@ import os
 import io
 import requests
 import time
+import argparse
 
 class DaemonClient :
     def __init__(self, image_server_url, save_to_directory) :
@@ -71,5 +72,11 @@ class DaemonClient :
             
     
 if __name__ == '__main__' :
-    client = DaemonClient("http://localhost:8080/question", "www_output")
-    client.download_images(10)
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument("count", type=int, help="Number of images to download")
+    parser.add_argument("url",  help="url to download images from")
+    
+    args = parser.parse_args()    
+    client = DaemonClient(args.url, "www_output")
+    client.download_images(args.count)

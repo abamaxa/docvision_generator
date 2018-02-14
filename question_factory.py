@@ -109,11 +109,17 @@ def main():
         help="Index of first image",
         default=1)
     parser.add_argument(
-        "-p",
-        "--process",
+        "-n",
+        "--num-processes",
         type=int,
         help="Number of processes to spawn",
         default=4)
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        help="Port HTTP server listens on",
+        default=80)    
     parser.add_argument(
         "-f",
         "--format",
@@ -143,7 +149,7 @@ def main():
 
     if args.daemon :     
         print("Starting webserver, queue size {}".format(args.count))
-        server = webserver.Webserver(args.process, args.count, options)
+        server = webserver.Webserver(args.process, args.count, args.port, options)
         server.start_server()
     else :
         print("Writing images to: {outputDir} overwrite existing: {overwrite}".format_map(options))
