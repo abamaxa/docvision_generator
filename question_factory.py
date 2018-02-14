@@ -110,7 +110,7 @@ def main():
         default=1)
     parser.add_argument(
         "-n",
-        "--num-processes",
+        "--num_processes",
         type=int,
         help="Number of processes to spawn",
         default=4)
@@ -149,20 +149,21 @@ def main():
 
     if args.daemon :     
         print("Starting webserver, queue size {}".format(args.count))
-        server = webserver.Webserver(args.process, args.count, args.port, options)
+        server = webserver.Webserver(args.num_processes, args.count, 
+                                     args.port, args.start, options)
         server.start_server()
     else :
         print("Writing images to: {outputDir} overwrite existing: {overwrite}".format_map(options))
         print("Generating {} images starting at {}".format(args.count, args.start))
         
-        if args.process == 0:
+        if args.num_processes == 0:
             for i in range(args.start, args.start + args.count) :
                 print(make_question(str(i), options))
         else:
             mp.freeze_support()
     
             generate_questions(
-                args.process,
+                args.num_processes,
                 options,
                 args.start,
                 args.start +

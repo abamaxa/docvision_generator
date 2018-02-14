@@ -6,12 +6,12 @@ import os
 from simple_question import SimpleQuestion
 
 class Webserver :
-    def __init__(self, num_process, queue_size, port, options) :
+    def __init__(self, num_process, queue_size, port, first_image_number, options) :
         self.queue_size = queue_size
         self.options = options
         self.num_process = num_process
         self.app = self.task_queue = self.done_queue = None
-        self.image_counter = 1
+        self.image_number = first_image_number
         self.port = port
          
     async def get_a_question(self, request):
@@ -71,7 +71,7 @@ class Webserver :
         <a href="/question">Question</a>
         </body>
         </html>
-        """.format(task_size, done_size, self.image_counter)
+        """.format(task_size, done_size, self.image_number)
         
         return web.Response(content_type="html", text=html)
         
@@ -97,8 +97,8 @@ class Webserver :
     
           
     def __request_question(self) :
-        self.task_queue.put((Webserver.make_question, (self.image_counter, self.options))) 
-        self.image_counter += 1
+        self.task_queue.put((Webserver.make_question, (self.image_number, self.options))) 
+        self.image_number += 1
         
     @staticmethod  
     def worker(input_queue, output_queue):
