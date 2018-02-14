@@ -142,12 +142,12 @@ def main():
         print("Creating tiles of size {outputSize}".format_map(options))
 
     if args.daemon :     
-        print("Starting webserver, queue size {count}".format_map(options))
+        print("Starting webserver, queue size {}".format(args.count))
         server = webserver.Webserver(args.process, args.count, options)
         server.start_server()
     else :
         print("Writing images to: {outputDir} overwrite existing: {overwrite}".format_map(options))
-        print("Generating {count} images starting at {start}".format_map(options))
+        print("Generating {} images starting at {}".format(args.count, args.start))
         
         if args.process == 0:
             for i in range(args.start, args.start + args.count) :

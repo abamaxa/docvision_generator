@@ -1,7 +1,10 @@
-output/
-state/
-env/
+www_output
+output
+state
+env
 *.pyc
-__pycache__/
+__pycache__
 *.wpr
 *.wpu
+test_results
+.git

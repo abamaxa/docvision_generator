@@ -117,13 +117,13 @@ class Question(object):
         )
 
         hseps_positions = (
-            #(0.65, Question.Layout_HSep_None),
+            (0.65, Question.Layout_HSep_None),
             (0.9, Question.Layout_HLine_Bottom),
             (1.0, Question.Layout_HLine_Top),
         )
 
         vseps_positions = (
-            #(0.65, Question.Layout_VSep_None),
+            (0.65, Question.Layout_VSep_None),
             (0.85, Question.Layout_VLine_LeftAndRight),
             (0.93, Question.Layout_VLine_Left),
             (1.0, Question.Layout_VLine_Right),
@@ -159,7 +159,7 @@ class Question(object):
         self.text_color = generate_color(random.randint(4, 96))
 
         if random.random() > 0.7:
-            self.border_color = generate_color(random.randint(245, 255))
+            self.border_color = generate_color(random.randint(4, 96))
         else:
             self.border_color = self.text_color
 
@@ -217,24 +217,43 @@ class Question(object):
             pass
 
         for rect in self.raw_frames:
-            if (self.columns == 1 and self.vertical_lineposition in
-                (Question.Layout_VLine_Left, Question.Layout_VLine_LeftAndRight)) or \
-               (self.columns > 1 and self.vertical_lineposition ==
-                Question.Layout_VLine_ExternalAndInternal) or \
-               (self.columns > 1 and self.vertical_lineposition ==
-                    Question.Layout_VLine_Internal and column != 1):
+            draw_left_hand_side_vertical_line = False
+            
+            if self.columns == 1 and self.vertical_lineposition in \
+                (Question.Layout_VLine_Left, Question.Layout_VLine_LeftAndRight) :
+                draw_left_hand_side_vertical_line = True
+                
+            elif self.columns > 1 and self.vertical_lineposition == \
+                Question.Layout_VLine_ExternalAndInternal:
+                draw_left_hand_side_vertical_line = True
+                
+            elif self.columns > 1 and self.vertical_lineposition == \
+                    Question.Layout_VLine_Internal and column != 1:
+                draw_left_hand_side_vertical_line = True
+                
+            if draw_left_hand_side_vertical_line :
                 line = (rect[0], (rect[0][0], rect[1][1]))
                 self.draw.draw_line(
                     line,
                     self.vertical_line_width,
                     style=self.vertical_linestyle)
+                
+            draw_right_hand_side_vertical_line = False
 
-            if (self.columns == 1 and self.vertical_lineposition in
-                (Question.Layout_VLine_Right, Question.Layout_VLine_LeftAndRight)) or \
-               (self.columns > 1 and self.vertical_lineposition ==
-                Question.Layout_VLine_ExternalAndInternal) or \
-               (self.columns > 1 and self.vertical_lineposition ==
-                    Question.Layout_VLine_Internal and column != self.columns):
+
+            if self.columns == 1 and self.vertical_lineposition in \
+                (Question.Layout_VLine_Right, Question.Layout_VLine_LeftAndRight) :
+                draw_right_hand_side_vertical_line = True
+                
+            elif self.columns > 1 and self.vertical_lineposition == \
+                Question.Layout_VLine_ExternalAndInternal :
+                draw_right_hand_side_vertical_line = True
+                
+            elif self.columns > 1 and self.vertical_lineposition == \
+                    Question.Layout_VLine_Internal and column != self.columns:
+                draw_right_hand_side_vertical_line = True
+                
+            if draw_right_hand_side_vertical_line :
                 line = ((rect[1][0], rect[0][1]), rect[1])
                 self.draw.draw_line(
                     line,
@@ -468,6 +487,7 @@ class Question(object):
         if options.get("overwrite", False) :
             return True
         
+        name = str(name)
         dirname = options.get("outputDir", "output")
         image_format = options.get("format", "png")
 
@@ -505,6 +525,25 @@ class Question(object):
             image_zip.filename = filename
             
         return zipbuffer, filename
+    
+    def save_as_zip(self) :
+        dirname= self.options.get("outputDir", "output")
+        os.makedirs(dirname, exist_ok = True)
+        filename = os.path.join(dirname, self.name + ".zip")
+        
+        with zipfile.ZipFile(filename, 'w') as image_zip:
+            image_buffer = BytesIO()
+            self.draw.image.save(image_buffer, 
+                    self.image_format.upper() == "PNG" and "PNG" or "JPEG")
+            
+            image_zip.writestr(self.name + "." + self.image_format, 
+                           data = image_buffer.getvalue())  
+            
+            metadata = self.get_meta_data_dict()
+            json_buffer = json.dumps(metadata, indent=4)
+            image_zip.writestr(self.name + ".json", data = json_buffer)
+                        
+        return filename    
 
     def generate_question_texts(self):
         pass
