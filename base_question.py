@@ -479,7 +479,9 @@ class Question(object):
         
         if filename :
             meta_data["filename"] = os.path.basename(filename)
-        
+        else :
+            meta_data["filename"] = "{}.{}".format(self.name, self.image_format)
+            
         return meta_data
             
     @staticmethod
