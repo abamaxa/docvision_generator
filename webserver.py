@@ -1,7 +1,10 @@
-from aiohttp import web
 import multiprocessing as mp
 import queue
 import os
+
+from aiohttp import web
+import aiohttp_jinja2
+import jinja2
 
 from simple_question import SimpleQuestion
 
@@ -13,7 +16,7 @@ class Webserver :
         self.app = self.task_queue = self.done_queue = None
         self.image_number = first_image_number
         self.port = port
-         
+    
     async def get_a_question(self, request):
                     
         try :
@@ -54,7 +57,46 @@ class Webserver :
 
         return web.FileResponse(filename, headers=headers)
     
+    @aiohttp_jinja2.template('status.html')
     async def status(self, request) :
+        return self.__get_status()
+    
+    @aiohttp_jinja2.template('status.html')
+    async def update_config(self, request) :
+        data = await request.post()
+        error_message = None
+        try :
+            width = int(data['width'])
+            if width < 100 or width > 4000 :
+                raise ValueError("Image width must be between 100 and 4000")
+            
+            length = int(data['height'])
+            if length < 100 or length > 4000 :
+                raise ValueError("Image height must be between 100 and 4000")    
+            
+            tile_size = int(data["tile_size"])
+            if tile_size < 100 or tile_size > 4000 :
+                raise ValueError("Tile size must be between 100 and 4000")              
+            
+            self.options["dimensions"] = (width, length)
+            self.options["outputSize"] = (tile_size, tile_size)
+            self.options["format"] = data["format"]
+            if data.get("save_tiles") :
+                self.options["save_tiles"] = True
+            else :
+                self.options["save_tiles"] = False
+            
+        except Exception as exception :
+            error_message = str(exception)
+            
+        display = self.__get_status()
+        
+        if error_message :
+            display['error_message'] = error_message
+            
+        return display
+    
+    def __get_status(self) :
         try :
             task_size = self.task_queue.qsize()
             done_size = self.done_queue.qsize()
@@ -62,25 +104,29 @@ class Webserver :
             task_size = -1
             done_size = -1
             
-        html = """
-        <html>
-        <body>
-        Task Queue length: {}<br>
-        Done Queue length: {}<br>
-        Image no: {}<br>
-        <a href="/question">Question</a>
-        </body>
-        </html>
-        """.format(task_size, done_size, self.image_number)
-        
-        return web.Response(content_type="html", text=html)
+        display = {
+            "task_queue_size": task_size,
+            "done_queue_size": done_size,
+            "image_number" : self.image_number,
+            "width" : self.options["dimensions"][0],
+            "height" : self.options["dimensions"][1],
+            "tile_size" : self.options["outputSize"][0],
+            "format" : self.options["format"],
+            "save_tiles" : self.options["save_tiles"],
+        }
+
+        return display        
         
     def start_server(self) :
         self.__setup_workers()
         
         self.app = web.Application()
         self.app.router.add_get('/', self.status)
+        self.app.router.add_post('/', self.update_config)
         self.app.router.add_get('/question', self.get_a_question)
+        
+        aiohttp_jinja2.setup(
+            self.app, loader=jinja2.FileSystemLoader('templates'))        
         
         web.run_app(self.app, port = self.port)        
         

@@ -5,3 +5,4 @@ pylint
 requests
 six
 aiohttp
+aiohttp_jinja2

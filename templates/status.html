@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Question Generator Daemon Status</title>
+  </head>
+  <body>
+    <div class="container">
+      <h3>Question Generator Daemon Status</h3>
+      <hr>
+      {% if error_message %}
+      <div class="alert alert-danger" role="alert">
+      <h4>Could not save changes</h4>
+        {{ error_message }}
+      </div>
+      <hr>
+      {% endif %}
+      <form action="/" method="post">
+        <div class="form-group row">
+          <label for="task_queue" class="col-sm-6 col-form-label">Task Queue Size</label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="task_queue" placeholder="{{ task_queue_size }}" readonly>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="done_queue" class="col-sm-6 col-form-label">Done Queue Size</label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="done_queue" placeholder="{{ done_queue_size }}" readonly>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="image_number" class="col-sm-6 col-form-label">Images Generated</label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="image_number" name="image_number"
+            placeholder="{{ image_number }}" readonly>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="width" class="col-sm-6 col-form-label">Image Width</label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="width" name="width"
+            placeholder="Enter the width of the image to generate in pixels" value="{{ width }}">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="height" class="col-sm-6 col-form-label">Image Height</label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="height" name="height"
+            placeholder="Enter the height of the image to generate in pixels" value="{{ height }}">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="format" class="col-sm-6 col-form-label">Format</label>
+          <div class="col-sm-6">
+            <select class="form-control" id="format" name="format"
+            placeholder="Enter the file format to generate">
+            <option {% if format=="png" %} selected {% endif %}>png</option>
+            <option {% if format=="jpg" %} selected {% endif %}>jpg</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="save_tiles" class="col-sm-6 col-form-label">Split Image Into 3 Square Tiles</label>
+          <div class="col-sm-6">
+            <input type="checkbox" class="form-control align-bottom form-control-lg" 
+            id="save_tiles" name="save_tiles"
+            placeholder="Enter the file format to generate"{% if save_tiles %} checked {% endif %}">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="format" class="col-sm-6 col-form-label">Resize Tiles To Size</label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="tile_size" name="tile_size"
+            placeholder="Enter the size in pixels to resize each tile to" value="{{ tile_size }}">
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col">
+             <a class="btn btn-primary float-right col-lg-6" href="/question">Download</a>
+          </div>
+          <div class="col">
+            <button type="submit" class="btn btn-primary col-lg-6">Save</button>
+          </div>
+        </div>          
+      </form>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>

@@ -100,7 +100,6 @@ ENV/
 *.mp4
 *.MP4
 *.pdf
-*.html
 
 *.zip
 *.wpr

@@ -15,29 +15,32 @@ import argparse
 import json
 
 class DaemonClient :
+    MAX_ACTIVE_REQUESTS = 100
+    MAX_PENDING_REQUESTS = 10000
+    
     def __init__(self, image_server_url, save_to_directory, verbose = False) :
         self.image_server_url = image_server_url
         self.save_to_directory = save_to_directory
         self.images_downloaded = 0
-        self.http_session = None
         self.image_filename = 1
         self.verbose = verbose
         
         os.makedirs(save_to_directory, exist_ok=True)
         
-    async def __init_http_sesssion(self) :
-        self.http_session = aiohttp.ClientSession() 
+
+    async def __download_image(self, http_session) :
+        if self.__has_finished() :
+            return
         
-    async def __download_image(self) :
-        if self.http_session is None :
-            await self.__init_http_sesssion()
-            
-        async with self.http_session.get(self.image_server_url) as response :
+        async with http_session.get(self.image_server_url) as response :            
             if response.content_type == "application/zip" and response.status == 200 :
                 self.__extract_files_from_zip(
                     io.BytesIO(await response.read()), response.headers)
                  
     def __extract_files_from_zip(self, zip_bytes_file_obj, headers) :   
+        if self.__has_finished() :
+            return
+        
         m = re.search('filename="(\d+\.zip)"', headers.get('Content-Disposition'))
         if m :
             zip_filename = m.group(1)
@@ -117,26 +120,52 @@ class DaemonClient :
         else :
             print(response.text)
             
+    def __has_finished(self) :
+        return self.number_of_images_to_get < self.images_downloaded
+            
+    async def __bound_fetch(self, rate_limiter, http_session):
+        # Getter function with semaphore.
+        async with rate_limiter:
+            await self.__download_image(http_session)    
+            
+    async def __runner(self) :
+        tasks = []
+        # create instance of Semaphore
+        rate_limiter = asyncio.Semaphore(DaemonClient.MAX_ACTIVE_REQUESTS)
+    
+        # Create client session that will ensure we dont open new connection
+        # per each request.
+        async with aiohttp.ClientSession() as http_session:
+            request_remaining = self.number_of_images_to_get - self.images_downloaded
+            for _ in range(min(DaemonClient.MAX_PENDING_REQUESTS, request_remaining)) :
+                # pass Semaphore and session to every GET request
+                task = asyncio.ensure_future(self.__bound_fetch(rate_limiter, http_session))
+                tasks.append(task)
+    
+            responses = asyncio.gather(*tasks)
+            await responses
+            
     def download_images(self, first_image_filename, number_of_images_to_get) : 
         self.image_filename = first_image_filename
+        self.number_of_images_to_get = number_of_images_to_get
         self.images_downloaded = 0
         
         try :
             start_time = time.time()
-            
             loop = asyncio.get_event_loop()
-         
-            while self.images_downloaded  < number_of_images_to_get :
-                loop.run_until_complete(self.__download_image())
-              
-            loop.run_until_complete(self.http_session.close())  
-            loop.close()   
-                       
+
+            while self.images_downloaded  < self.number_of_images_to_get :
+                future = asyncio.ensure_future(self.__runner())
+                loop.run_until_complete(future)                        
+                                                 
             print("Downloaded {} images in {:.2f} seconds".format(
                 number_of_images_to_get, time.time() - start_time))
             
         except aiohttp.client_exceptions.ClientConnectionError as connect_error :
             print("Unable to connect to an image server at", self.image_server_url)
+            
+        finally :
+            loop.close()
             
     
 if __name__ == '__main__' :
