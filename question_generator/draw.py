@@ -200,7 +200,7 @@ class Draw:
         if self.draw:
             del self.draw
             self.draw = None
-
+            
     @staticmethod
     def debug_rects(img, rectangles, save_as_file):
         draw = ImageDraw.Draw(img)
