@@ -10,32 +10,28 @@ class Draw:
     AlignJustify = 3
 
     def __init__(self, state):
-        self.question_state = state
+        self.params = state
         self.image = None
         self.font = None
         self.draw = None
         self.measure_only = False
 
     def init_image(self):
-        self.image = Image.new('RGB', self.get_image_size())
+        self.image = Image.new('RGBA', self.get_image_size(), (0,0,0,0))
 
     def create_draw(self):
         self.cleanup()
 
         self.font = ImageFont.truetype(
-            "fonts/" + self.question_state.font_name,
-            self.question_state.font_size)
+            "fonts/" + self.params.font_name,
+            self.params.font_size)
         self.draw = ImageDraw.Draw(self.image)
 
     def get_line_height(self):
         return self.draw.textsize("Hg", font=self.font)[1]
 
-    def draw_background(self):
-        self.draw.rectangle(((0, 0), self.get_image_size()),
-                            fill=self.question_state.background_color)
-
     def get_image_size(self):
-        return (self.question_state.width, self.question_state.height)
+        return (self.params.width, self.params.height)
 
     def set_measure_only_mode(self, mode):
         self.measure_only = mode
@@ -48,19 +44,19 @@ class Draw:
         if not self.measure_only:
             self.draw.line(
                 points,
-                fill=self.question_state.border_color,
+                fill=self.params.border_color,
                 width=width)
 
     def draw_question_circle(self, top_left):
         if not self.measure_only:
-            extra = int(self.question_state.font_size * 0.2)
+            extra = int(self.params.font_size * 0.2)
             point = ((top_left[0] - extra,
                       top_left[1] - extra),
-                     (top_left[0] + self.question_state.line_height + extra,
-                      top_left[1] + self.question_state.line_height + extra))
+                     (top_left[0] + self.params.line_height + extra,
+                      top_left[1] + self.params.line_height + extra))
             self.draw.ellipse(point,
-                              fill=self.question_state.question_fill_color,
-                              outline=self.question_state.border_color)
+                              fill=self.params.question_fill_color,
+                              outline=self.params.border_color)
 
     def __render_text(
             self,
@@ -119,7 +115,7 @@ class Draw:
         if force_color:
             text_color = force_color
         else:
-            text_color = self.question_state.text_color
+            text_color = self.params.text_color
 
         words = text.split(' ')
         word_list = []
@@ -156,7 +152,7 @@ class Draw:
                         position, line_width, word_list, align, text_color)
 
                 total_line_height = int(
-                    text_height * self.question_state.line_spacing)
+                    text_height * self.params.line_spacing)
                 position = (position[0], position[1] + total_line_height)
                 total_height += total_line_height
 
@@ -170,6 +166,24 @@ class Draw:
             word_list.append(word)
 
         return total_height
+    
+    def draw_horizontal_styles(self, rect, is_top):
+        left = rect[0][0]
+        right = rect[1][0]
+        
+        if self.params.has_top_column_line() and is_top:
+            line_top = rect[0][1]
+            self.draw_line(((left, line_top), (right,line_top)),
+                                self.params.horizontal_line_width,
+                                style=self.params.horizontal_linestyle)
+
+        elif self.params.has_bottom_column_line() and not is_top:
+            line_top = rect[1][1]
+            self.draw_line(((left,line_top), (right, line_top)),
+                                self.params.horizontal_line_width,
+                                style=self.params.horizontal_linestyle)
+
+        return self.params.get_horizontal_padding()
 
     def save(self, filename, rect=None, resize_to=None):
         os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -182,18 +196,21 @@ class Draw:
         img.save(filename)
         
         return img
-
-    def copy_rect(self, rect, resize_to):
+            
+    def get_image(self) :
+        return self.image
+    
+    def copy_rect(self, rect, color):
         img = Image.new(
             'RGB',
             (rect[1][0] -
              rect[0][0],
              rect[1][1] -
-             rect[0][1]))
+             rect[0][1]), color)
         img_src = self.image.crop(
             (rect[0][0], rect[0][1], rect[1][0], rect[1][1]))
-        img.paste(img_src)
-        img = img.resize(resize_to, Image.BILINEAR)
+        img.paste(img_src, (0,0), img_src)
+        
         return img
 
     def cleanup(self):

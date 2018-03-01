@@ -13,6 +13,7 @@ import requests
 import time
 import argparse
 import json
+import logging
 
 class DaemonClient :
     MAX_ACTIVE_REQUESTS = 100
@@ -31,11 +32,13 @@ class DaemonClient :
     async def __download_image(self, http_session) :
         if self.__has_finished() :
             return
-        
-        async with http_session.get(self.image_server_url) as response :            
+
+        async with http_session.get(self.image_server_url) as response :   
             if response.content_type == "application/zip" and response.status == 200 :
                 self.__extract_files_from_zip(
                     io.BytesIO(await response.read()), response.headers)
+            elif response.status == 200 :
+                logging.info("Request for image failed:", response.status, response.content_type)
                  
     def __extract_files_from_zip(self, zip_bytes_file_obj, headers) :   
         if self.__has_finished() :
@@ -54,22 +57,28 @@ class DaemonClient :
             
             for zip_item in zip_item_list :
                 self.__extract_file(image_zip, zip_item, save_as_filename_map)
-                        
-        self.__update_file_counters() 
-        
+            
     def __map_filenames(self, zip_item_list) :
         save_as_filename_map = {}
+        stem_to_id_map = {}
         
         for zip_item in zip_item_list :
             stem, extension = os.path.splitext(zip_item.filename)
             
+            if stem in stem_to_id_map :
+                stem_name = stem_to_id_map[stem]
+            else :
+                stem_name = str(self.image_filename)
+                stem_to_id_map[stem] = stem_name
+                self.__update_file_counters()
+            
             save_as_filename = os.path.join(
                 self.save_to_directory, 
-                "{}{}".format(str(self.image_filename), extension))     
+                "{}{}".format(stem_name, extension))     
             
             save_as_filename_map[zip_item.filename] = save_as_filename
             
-        return save_as_filename_map
+        return save_as_filename_map    
         
     def __extract_file(self, zip_file, zip_item, save_as_filename_map) :
         save_as_filename = save_as_filename_map[zip_item.filename]
@@ -84,7 +93,7 @@ class DaemonClient :
             self.__save_image_file(zip_item_bytes, save_as_filename)
         
         if self.verbose :
-            print("Extracting {} to {}".format(zip_item.filename, save_as_filename))                
+            logging.info("Extracting {} to {}".format(zip_item.filename, save_as_filename))                
     
     def __update_json_filename_entry(self, zip_item_bytes, save_as_filename_map) :
         json_data = json.loads(zip_item_bytes)
@@ -102,7 +111,7 @@ class DaemonClient :
         self.images_downloaded += 1
         
         if self.images_downloaded % 100 == 0 :
-            print("Downloaded {} images".format(self.images_downloaded))
+            logging.info("Downloaded {} images".format(self.images_downloaded))
             
     def __save_json_file(self, json_string, save_as_filename) :
         with open(save_as_filename, "w") as output_file :
@@ -118,7 +127,7 @@ class DaemonClient :
         if response.status_code == 200 :
             self.__save_image_zip(io.BytesIO(response.content), response.headers)
         else :
-            print(response.text)
+            logging.info(response.text)
             
     def __has_finished(self) :
         return self.number_of_images_to_get < self.images_downloaded
@@ -158,11 +167,11 @@ class DaemonClient :
                 future = asyncio.ensure_future(self.__runner())
                 loop.run_until_complete(future)                        
                                                  
-            print("Downloaded {} images in {:.2f} seconds".format(
+            logging.info("Downloaded {} images in {:.2f} seconds".format(
                 number_of_images_to_get, time.time() - start_time))
             
         except aiohttp.client_exceptions.ClientConnectionError as connect_error :
-            print("Unable to connect to an image server at", self.image_server_url)
+            logging.error("Unable to connect to an image server at", self.image_server_url)
             
         finally :
             loop.close()
@@ -180,6 +189,10 @@ if __name__ == '__main__' :
     parser.add_argument("url",  help="url to download images from")
     
     args = parser.parse_args()    
+    
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s - %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     
     client = DaemonClient(args.url, "www_output", args.verbose)
     client.download_images(args.start, args.count)

@@ -1,13 +1,16 @@
 # Use an official Python runtime as a parent image
-FROM python:3.6-slim
+FROM python:3.6
 
 WORKDIR /question_factory
 
 # Copy the current directory contents into the container at /app
-ADD . /question_factory
+ADD requirements.txt /question_factory
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+# Copy the current directory contents into the container at /app
+ADD . /question_factory
 
 # Make port 80 available to the world outside this container
 EXPOSE 80

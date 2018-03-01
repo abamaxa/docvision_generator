@@ -1,28 +1,34 @@
 import time
 import argparse
 import multiprocessing as mp
-import webserver
+import logging
 
-from simple_question import SimpleQuestion
+from question_generator import SimpleQuestion, FilePersistence, Webserver
+from augmention import ImgAugAugmentor, ImageTiler
 
 def worker(input_queue, output_queue):
     for func, args in iter(input_queue.get, 'STOP'):
         result = func(*args)
         output_queue.put(result)
 
-
 def make_question(idno, options):
-    if not SimpleQuestion.should_write(idno, options) :
-        return (idno, 0)
-    
     start = time.time()
 
+    persister = FilePersistence(idno, options)
     question = SimpleQuestion(idno, options)
+    
     question.create_page()
-    question.save()
+    
+    tiler = ImageTiler(question, options)
+    augmentor = ImgAugAugmentor(question, tiler, options)
+    
+    for aug_image, aug_frames in augmentor :
+        persister.save_image(aug_image, aug_frames)
+    
+    #for _ in range(10) :
+    #    persister.save_image(*tiler.get_tile())
 
-    return (idno, time.time() - start)
-
+    return (persister.get_count(), time.time() - start)
 
 def generate_questions(num_process, options, start_no, end_no):
     start = time.time()
@@ -45,9 +51,9 @@ def generate_questions(num_process, options, start_no, end_no):
     total_time = 0.0
 
     for _ in range(len(tasks)):
-        _, time_taken = done_queue.get()
+        count, time_taken = done_queue.get()
         total_time += float(time_taken)
-        counter += 1
+        counter += count
         if counter % 500 == 0:
             print(
                 "Generated {} images, average {:.2f} seconds per image".format(
@@ -89,13 +95,13 @@ def main():
         "--width",
         type=int,
         help="Width of generated image",
-        default=600)
+        default=1275)
     parser.add_argument(
         "-l",
         "--height",
         type=int,
         help="Height of generated image",
-        default=1000)
+        default=1755)
     parser.add_argument(
         "-d",
         "--dimension",
@@ -121,12 +127,16 @@ def main():
         help="Port HTTP server listens on",
         default=80)    
     parser.add_argument(
+        "-a",
+        "--augmentation_file",
+        help="JSON file containing parameters for the augmentor",
+        default="augmentation.json")        
+    parser.add_argument(
         "-f",
         "--format",
         help="File format to generate, png (default) or jpg",
         default="png")
    
-
     parser.add_argument("count", type=int, help="Number of images to create or queue size if in daemon mode")
 
     args = parser.parse_args()
@@ -140,7 +150,10 @@ def main():
         "outputSize": (args.dimension, args.dimension),
         # outputSize" : (600,int(600 * (1755 / 1275)),
         "save_tiles": args.tile,
-        "overwrite": args.overwrite
+        "overwrite": args.overwrite,
+        "augmentation_file" : args.augmentation_file,
+        "draw_debug_rects" : False,
+        "draw_final_rects" : True
     }
 
     print("Image dimensions: {dimensions} format: {format}".format_map(options))
@@ -149,7 +162,7 @@ def main():
 
     if args.daemon :     
         print("Starting webserver, queue size {}".format(args.count))
-        server = webserver.Webserver(args.num_processes, args.count, 
+        server = Webserver(args.num_processes, args.count, 
                                      args.port, args.start, options)
         server.start_server()
     else :

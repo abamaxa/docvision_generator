@@ -2,214 +2,183 @@ import random
 import string
 from functools import partial
 
-from draw import Draw
-from base_question import Question
+from .draw import Draw
+from .base_question import Question
 
+class Paragraph :
+    def __init__(self, question, rect, question_number, paragraph, subparagraph, endparagraph) :
+        self.height_consumed = 0
+        self.params = question.params
+        self.draw = question.draw
+        self.rect = rect
+        self.text_rect = self.params.adjust_rect(self.rect)
+        self.width = self.text_rect[1][0] - self.text_rect[0][0]
+        self.question_text_rect = None
+        self.question_number = question_number
+        self.paragraph = paragraph
+        self.subparagraph = subparagraph
+        self.endparagraph = endparagraph
+        
+        self.should_draw_question_number = True
+               
+    def reset(self) :
+        self.height_consumed = 0
+        
+    def write_question_header(self):
+        self.height_consumed += self.draw.draw_horizontal_styles(self.rect, True)
+    
+    def write_question_footer(self):
+        bottom_rect = self.calculate_area_consumed()
 
-class SimpleQuestion(Question):
-    ROMAN_DIGITS = [
-        "i",
-        "ii",
-        "iii",
-        "iv",
-        "v",
-        "vi",
-        "vii",
-        "viii",
-        "ix",
-        "x",
-        "xi"
-        "xii",
-        "xiii",
-        "xiv",
-        "xv"]
-
-    def generate_page(self):
-        super(SimpleQuestion, self).generate_page()
-
-        self.para_margin = int(random.choice(
-            [0, 2.2 * self.line_height, 1.8 * self.line_height]))
-        self.sub_para_prefix = int(random.randint(0, 2) * self.line_height * 0.3)
-        if self.para_margin:
-            self.sub_para_margin = int(self.para_margin)
-        else:
-            self.sub_para_margin = int(random.choice(
-                [0, 2.2 * self.line_height, 1.8 * self.line_height]))
-
-        self.sub_para_terminator = random.choice([".", ")", ")."])
-        if random.random() < 0.5:
-            self.sub_para_digits = string.ascii_lowercase
-        else:
-            self.sub_para_digits = SimpleQuestion.ROMAN_DIGITS
-
-    def get_horizontal_padding(self):
-        return self.vertical_space * self.line_height * 0.5
-
-    def get_text_rect(self, rect):
-        hspace = self.get_horizontal_padding()
-        return ((rect[0][0] + hspace, rect[0][1]),
-                (rect[1][0] - hspace, rect[1][1]))
-
-    def write_question_header(self, rect):
-        text_rect = self.get_text_rect(rect)
-
-        return self.draw_horizontal_styles(text_rect, True)
-
-    def write_question_footer(self, rect, height_consumed):
-        text_rect = self.get_text_rect(rect)
-
-        bottom_rect = (
-            (text_rect[0][0],
-             rect[0][1] +
-                height_consumed),
-            text_rect[1])
-
-        return self.draw_horizontal_styles(bottom_rect, False)
-
-    def write_paragraphs(
-        self,
-        rect,
-        question_number,
-        paragraph,
-        subparagraph,
-        endparagraph,
-        height_consumed):
-        text_rect = self.get_text_rect(rect)
-
-        width = text_rect[1][0] - text_rect[0][0]
-        paragraph_number = 0
-        text_height = 0
-        top = text_rect[0][1] + height_consumed
-
-        for text in paragraph:
-            left = text_rect[0][0] + self.para_margin
-            offset = 0
-            if paragraph_number == 0:
-                if self.para_margin == 0:
-                    self.draw.draw_question_circle(
-                        (text_rect[0][0], top + text_height))
-                    offset = self.font_size * 1.5
-                    number_color = self.background_color
-                else:
-                    number_color = self.text_color
-
-                self.draw.draw_text(
-                    (text_rect[0][0],
-                     top + text_height),
-                    width,
-                    str(question_number) + ".",
-                    Draw.AlignLeft,
-                    force_color=number_color)
-
-            text_height += self.draw.draw_text((
-                left,
-                top + text_height),
-                width - self.para_margin,
-                text,
-                self.text_align,
-                first_line_offset=offset)
-
-            paragraph_number += 1
-            if paragraph_number != len(paragraph) or (subparagraph or endparagraph):
-                text_height += self.para_spacing
-
-        paragraph_number = 0
-        for text in subparagraph:
-            if self.sub_para_margin:
-                self.draw.draw_text(
-                    (text_rect[0][0] +
-                     self.para_margin +
-                     self.sub_para_prefix,
-                     top +
-                     text_height),
-                    width -
-                    self.para_margin -
-                    self.sub_para_prefix,
-                    self.sub_para_digits[paragraph_number] +
-                    self.sub_para_terminator,
-                    self.text_align)
-
-            text_height += self.draw.draw_text(
-                (text_rect[0][0] +
-                 self.para_margin +
-                 self.sub_para_prefix +
-                 self.sub_para_margin,
-                 top +
-                 text_height),
-                width -
-                self.para_margin -
-                self.sub_para_prefix -
-                self.sub_para_margin,
-                text,
-                self.text_align)
-
-            paragraph_number += 1
-            if paragraph_number != len(subparagraph) or endparagraph:
-                text_height += self.para_spacing
-
-        paragraph_number = 0
-        for text in endparagraph:
-            text_height += self.draw.draw_text((
-                text_rect[0][0] + self.para_margin,
-                top + text_height),
-                width - self.para_margin,
-                text,
-                self.text_align)
-
-            paragraph_number += 1
-            if paragraph_number != len(endparagraph):
-                text_height += self.para_spacing
-
-        scan_rect = \
-        (
+        self.height_consumed += self.draw.draw_horizontal_styles(bottom_rect, False)
+        
+    def write_paragraphs(self):
+        initial_consumed = self.height_consumed
+        
+        self.__write_main_paragraphs()
+        self.__write_sub_paragraphs()
+        self.__write_end_paragraphs()
+         
+        self.question_text_rect = (
             (
-                text_rect[0][0] - self.line_height * 0.5, 
-                text_rect[0][1] + height_consumed - self.line_height * 0.5
+                self.text_rect[0][0] - self.params.line_height * 0.5, 
+                self.text_rect[0][1] + initial_consumed - self.params.line_height * 0.5
             ), 
             (
-                text_rect[1][0] + self.line_height * 0.5, 
-                text_rect[0][1] + height_consumed + text_height + self.line_height * 0.5
+                self.text_rect[1][0] + self.params.line_height * 0.5, 
+                self.text_rect[0][1] + self.height_consumed + self.params.line_height * 0.5
             ), 
         )
+        
+        
+    def __write_main_paragraphs(self) :
+        paragraph_number = 0
 
-        return scan_rect, text_height
+        for text in self.paragraph:
+            offset = 0
+            if paragraph_number == 0:
+                offset = self.__draw_question_number()
+    
+            self.__draw_paragraph_text(text, offset)
+                
+            paragraph_number += 1
+            if paragraph_number != len(self.paragraph) or (self.subparagraph or self.endparagraph):
+                self.height_consumed += self.params.para_spacing
 
-    def calculate_area_consumed(self, rect, height_consumed):
-        return (rect[0], (rect[1][0], rect[0][1] + height_consumed))
+    def __write_sub_paragraphs(self) :    
+        paragraph_number = 0
+        for text in self.subparagraph:
+            self.__draw_sub_question_number(paragraph_number)
+            self.__draw_sub_paragraph_text(text)
+    
+            paragraph_number += 1
+            if paragraph_number != len(self.subparagraph) or self.endparagraph:
+                self.height_consumed += self.params.para_spacing
+                
+    def __write_end_paragraphs(self) :
+        paragraph_number = 0
+        for text in self.endparagraph:
+            self.__draw_paragraph_text(text)
+            
+            paragraph_number += 1
+            if paragraph_number != len(self.endparagraph):
+                self.height_consumed += self.params.para_spacing
+                
+    def __draw_paragraph_text(self, text, offset = 0) :
+        self.height_consumed += self.draw.draw_text(
+            (self.get_left(), self.get_top()),
+            self.get_paragraph_width(), 
+            text, 
+            self.params.text_align, 
+            first_line_offset=offset)      
+        
+    def __draw_sub_paragraph_text(self, text) :
+        self.height_consumed += self.draw.draw_text(
+                (self.get_left_sub_paragraph_margin(), self.get_top()),
+                self.get_sub_paragraph_width(), text, self.params.text_align)    
+    
+        
+    def __draw_sub_question_number(self, paragraph_number) :
+        if not self.params.sub_para_margin:
+            return
+        
+        self.draw.draw_text(
+                (self.get_left_sub_paragraph_prefix(), self.get_top()),
+                self.get_sub_paragraph_prefix_width(),
+                self.get_sub_paragraph_number(paragraph_number),
+                self.params.text_align)        
+    
+    def __draw_question_number(self) :
+        offset = 0
+        if not self.should_draw_question_number :
+            return offset
 
-    def write_simple_question(self, number, rect, text):
+        if self.params.para_margin == 0:
+            self.draw.draw_question_circle(
+                (self.text_rect[0][0], self.get_top()))
+            offset = self.params.font_size * 1.5
+            number_color = self.params.number_color
+        else:
+            number_color = self.params.text_color
+
+        self.draw.draw_text(
+            (self.text_rect[0][0], self.get_top()),
+            self.width,
+            str(self.question_number) + ".",
+            Draw.AlignLeft,
+            force_color=number_color)
+
+        return offset
+                
+    
+    def get_left(self) :
+        return self.text_rect[0][0] + self.params.para_margin
+    
+    def get_top(self) :
+        return self.text_rect[0][1] + self.height_consumed
+    
+    def get_left_sub_paragraph_prefix(self) :
+        return self.get_left() + self.params.sub_para_prefix
+    
+    def get_left_sub_paragraph_margin(self) :
+        return self.get_left_sub_paragraph_prefix() + self.params.sub_para_margin
+    
+    def get_paragraph_width(self) :
+        return self.width - self.params.para_margin 
+    
+    def get_sub_paragraph_prefix_width(self) :
+        return self.get_paragraph_width() - self.params.sub_para_prefix
+    
+    def get_sub_paragraph_width(self) :
+        return self.get_sub_paragraph_prefix_width() - self.params.sub_para_margin    
+    
+    def get_sub_paragraph_number(self, paragraph_number) :
+        return self.params.sub_para_digits[paragraph_number] + self.params.sub_para_terminator
+    
+    def calculate_area_consumed(self):
+        bottom = self.question_text_rect[1][1] + self.params.get_vertical_padding()
+        return (self.rect[0], (self.rect[1][0], bottom))
+
+    def write_simple_question(self):
         """
         Number = 1-20, a-g
         Usually in a margin but can be indented.
         Often bold and followed by dot or bracket.
         """
-        height = self.write_question_header(rect)
+        self.write_question_header()
+        self.write_paragraphs()
+        self.write_question_footer()
 
-        scan_rect, text_height = self.write_paragraphs(
-            rect, number, text, [], [], height)
+        return self.calculate_area_consumed(), self.question_text_rect
 
-        height += text_height
-        height += self.write_question_footer(rect, height)
+    def write_multipart_question(self):
+        self.write_question_header()
+        self.write_paragraphs()
+        self.write_question_footer()
 
-        return self.calculate_area_consumed(rect, height), scan_rect
+        return self.calculate_area_consumed(), self.question_text_rect    
 
-    def write_multipart_question(
-            self,
-            number,
-            rect,
-            text,
-            subparagraph,
-            endparagraph):
-        height = self.write_question_header(rect)
-
-        scan_rect, text_height = self.write_paragraphs(
-            rect, number, text, subparagraph, endparagraph, height)
-
-        height += text_height
-        height += self.write_question_footer(rect, height)
-
-        return self.calculate_area_consumed(rect, height), scan_rect
-
+class SimpleQuestion(Question):
     def generate_question_texts(self, sentence=False):
         if sentence:
             return self.generator.generate_sentence()[2]
@@ -241,19 +210,19 @@ class SimpleQuestion(Question):
             if trys < 2 and random.random() < 0.5:
                 endparagraph.append(self.generate_question_texts())
 
+            paragraph_generator = Paragraph(self, rect, question_number, 
+                                           paragraph, 
+                                           subparagraph, 
+                                           endparagraph)
             if subparagraph or endparagraph:
-                func = partial(self.write_multipart_question, question_number,
-                               rect, paragraph, subparagraph, endparagraph)
+                func = partial(paragraph_generator.write_multipart_question)
             else:
-                func = partial(
-                    self.write_simple_question,
-                    question_number,
-                    rect,
-                    paragraph)
+                func = partial(paragraph_generator.write_simple_question)
 
             new_rect, scan_rect = func()
             if self.rect_fits_in_current_frame(new_rect):
                 self.set_measure_only_mode(False)
+                paragraph_generator.reset()
                 new_rect, scan_rect = func()
                 break
 

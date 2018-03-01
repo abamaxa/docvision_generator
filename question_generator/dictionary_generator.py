@@ -14,11 +14,13 @@ class TextGen:
     @classmethod
     def get_generator(cls):
         if cls.sentences is None:
-            with gzip.open("wordlist.txt.gz", "rt", encoding="utf-8") as fin:
+            word_path = TextGen.get_data_file_path("wordlist.txt.gz")
+            with gzip.open(word_path, "rt", encoding="utf-8") as fin:
                 cls.sentences = fin.readlines()
 
         if cls.dictionary is None:
-            with gzip.open("worddict.json.gz", "rt", encoding="utf-8") as fjson:
+            json_path = TextGen.get_data_file_path("worddict.json.gz")
+            with gzip.open(json_path, "rt", encoding="utf-8") as fjson:
                 cls.dictionary = json.load(fjson)
 
         sample = random.randint(0, len(cls.sentences) - 1)
@@ -27,6 +29,11 @@ class TextGen:
         generator = Generator(sentence, cls.dictionary)
 
         return generator
+    
+    @staticmethod
+    def get_data_file_path(filename) :
+        data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
+        return os.path.join(data_dir, filename)
 
     @staticmethod
     def clean_word_list():

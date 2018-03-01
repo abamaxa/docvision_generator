@@ -6,3 +6,8 @@ requests
 six
 aiohttp
 aiohttp_jinja2
+imgaug
+numpy
+opencv-python
+scikit-image
+scipy

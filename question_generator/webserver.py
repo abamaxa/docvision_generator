@@ -6,7 +6,10 @@ from aiohttp import web
 import aiohttp_jinja2
 import jinja2
 
-from simple_question import SimpleQuestion
+from .simple_question import SimpleQuestion
+from .question_persist import ZipBufferPersistence
+
+from augmention import ImgAugAugmentor, ImageTiler
 
 class Webserver :
     def __init__(self, num_process, queue_size, port, first_image_number, options) :
@@ -16,9 +19,9 @@ class Webserver :
         self.app = self.task_queue = self.done_queue = None
         self.image_number = first_image_number
         self.port = port
+        self.image_count = 0
     
-    async def get_a_question(self, request):
-                    
+    async def get_a_question(self, request):   
         try :
             # Don't block, this method can sometimes raise a queue.Empty
             # exception while waiting for the multiprocess background thread
@@ -126,7 +129,7 @@ class Webserver :
         self.app.router.add_get('/question', self.get_a_question)
         
         aiohttp_jinja2.setup(
-            self.app, loader=jinja2.FileSystemLoader('templates'))        
+            self.app, loader=jinja2.FileSystemLoader('question_generator/templates'))        
         
         web.run_app(self.app, port = self.port)        
         
@@ -154,11 +157,20 @@ class Webserver :
     
     @staticmethod  
     def make_question(idno, options):
+        persister = ZipBufferPersistence(idno, options)
         question = SimpleQuestion(idno, options)
+        
         question.create_page()
-            
-        zip_file_object, filename = question.as_zip()  
-        #filename = question.save_as_zip()
+        persister.save(question)
+
+        filename = persister.get_zip_filename()
+        
+        tiler = ImageTiler(question, options)
+        augmentor = ImgAugAugmentor(question, tiler, options)
+        
+        for aug_image, aug_frames in augmentor :
+            persister.save_image(aug_image, aug_frames)   
+            self.image_count += 1
+        
         print("Completed:", filename)
-        return zip_file_object, filename
-        #return filename
+        return persister.get_zip_buffer(), filename
