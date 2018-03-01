@@ -161,8 +161,7 @@ class Webserver :
         question = SimpleQuestion(idno, options)
         
         question.create_page()
-        persister.save(question)
-
+        
         filename = persister.get_zip_filename()
         
         tiler = ImageTiler(question, options)
@@ -170,7 +169,6 @@ class Webserver :
         
         for aug_image, aug_frames in augmentor :
             persister.save_image(aug_image, aug_frames)   
-            self.image_count += 1
-        
+            
         print("Completed:", filename)
         return persister.get_zip_buffer(), filename

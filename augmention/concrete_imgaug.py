@@ -2,6 +2,7 @@ import imgaug as ia
 from imgaug import augmenters as iaa
 from PIL import Image
 import numpy as np
+import cv2
 
 from .base_augmentor import *
 
@@ -87,7 +88,8 @@ class ImgAugAugmentor(AbstractAugmentor) :
     
     def resize(self) :
         final_size = self.options.get("outputSize")
-        return iaa.Scale({"height": final_size[0], "width": final_size[1]})
+        return iaa.Scale({"height": final_size[0], "width": final_size[1]},
+                         interpolation=cv2.INTER_CUBIC)
                         
     def convert_image_to_numpy(self) :
         (im_width, im_height) = self.image.size
