@@ -141,7 +141,7 @@ class Paragraph :
         return self.get_left() + self.params.sub_para_prefix
     
     def get_left_sub_paragraph_margin(self) :
-        return self.get_left_sub_paragraph_prefix() + self.params.sub_para_margin
+        return self.get_left_sub_paragraph_prefix() + self.params.sub_para_margin_left
     
     def get_paragraph_width(self) :
         return self.width - self.params.para_margin 
@@ -150,7 +150,8 @@ class Paragraph :
         return self.get_paragraph_width() - self.params.sub_para_prefix
     
     def get_sub_paragraph_width(self) :
-        return self.get_sub_paragraph_prefix_width() - self.params.sub_para_margin    
+        return self.get_sub_paragraph_prefix_width() - \
+               self.params.sub_para_margin_left - self.params.sub_para_margin_right
     
     def get_sub_paragraph_number(self, paragraph_number) :
         return self.params.sub_para_digits[paragraph_number] + self.params.sub_para_terminator

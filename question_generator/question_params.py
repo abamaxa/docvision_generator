@@ -104,11 +104,16 @@ class QuestionParams(dict):
         
         self.para_margin = 0
         self.sub_para_prefix = None
-        self.sub_para_margin = 0
+        self.sub_para_margin_left = 0
+        self.sub_para_margin_right = 0
         self.sub_para_terminator = None
-        self.sub_para_digits = None            
+        self.sub_para_digits = None     
+        
+        self.embedded_image_frames = []
 
     def generate_random_parameters(self):
+        self.is_maths_question = random.choice((True, False))
+        
         self.left_margin = self.width * (0.03 + (0.05 * random.random()))
         self.right_margin = self.width * (0.03 + (0.05 * random.random()))
         self.top_margin = self.height * (0.04 + (0.05 * random.random()))
@@ -208,30 +213,59 @@ class QuestionParams(dict):
 
         #self.line_height = draw.get_line_height()
         self.generate_random_paragraph_features()
+        self.generate_embedded_image_frames()
         
         self.debug_dump()
 
-    def generate_random_paragraph_features(self) :        
-        self.para_margin = int(random.choice(
-                [0, 2.2 * self.line_height, 1.8 * self.line_height]))
+    def generate_random_paragraph_features(self) :  
+        para_margin = (
+            (0.80, 0),
+            (0.90, 2.2 * self.line_height),
+            (1.00, 1.8 * self.line_height),
+        )        
+        self.para_margin = int(pick_from_list(para_margin))
         self.sub_para_prefix = int(random.randint(0, 2) * self.line_height * 0.3)
         if self.para_margin:
-            self.sub_para_margin = int(self.para_margin)
+            sub_para_margin = (
+                (0.80, self.para_margin),
+                (1.00, self.para_margin + (random.random() * self.get_column_width() / 3)),
+            )               
+            self.sub_para_margin_left = int(pick_from_list(sub_para_margin))
+            self.sub_para_margin_right = self.sub_para_margin_left
         else:
-            self.sub_para_margin = int(random.choice(
+            self.sub_para_margin_left = int(random.choice(
                     [0, 2.2 * self.line_height, 1.8 * self.line_height]))
-    
+            self.sub_para_margin_right = self.sub_para_margin_left
+            
+            
         self.sub_para_terminator = random.choice([".", ")", ")."])
         if random.random() < 0.5:
             self.sub_para_digits = string.ascii_lowercase
         else:
-            self.sub_para_digits = ROMAN_DIGITS        
+            self.sub_para_digits = ROMAN_DIGITS    
+            
+    def generate_embedded_image_frames(self) :
+        if self.is_maths_question :
+            prob = 0.6
+        else :
+            prob = 0.2
+            
+        for i in range(20) :
+            if random.random() < prob :
+                width = self.get_column_width() * (0.5 + (0.5 * random.random()))
+                height = width * (0.7 + (0.6 * random.random()))       
+                self.embedded_image_frames.append((width, height))
+            else :
+                self.embedded_image_frames.append(None)
+            
+    def get_column_width(self) :
+        return self.get_available_width() / self.columns
 
     def get_available_width(self):
         return self.width - self.left_margin - self.right_margin
 
     def get_column_rect(self, column_number):
-        column_width = self.get_available_width() / self.columns
+        column_width = self.get_column_width()
 
         return (
             (self.left_margin + (column_number * column_width), self.top_margin),

@@ -46,6 +46,13 @@ class Draw:
                 points,
                 fill=self.params.border_color,
                 width=width)
+            
+    def draw_circle(self, points, width=1, style=None):
+        if not self.measure_only:
+            self.draw.line(
+                points,
+                fill=self.params.border_color,
+                width=width)    
 
     def draw_question_circle(self, top_left):
         if not self.measure_only:
@@ -102,7 +109,7 @@ class Draw:
         elif not self.measure_only:
             self.draw.text(write_position, " ".join(word_list),
                            font=self.font, fill=text_color)
-
+            
     def draw_text(
             self,
             position,
