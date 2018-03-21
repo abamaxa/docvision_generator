@@ -99,7 +99,7 @@ class Paragraph :
     
         
     def __draw_sub_question_number(self, paragraph_number) :
-        if not self.params.sub_para_margin:
+        if not self.params.sub_para_margin_left:
             return
         
         self.draw.draw_text(

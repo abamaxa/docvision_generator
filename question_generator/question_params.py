@@ -52,7 +52,16 @@ ROMAN_DIGITS = [
     "xiv",
     "xv"]
 
-
+# This class is starting to merge parameters applicable to individual questions
+# with parameters that apply to the whole document. This is adding to complexity
+# - need seperate question/document parameters. Also, could layout be more 
+# within the domain of individual questions to allow pages where some questios are 
+# in columns but others cut across page.
+# Perhaps a question template file, with a set of parameters that are randomised
+# and then rendered.
+#
+# Commands: text(location/length), graphic(location/content), drawing(relative position/parameters)
+#
 class QuestionParams(dict):
     def __init__(self, name, options):
         super(QuestionParams, self).__init__()

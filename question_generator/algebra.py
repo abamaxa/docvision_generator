@@ -1,0 +1,1 @@
+# ./tex2png -T -s 2000 -c "$\sum_{i=0}^\infty x_i$" -o test.png

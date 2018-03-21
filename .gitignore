@@ -113,3 +113,6 @@ output*/
 .bin
 .vscode/
 www_output/
+
+.DS_Store
+._.DS_Store
