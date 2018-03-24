@@ -224,6 +224,7 @@ class QuestionParams(dict):
         self.generate_random_paragraph_features()
         self.generate_embedded_image_frames()
         
+        self.padding = random.randint(int(self.line_height / 4), self.line_height * 2)
         self.debug_dump()
 
     def generate_random_paragraph_features(self) :  
@@ -370,4 +371,10 @@ class QuestionParams(dict):
         filepath = os.path.join(dirname, filename)
         with open(filepath, "w") as dump_file :
             json.dump(self, dump_file, indent=4)
+            
+    def generate_question_texts(self, sentence=False):
+        if sentence:
+            return self.generator.generate_sentence()[2]
+        else:
+            return self.generator.generate_sentence()[2]    
     

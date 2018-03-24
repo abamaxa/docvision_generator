@@ -1,4 +1,4 @@
-from base_question import Question
+from base_question import Page
     
 import matplotlib
 

@@ -1,0 +1,26 @@
+{
+"name" : "simple",
+"question" : {
+    "border_probability" : 0.5,
+    "elements" : [
+        {
+            "class" : "Text",
+            "sentences" : {"min": 1, "max": 3},
+            "bold_words_probability" : 0.1,
+            "bold_words_count" : [1,5]
+        },
+        {
+            "class" : "Text",
+            "sentences" : {"min": 1, "max": 3},
+            "bold_words_probability" : 0.1,
+            "bold_words_count" : 0.1
+        },
+        {
+            "class" : "Text",
+            "sentences" : [1,2],
+            "bold_words_probability" : 0.1,
+            "bold_words_count" : 0.1
+        }       
+    ]
+}
+}

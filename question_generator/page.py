@@ -10,10 +10,10 @@ from .util import *
 from .draw import Draw
 from .question_params import QuestionParams
 
-class Question(object):
+class Page(object):
     def __init__(self, name, options):
-        super(Question, self).__init__()
-
+        super(Page, self).__init__()
+        self._draw = None
         self.name = str(name)
         self.options = options
         self.params = QuestionParams(self.name, self.options)
@@ -26,13 +26,17 @@ class Question(object):
 
         self.generate_page()
 
+    @property
+    def draw(self) :
+        return self._draw
+    
     def generate_page(self):        
         self.params.generate_random_parameters()
         self.generator = TextGen.get_generator()
         
-        self.draw = Draw(self.params)
-        self.draw.init_image()        
-        self.draw.create_draw()    
+        self._draw = Draw(self.params)
+        self._draw.init_image()        
+        self._draw.create_draw()    
         
         self.generate_layout()
        
@@ -40,7 +44,7 @@ class Question(object):
         self.draw_columns()        
 
     def set_measure_only_mode(self, mode):
-        self.draw.measure_only = mode
+        self._draw.measure_only = mode
 
     def draw_columns(self):
         params = self.params
@@ -49,12 +53,12 @@ class Question(object):
         for rect in self.frames:
             if self.params.has_left_column_line(column) :
                 line = (rect[0], (rect[0][0], rect[1][1]))
-                self.draw.draw_line(line, params.vertical_line_width,
+                self._draw.draw_line(line, params.vertical_line_width,
                                     style=params.vertical_linestyle)
  
             if self.params.has_right_column_line(column) :
                 line = ((rect[1][0], rect[0][1]), rect[1])
-                self.draw.draw_line(line, params.vertical_line_width,
+                self._draw.draw_line(line, params.vertical_line_width,
                                     style=params.vertical_linestyle)
                 
             column += 1
@@ -100,7 +104,7 @@ class Question(object):
     
     def create_page(self):
         self.draw_page_background()
-        inflate_by = self.draw.get_line_height() * 0.5
+        inflate_by = self._draw.get_line_height() * 0.5
         
         question_number = random.randint(1, 20)
         while True:
@@ -116,8 +120,8 @@ class Question(object):
                     new_rect, inflate_by, inflate_by))
 
                 if self.options.get("draw_debug_rects") :
-                    self.draw.rectangle(scan_rect, outline="red")
-                    self.draw.rectangle(new_rect, outline="blue")
+                    self._draw.rectangle(scan_rect, outline="red")
+                    self._draw.rectangle(new_rect, outline="blue")
 
                 question_number += 1
 
@@ -128,10 +132,17 @@ class Question(object):
         pass
     
     def get_image(self) :
-        return self.draw.get_image()    
+        return self._draw.get_image()    
      
     def get_frames(self) :
         return {
             "text" : self.question_text_frames,
             "question" : self.question_frames,
         }
+    
+    def get_sentences(self, count):
+        return self.generator.generate_sentence()[count]
+    
+    def get_words(self, count):
+        return self.generator.generate_sentence()[count]    
+        

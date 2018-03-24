@@ -6,7 +6,7 @@ from aiohttp import web
 import aiohttp_jinja2
 import jinja2
 
-from .simple_question import SimpleQuestion
+from .simple_page import SimpleQuestion
 from .question_persist import ZipBufferPersistence
 
 from augmention import ImgAugAugmentor, ImageTiler

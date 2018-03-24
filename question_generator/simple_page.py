@@ -3,7 +3,7 @@ import string
 from functools import partial
 
 from .draw import Draw
-from .base_question import Question
+from .page import Page
 
 class Paragraph :
     def __init__(self, question, rect, question_number, paragraph, subparagraph, endparagraph) :
@@ -179,7 +179,7 @@ class Paragraph :
 
         return self.calculate_area_consumed(), self.question_text_rect    
 
-class SimpleQuestion(Question):
+class SimpleQuestion(Page):
     def generate_question_texts(self, sentence=False):
         if sentence:
             return self.generator.generate_sentence()[2]

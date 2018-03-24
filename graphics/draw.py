@@ -2,6 +2,7 @@ import os
 
 from PIL import Image, ImageDraw, ImageFont
 
+from .text_renderer import TextRender
 
 class Draw:
     AlignLeft = 0
@@ -35,6 +36,13 @@ class Draw:
 
     def set_measure_only_mode(self, mode):
         self.measure_only = mode
+        
+    def get_measure_only_mode(self):
+        return self.measure_only
+        
+    @property
+    def line_spacing(self) :
+        return self.params.line_spacing
 
     def rectangle(self, points, fill=None, outline=None):
         if not self.measure_only:
@@ -52,8 +60,14 @@ class Draw:
             self.draw.line(
                 points,
                 fill=self.params.border_color,
-                width=width)    
-
+                width=width)  
+            
+    def draw_text_line(self, position, text, text_color) :
+        if self.measure_only:
+            return
+            
+        self.draw.text(position, text, text_color, self.font)
+            
     def draw_question_circle(self, top_left):
         if not self.measure_only:
             extra = int(self.params.font_size * 0.2)
@@ -65,6 +79,9 @@ class Draw:
                               fill=self.params.question_fill_color,
                               outline=self.params.border_color)
 
+    def text_size(self, text) :
+        return self.draw.textsize(text, font=self.font)
+    
     def __render_text(
             self,
             position,
@@ -174,6 +191,18 @@ class Draw:
 
         return total_height
     
+    def calculate_text_height(self, width, text, align=AlignLeft, first_line_offset=0) :
+        try :
+            initial_mode = measure_only
+            self.draw.set_measure_only_mode(True)
+            return draw_text((0,0),
+            width,
+            text,
+            align=AlignLeft,
+            first_line_offset)
+        finally :
+            self.draw.set_measure_only_mode(initial_mode)    
+    
     def draw_horizontal_styles(self, rect, is_top):
         left = rect[0][0]
         right = rect[1][0]
@@ -231,3 +260,5 @@ class Draw:
         for rect in rectangles:
             draw.rectangle(rect, outline="red")
         img.save(save_as_file)
+
+

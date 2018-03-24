@@ -25,9 +25,6 @@ def make_question(idno, options):
     for aug_image, aug_frames in augmentor :
         persister.save_image(aug_image, aug_frames)
     
-    #for _ in range(10) :
-    #    persister.save_image(*tiler.get_tile())
-
     return (persister.get_count(), time.time() - start)
 
 def generate_questions(num_process, options, start_no, end_no):
@@ -84,7 +81,6 @@ def main():
         "--daemon",
         help="Instead of writing files to a directory, the process server images over HTTP",
         action="store_true") 
-    
     parser.add_argument(
         "-o",
         "--output",
@@ -136,6 +132,11 @@ def main():
         "--format",
         help="File format to generate, png (default) or jpg",
         default="png")
+    parser.add_argument(
+        "-e",
+        "--experimental",
+        help="Try code that is work in progress",
+        action="store_true")     
    
     parser.add_argument("count", type=int, help="Number of images to create or queue size if in daemon mode")
 
@@ -145,10 +146,7 @@ def main():
         "format": args.format,
         "outputDir": args.output,
         "dimensions": (args.width, args.height),
-        #"dimensions" : (300, 424),
-        #"dimensions" : (1275, 1755),
         "outputSize": (args.dimension, args.dimension),
-        # outputSize" : (600,int(600 * (1755 / 1275)),
         "save_tiles": args.tile,
         "overwrite": args.overwrite,
         "augmentation_file" : args.augmentation_file,
@@ -160,7 +158,11 @@ def main():
     if args.tile :
         print("Creating tiles of size {outputSize}".format_map(options))
 
-    if args.daemon :     
+    if args.experimental :
+        import question_generator.constructed_page as experimental
+        experimental.make_question("test", options)
+        
+    elif args.daemon :     
         print("Starting webserver, queue size {}".format(args.count))
         server = Webserver(args.num_processes, args.count, 
                                      args.port, args.start, options)
