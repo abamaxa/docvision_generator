@@ -7,7 +7,7 @@ import abc
 
 from .dictionary_generator import TextGen
 from .util import *
-from .draw import Draw
+from graphics import Draw
 from .question_params import QuestionParams
 
 class Page(object):
@@ -16,7 +16,7 @@ class Page(object):
         self._draw = None
         self.name = str(name)
         self.options = options
-        self.params = QuestionParams(self.name, self.options)
+        self._params = QuestionParams(self.name, self.options)
         
         self.frames = []   
         self.question_frames = []
@@ -30,11 +30,15 @@ class Page(object):
     def draw(self) :
         return self._draw
     
+    @property
+    def parameters(self) :
+        return self._params
+    
     def generate_page(self):        
-        self.params.generate_random_parameters()
+        self.parameters.generate_random_parameters()
         self.generator = TextGen.get_generator()
         
-        self._draw = Draw(self.params)
+        self._draw = Draw(self.parameters)
         self._draw.init_image()        
         self._draw.create_draw()    
         
@@ -44,19 +48,19 @@ class Page(object):
         self.draw_columns()        
 
     def set_measure_only_mode(self, mode):
-        self._draw.measure_only = mode
+        self._draw.measure_only_mode = mode
 
     def draw_columns(self):
-        params = self.params
+        params = self.parameters
         column = 1
 
         for rect in self.frames:
-            if self.params.has_left_column_line(column) :
+            if self.parameters.has_left_column_line(column) :
                 line = (rect[0], (rect[0][0], rect[1][1]))
                 self._draw.draw_line(line, params.vertical_line_width,
                                     style=params.vertical_linestyle)
  
-            if self.params.has_right_column_line(column) :
+            if self.parameters.has_right_column_line(column) :
                 line = ((rect[1][0], rect[0][1]), rect[1])
                 self._draw.draw_line(line, params.vertical_line_width,
                                     style=params.vertical_linestyle)
@@ -64,8 +68,8 @@ class Page(object):
             column += 1
 
     def generate_layout(self):
-        for i in range(self.params.columns):
-            rect = self.params.get_column_rect(i)
+        for i in range(self.parameters.columns):
+            rect = self.parameters.get_column_rect(i)
 
             self.frames.append(rect)
            
@@ -120,8 +124,8 @@ class Page(object):
                     new_rect, inflate_by, inflate_by))
 
                 if self.options.get("draw_debug_rects") :
-                    self._draw.rectangle(scan_rect, outline="red")
-                    self._draw.rectangle(new_rect, outline="blue")
+                    self._draw.draw_rectangle(scan_rect, outline="red")
+                    self._draw.draw_rectangle(new_rect, outline="blue")
 
                 question_number += 1
 
@@ -141,8 +145,10 @@ class Page(object):
         }
     
     def get_sentences(self, count):
-        return self.generator.generate_sentence()[count]
+        generator = self.generator.generate_sentences(count)
+        sentences = [sentence[2] for sentence in generator]
+        return " ".join(sentences)
     
     def get_words(self, count):
-        return self.generator.generate_sentence()[count]    
+        return self.generator.generate_sentence()[2][:count]    
         

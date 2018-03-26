@@ -15,12 +15,5 @@ class Question(Container) :
         self.width = page.parameters.get_column_width()
         super().update_page_parameters(page)
         
-    def layout(self, bounds) :
-        pass    
-        
-    def layout(self, bounds) :
-        for child in self._children :
-            pass
-              
     def get_height(self) :
         pass

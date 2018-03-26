@@ -1,5 +1,5 @@
 import unittest
-from bounds import Size, Origin, Bounds
+from graphics.bounds import Size, Origin, Bounds
 
 class BoundsTest(unittest.TestCase) :
     def setUp(self):
@@ -23,6 +23,11 @@ class BoundsTest(unittest.TestCase) :
             self.assertEqual(bounds.height, 10)
             self.assertEqual(bounds.size, Size(20, 10))
             self.assertNotEqual(bounds.size, Size(0, 0))
+            
+    def test_bounds_x2y2(self):
+        bounds = Bounds(5,5,15,5)
+        self.assertEqual(bounds.x2, 20)
+        self.assertEqual(bounds.y2, 10)   
             
     def test_bounds_str(self):
         self.assertEqual(str(self.bounds[0]), "x: 0 y: 0 Width: 20 Height: 10")
@@ -77,7 +82,24 @@ class BoundsTest(unittest.TestCase) :
             self.assertTrue(bounds.overlap_bounds(test_enclosed))
             self.assertTrue(bounds.overlap_bounds(test_in))
             self.assertTrue(bounds.overlap_bounds(test_out))        
-            self.assertFalse(bounds.overlap_bounds(test_far))  
+            self.assertFalse(bounds.overlap_bounds(test_far)) 
+            
+    def test_iterator(self) :
+        test_size = Size(1,2)
+        a,b = test_size
+        self.assertEqual(a,1)
+        self.assertEqual(b,2)
+        
+        test_origin = Size(3,4)
+        a,b = test_origin
+        self.assertEqual(a,3)
+        self.assertEqual(b,4)
+        
+        test_bounds = Bounds(1,2,3,4)
+        a,b = test_bounds
+        self.assertEqual(a,Origin(1,2))
+        self.assertEqual(b,Size(3,4))  
+        
 
 if __name__ == '__main__':
     unittest.main()

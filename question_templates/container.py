@@ -26,8 +26,12 @@ class Container(Drawable) :
     
     def layout(self, bounds) :
         super().layout(bounds)
+        y = self.bounds.y
+        bounds = self.bounds
         for child in self._children :
             child.layout(bounds)   
+            bounds = child.bounds.move(0, child.bounds.height)
+            
     
     def render(self, draw) :
         super().render(draw)

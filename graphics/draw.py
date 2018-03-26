@@ -2,7 +2,7 @@ import os
 
 from PIL import Image, ImageDraw, ImageFont
 
-from .text_renderer import TextRender
+from .text_renderer import TextRenderer
 
 class Draw:
     AlignLeft = 0
@@ -15,7 +15,7 @@ class Draw:
         self.image = None
         self.font = None
         self.draw = None
-        self.measure_only = False
+        self._measure_only = False
 
     def init_image(self):
         self.image = Image.new('RGBA', self.get_image_size(), (0,0,0,0))
@@ -35,41 +35,43 @@ class Draw:
         return (self.params.width, self.params.height)
 
     def set_measure_only_mode(self, mode):
-        self.measure_only = mode
+        self._measure_only = mode
         
     def get_measure_only_mode(self):
-        return self.measure_only
+        return self._measure_only
+    
+    measure_only_mode = property(get_measure_only_mode, set_measure_only_mode)
         
     @property
     def line_spacing(self) :
         return self.params.line_spacing
 
-    def rectangle(self, points, fill=None, outline=None):
-        if not self.measure_only:
+    def draw_rectangle(self, points, fill=None, outline=None):
+        if not self.measure_only_mode:
             self.draw.rectangle(points, fill, outline)
 
     def draw_line(self, points, width=1, style=None):
-        if not self.measure_only:
+        if not self.measure_only_mode:
             self.draw.line(
                 points,
                 fill=self.params.border_color,
                 width=width)
             
     def draw_circle(self, points, width=1, style=None):
-        if not self.measure_only:
+        if not self.measure_only_mode:
             self.draw.line(
                 points,
                 fill=self.params.border_color,
                 width=width)  
             
     def draw_text_line(self, position, text, text_color) :
-        if self.measure_only:
+        if self.measure_only_mode:
             return
             
         self.draw.text(position, text, text_color, self.font)
             
     def draw_question_circle(self, top_left):
-        if not self.measure_only:
+        if not self.measure_only_mode:
             extra = int(self.params.font_size * 0.2)
             point = ((top_left[0] - extra,
                       top_left[1] - extra),
@@ -117,13 +119,13 @@ class Draw:
                 if jw_count == len(word_list):
                     curx = position[0] + line_width - jwidth
 
-                if not self.measure_only:
+                if not self.measure_only_mode:
                     self.draw.text((curx, position[1]), justify_word,
                                    font=self.font, fill=text_color)
 
                 curx += jwidth + extra_space
 
-        elif not self.measure_only:
+        elif not self.measure_only_mode:
             self.draw.text(write_position, " ".join(word_list),
                            font=self.font, fill=text_color)
             
@@ -191,17 +193,14 @@ class Draw:
 
         return total_height
     
-    def calculate_text_height(self, width, text, align=AlignLeft, first_line_offset=0) :
+    def calculate_text_height(self, width, text) :
+        initial_mode = self.measure_only_mode
         try :
-            initial_mode = measure_only
-            self.draw.set_measure_only_mode(True)
-            return draw_text((0,0),
-            width,
-            text,
-            align=AlignLeft,
-            first_line_offset)
+            self.set_measure_only_mode(True)
+            return self.draw_text((0,0), width, text)
+        
         finally :
-            self.draw.set_measure_only_mode(initial_mode)    
+            self.set_measure_only_mode(initial_mode)    
     
     def draw_horizontal_styles(self, rect, is_top):
         left = rect[0][0]
@@ -222,7 +221,9 @@ class Draw:
         return self.params.get_horizontal_padding()
 
     def save(self, filename, rect=None, resize_to=None):
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        dirname = os.path.dirname(filename)
+        if dirname :
+            os.makedirs(dirname, exist_ok=True)
 
         if rect is None and resize_to is None:
             img = self.image

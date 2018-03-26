@@ -1,12 +1,30 @@
+from abc import abstractmethod
+
 class Object(object) :
+    def __init__(self) :
+        self._counter = 0
+        
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
         else:
             return False    
+        
+    def __iter__(self):
+        self._counter = 0
+        return self    
+    
+    def __next__(self):
+        return self.next()        
+    
+    @abstractmethod
+    def next(self):
+        raise StopIteration
+
 
 class Size(Object) :
     def __init__(self, width = None, height = None) :
+        super().__init__()
         self._width = width
         self._height = height
         
@@ -18,15 +36,20 @@ class Size(Object) :
     def height(self) :
         return self._height
     
-    @property
-    def as_tuple(self) :
-        return (self.width, self.height)
-    
     def __repr__(self) :
         return "Width: {} Height: {}".format(self.width, self.height)
     
+    def next(self):
+        self._counter += 1
+        if self._counter == 1 :
+            return self._width
+        elif self._counter == 2 :
+            return self._height
+        raise StopIteration    
+    
 class Origin(Object) :
     def __init__(self, x = None, y = None) :
+        super().__init__()
         self._x = x
         self._y = y
         
@@ -41,17 +64,26 @@ class Origin(Object) :
     def __repr__(self) :
         return "x: {} y: {}".format(self.x, self.y)    
     
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict__
-        else:
-            return False    
+    def next(self):
+        self._counter += 1
+        if self._counter == 1 :
+            return self._x
+        elif self._counter == 2 :
+            return self._y
+        raise StopIteration        
+           
    
 class Bounds(Object) :
-    def __init__(self, x = None, y = None, width = None, height = None) :
+    def __init__(self, x = None, y = None, width = None, height = None, x2 = None, y2 = None) :
+        super().__init__()
         self._origin = Origin(x, y)
-        self._size = Size(width, height)
-        
+        if not width is None and not height is None :
+            self._size = Size(width, height)
+        elif not x2 is None and not y2 is None and not x is None and not y is None :
+            self._size = Size(x2 - x, y2 - y)
+        else :
+            self._size = Size(0, 0)
+            
     @property
     def size(self) :
         return self._size
@@ -59,14 +91,6 @@ class Bounds(Object) :
     @property
     def origin(self) :
         return self._origin    
-    
-    @property
-    def width(self) :
-        return self._size.width
-    
-    @property
-    def height(self) :
-        return self._size.height   
     
     @property
     def x(self) :
@@ -84,6 +108,18 @@ class Bounds(Object) :
     def y2(self) :
         return self.y + self.height
     
+    @property
+    def width(self) :
+        return self._size.width
+    
+    @property
+    def height(self) :
+        return self._size.height   
+    
+    #@property
+    #def rectangle(self) :
+    #    return (self.x, self.y, self.x2, self.y2)
+    
     def inflate(self, inflate_by_x, inflate_by_y):
         return Bounds(self.x - inflate_by_x,
                       self.y - inflate_by_y,
@@ -96,10 +132,10 @@ class Bounds(Object) :
                       self.width * xscale,
                       self.height * yscale)
     
-    def move(self, xoffset, yoffset):
-        #xoffset = offset[0]
-        #yoffset = offset[1]
+    def move_to(self, x, y):    
+        self._origin = Origin(x, y)    
     
+    def move(self, xoffset, yoffset):    
         return Bounds(self.x + xoffset,
                       self.y + yoffset,
                       self.width, self.height)        
@@ -135,5 +171,25 @@ class Bounds(Object) :
     def __repr__(self) :
         return "{} {}".format(str(self._origin), str(self._size))    
     
+    #def next(self):
+        #self._counter += 1
+        #if self._counter == 1 :
+            #return self._origin
+        #elif self._counter == 2 :
+            #return self._size
+        #raise StopIteration  
     
-    
+    def next(self):
+        self._counter += 1
+        if self._counter == 1 :
+            return (self.x, self.y)
+        elif self._counter == 2 :
+            return (self.x2, self.y)
+        elif self._counter == 3 :
+            return (self.x2, self.y2)
+        elif self._counter == 4 :
+            return (self.x, self.y2)
+        elif self._counter == 5 :
+            return (self.x, self.y)
+        
+        raise StopIteration       

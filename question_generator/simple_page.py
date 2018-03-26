@@ -2,13 +2,13 @@ import random
 import string
 from functools import partial
 
-from .draw import Draw
+from graphics import Draw
 from .page import Page
 
 class Paragraph :
     def __init__(self, question, rect, question_number, paragraph, subparagraph, endparagraph) :
         self.height_consumed = 0
-        self.params = question.params
+        self.params = question.parameters
         self.draw = question.draw
         self.rect = rect
         self.text_rect = self.params.adjust_rect(self.rect)

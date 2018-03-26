@@ -1,4 +1,3 @@
-from .bounds import *
 from .bullet import *
 from .container import Container
 from .diagram import *

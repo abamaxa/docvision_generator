@@ -1,28 +1,32 @@
 from .drawable import Drawable
 
+from graphics import Bounds, Size, Origin, TextRenderer
+
 # Maybe better to segment this into multiple lines
 class Text(Drawable) :
     def __init__(self, parameters) :
         Drawable.__init__(self, parameters)
         self.text = ""
-        self.text_bounds = Bounds()
-        
+        self.text_height = 0
+        self.color = None
+                 
     def update_page_parameters(self, page) :
         Drawable.format(self, page)
         self.__set_text(page)
+        self.color = page.parameters.text_color
         
-    def calculate_dimensions(self, draw, bounds) :
-        # So, we don't need the origin at this satge, only the width
-        height = draw.calculate_text_height(self.bounds.width, self.text, self.align)   
-        # once we have width and height, we can position the element within the 
-        # available space
-                                
-    def layout(self, bounds) :
-        pass    
+    def get_content_size(self) :  
+        return Size(Drawable.FILL_PARENT, self.text_height)
+        
+    def calculate_dimensions(self, draw, parent_bounds) :
+        self.bounds = parent_bounds
+        self.text_height = draw.calculate_text_height(self.inner_bounds.width, self.text)   
+        super().update_bounds()
         
     def render(self, draw) :
-        super().render(self, draw)
-        draw.line(self.origin, self.size)    
+        super().render(draw)
+        render = TextRenderer(draw, self.text, self.color) 
+        render.draw_text(self.inner_bounds)
         
     def __set_text(self, page) :
         num_words = self.realize_parameter("words")

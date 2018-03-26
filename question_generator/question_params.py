@@ -3,7 +3,7 @@ import string
 import json
 import os
 
-from .draw import Draw
+from graphics import Draw
 from .util import pick_from_list, generate_shade_of_dark_grey, generate_shade_of_light_grey
 
 HSep_None = 0
@@ -105,6 +105,9 @@ class QuestionParams(dict):
         self.number_color = None
         self.text_color = None
         self.border_color = None
+        # This is only used for graphics, the actual page background is 
+        # is draw during augmentation
+        self.fake_background_color = None
 
         self.horizontal_line_width = 0
         self.vertical_line_width = 0
@@ -204,7 +207,8 @@ class QuestionParams(dict):
 
         self.horizontal_priority = random.random()
 
-        self.number_color = generate_shade_of_light_grey()
+        self.fake_background_color = generate_shade_of_light_grey()
+        self.number_color = self.fake_background_color 
         self.text_color = generate_shade_of_dark_grey()
 
         if random.random() > 0.7:
