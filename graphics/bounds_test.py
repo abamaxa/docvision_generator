@@ -96,10 +96,13 @@ class BoundsTest(unittest.TestCase) :
         self.assertEqual(b,4)
         
         test_bounds = Bounds(1,2,3,4)
-        a,b = test_bounds
-        self.assertEqual(a,Origin(1,2))
-        self.assertEqual(b,Size(3,4))  
-        
+        a,b,c,d,e = test_bounds
+        self.assertEqual(a,(1,2))
+        self.assertEqual(b,(4,2))  
+        self.assertEqual(c,(4,6))
+        self.assertEqual(d,(1,6))
+        self.assertEqual(e,(1,2))
+   
 
 if __name__ == '__main__':
     unittest.main()

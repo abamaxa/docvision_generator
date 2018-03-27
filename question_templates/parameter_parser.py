@@ -1,4 +1,6 @@
+import random
 
+from question_generator.util import pick_from_list
 
 class ParameterParser :
     def __init__(self, parameters) :
@@ -31,14 +33,15 @@ class ParameterParser :
         
         #parser = ParameterParser(dict_value)
         #return parser.realize_parameter()
-        raise NotImplementedError("Don't know how to parse this dictionary: " + dict_value)
+        error_msg = "Don't know how to parse this dictionary: " + str(dict_value)
+        raise NotImplementedError(error_msg)
         
     def is_probability_list(self, value) :
         return isinstance(value, list) and isinstance(value[0], list) and \
                len(value[0]) == 2 and  isinstance(value[0][0], float)
     
     def is_probability(self, name) :
-        return name.endswith("_probability")
+        return name.endswith("probability")
     
     def true_or_false(self, value):
         return random.random() < value

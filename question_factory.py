@@ -3,7 +3,8 @@ import argparse
 import multiprocessing as mp
 import logging
 
-from question_generator import SimpleQuestion, FilePersistence, Webserver
+from question_generator import SimpleQuestion, FilePersistence
+from webserver import Webserver
 from augmention import ImgAugAugmentor, ImageTiler
 
 def worker(input_queue, output_queue):

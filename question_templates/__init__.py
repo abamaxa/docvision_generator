@@ -1,9 +1,11 @@
+from .drawable import Drawable
+
 from .bullet import *
 from .container import Container
 from .diagram import *
-from .drawable import Drawable
+
 from .formula import *
-from .line import Line
+from .line import HorizontalLine
 from .paragraph import *
 from .picture import *
 from .question import Question

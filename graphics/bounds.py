@@ -133,7 +133,10 @@ class Bounds(Object) :
                       self.height * yscale)
     
     def move_to(self, x, y):    
-        self._origin = Origin(x, y)    
+        return Bounds(x, y, self.width, self.height)  
+    
+    def resize(self, width, height):    
+        return Bounds(self.x, self.y, width, height)      
     
     def move(self, xoffset, yoffset):    
         return Bounds(self.x + xoffset,

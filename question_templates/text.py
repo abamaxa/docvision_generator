@@ -11,7 +11,7 @@ class Text(Drawable) :
         self.color = None
                  
     def update_page_parameters(self, page) :
-        Drawable.format(self, page)
+        super().update_page_parameters(page)
         self.__set_text(page)
         self.color = page.parameters.text_color
         
@@ -37,7 +37,5 @@ class Text(Drawable) :
             self.text = page.get_sentences(num_sentences)
             
         draw = page.draw
-                
-    def get_height(self) :
-        return 
+
         

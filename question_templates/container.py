@@ -1,6 +1,6 @@
 from .drawable import Drawable
 from .text import Text
-from .line import Line
+from .line import HorizontalLine
 
 class Container(Drawable) :
     def __init__(self, parameters) :
