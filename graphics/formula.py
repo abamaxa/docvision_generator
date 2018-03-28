@@ -74,15 +74,15 @@ class Formula :
     def __convert_tex_to_dvi(self) :
         # latex -halt-on-error content.tex
         cmd = ["latex", "-halt-on-error", self.__get_tex_filepath()]
-        subprocess.run(cmd, check = True)
+        subprocess.run(cmd, cwd=self.working_dir, check=True)
     
     def __convert_dvi_to_image(self) :
         # dvipng -q -x "1400" -p "1" --height --depth -T tight -bg "transparent" --png -z 0 -o - content.dvi
         cmd = ["dvipng", "-q", "-x", "1400", "-p", "1", "--height", "--depth"]
-        cmd.extend(["-T", "tight", "-bg", "transparent", "--png", "-z", "0" "-o"])
+        cmd.extend(["-T", "tight", "-bg", "transparent", "--png", "-z", "0", "-o"])
         cmd.append(self.__get_image_filepath())
         cmd.append(self.__get_dvi_filepath())
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, cwd=self.working_dir, check=True)
         
     def __get_tex_filepath(self) :
         return os.path.join(self.working_dir, "content.tex")
