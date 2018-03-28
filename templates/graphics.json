@@ -1,0 +1,15 @@
+{
+"name" : "graphics",
+"question" : {
+    "elements" : [
+        {
+            "class" : "HorizontalLine",
+            "border_probability" : 0.75 
+        },
+        {
+            "class" : "Rectangle",
+            "border_probability" : 0.75 
+        }
+    ]
+}
+}

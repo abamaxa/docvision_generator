@@ -44,6 +44,12 @@ class DrawableTest(unittest.TestCase) :
          
     def create_drawable(self, parameters = {}) :
         self.drawable = Drawable(parameters) 
+                
+    def get_draw_mock(self) :
+        return MagicMock()
+    
+    def get_test_bounds(self) :
+        return Bounds(0,0,BOUNDS_WIDTH,BOUNDS_HEIGHT) 
           
     def test_inner_bounds(self) :    
         self.create_drawable() 
@@ -52,7 +58,7 @@ class DrawableTest(unittest.TestCase) :
             bounds = self.drawable.inner_bounds
         
         self.drawable.update_page_parameters(self.page)
-        self.drawable.calculate_dimensions(MagicMock(), Bounds(0,0,BOUNDS_WIDTH,BOUNDS_HEIGHT))
+        self.drawable.calculate_dimensions(self.get_draw_mock(), self.get_test_bounds())
         
         bounds = self.drawable.inner_bounds
         self.assertTrue(isinstance(bounds, Bounds))
@@ -60,14 +66,14 @@ class DrawableTest(unittest.TestCase) :
     def test_border_exists(self) :
         self.create_drawable(border_parameters) 
         self.drawable.update_page_parameters(self.page)
-        self.drawable.calculate_dimensions(MagicMock(), Bounds(0,0,BOUNDS_WIDTH,BOUNDS_HEIGHT))
+        self.drawable.calculate_dimensions(self.get_draw_mock(), self.get_test_bounds())
         
         self.assertTrue(self.drawable._has_border())
                 
     def test_border_bounds(self) :    
         self.create_drawable(border_parameters) 
         self.drawable.update_page_parameters(self.page)
-        self.drawable.calculate_dimensions(MagicMock(), Bounds(0,0,BOUNDS_WIDTH,BOUNDS_HEIGHT))
+        self.drawable.calculate_dimensions(self.get_draw_mock(), self.get_test_bounds())
         
         self.assertTrue(self.drawable._has_border())
         
@@ -87,12 +93,11 @@ class DrawableTest(unittest.TestCase) :
         self.assertEqual(bounds.y, padding_and_margin)
         self.assertEqual(bounds.width, BOUNDS_WIDTH - (2 * padding_and_margin))
         self.assertEqual(bounds.height, BOUNDS_HEIGHT - (2 * padding_and_margin))
-        
-        
+
     def test_no_border_bounds(self) :    
         self.create_drawable()
         self.drawable.update_page_parameters(self.page)
-        self.drawable.calculate_dimensions(MagicMock(), Bounds(0,0,BOUNDS_WIDTH,BOUNDS_HEIGHT))
+        self.drawable.calculate_dimensions(self.get_draw_mock(), self.get_test_bounds())
         
         bounds = self.drawable.border_bounds
         self.assertIs(bounds, None)

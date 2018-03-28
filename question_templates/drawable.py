@@ -104,6 +104,7 @@ class Drawable(AbstractDrawable) :
         self.__assign_side_attribute_group("padding", default)
             
     def __assign_side_attribute_group(self, group_name, default) :
+        # TODO Multiples of line height / fraction of column width?
         default = self.realize_parameter(group_name, default)
 
         for name in ("left", "top", "right", "bottom") :

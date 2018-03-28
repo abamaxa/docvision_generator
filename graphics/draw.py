@@ -22,10 +22,10 @@ class Draw:
 
     def create_draw(self):
         self.cleanup()
-
-        self.font = ImageFont.truetype(
-            "fonts/" + self.params.font_name,
-            self.params.font_size)
+        this_dir = os.path.dirname(os.path.realpath(__file__))
+        font_path = os.path.join(this_dir, "fonts", self.params.font_name)
+        
+        self.font = ImageFont.truetype(font_path, self.params.font_size)
         self.draw = ImageDraw.Draw(self.image)
 
     def get_line_height(self):
@@ -57,12 +57,16 @@ class Draw:
                 fill=self.params.border_color,
                 width=width)
             
-    def draw_circle(self, points, width=1, style=None):
-        if not self.measure_only_mode:
-            self.draw.line(
-                points,
-                fill=self.params.border_color,
-                width=width)  
+    def draw_circle(self, center, radius):
+        if self.measure_only_mode:
+            return
+        
+        point = ((center[0] - radius,
+                  center[1] - radius),
+                 (center[0] + radius,
+                  center[1] + radius))
+        
+        self.draw.ellipse(point, None, self.params.border_color)  
             
     def draw_text_line(self, position, text, text_color) :
         if self.measure_only_mode:

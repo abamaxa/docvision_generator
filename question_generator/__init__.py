@@ -1,2 +1,2 @@
-from .question_persist import *
-from .simple_page import SimpleQuestion
+from question_generator.question_persist import *
+from question_generator.simple_page import SimpleQuestion

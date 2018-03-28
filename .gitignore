@@ -100,6 +100,9 @@ ENV/
 *.mp4
 *.MP4
 *.pdf
+*.dvi
+*.tex
+*.aux
 
 *.zip
 *.wpr
