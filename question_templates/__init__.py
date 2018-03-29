@@ -9,6 +9,5 @@ from .line import HorizontalLine
 from .paragraph import *
 from .picture import *
 from .question import Question
-from .rectangle import *
 from .text import Text
 

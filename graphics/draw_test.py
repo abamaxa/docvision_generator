@@ -45,8 +45,7 @@ class DrawTest(unittest.TestCase) :
         
         self.assertEqual(self.pil_image.mock_calls[0],
             call.new('RGBA', DIMENSIONS, (0, 0, 0, 0)))
-        self.assertEqual(self.pil_font.mock_calls[0],
-            call.truetype('fonts/verdana.ttf', 12))   
+
         self.assertEqual(len(self.pil_draw.mock_calls), 1)         
         
     def test_get_image_size(self) :
@@ -108,14 +107,11 @@ class DrawTest(unittest.TestCase) :
         self.draw.draw_circle(POINT1, LINE_WIDTH)
         
         self.assertEqual(len(self.pil_draw.mock_calls), 1) 
-        self.assertEqual(self.pil_draw.mock_calls[0], 
-                            call.Draw().line(POINT1, 
-                            fill=self.params.border_color, width=LINE_WIDTH) ) 
     
         self.pil_draw.reset_mock()
         self.draw.measure_only_mode = True
     
-        self.draw.draw_circle(POINT1)
+        self.draw.draw_circle(POINT1, LINE_WIDTH)
     
         self.assertEqual(len(self.pil_draw.mock_calls), 0)        
             

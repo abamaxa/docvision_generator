@@ -3,7 +3,7 @@ import random
 from unittest.mock import patch, call, MagicMock
 
 from graphics import Bounds, Draw
-from graphics.text_renderer_test import draw_attrs, CHAR_WIDTH, LINE_HEIGHT
+from graphics.text_renderer_test import draw_attrs, CHAR_WIDTH, LINE_HEIGHT, LINE_SPACING
 from question_templates.drawable_test import DrawableTest, MARGIN, PADDING, BOUNDS_WIDTH
 from question_templates.text import Text
 
@@ -80,5 +80,5 @@ class TextTest(DrawableTest) :
         self.assertEqual(bounds.x, padding_and_margin)
         self.assertEqual(bounds.y, padding_and_margin)
         self.assertEqual(bounds.width, BOUNDS_WIDTH - (2 * padding_and_margin))
-        self.assertEqual(bounds.height, LINE_HEIGHT)
+        self.assertEqual(bounds.height, LINE_HEIGHT * LINE_SPACING)
     

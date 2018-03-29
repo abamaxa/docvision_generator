@@ -4,22 +4,22 @@ import matplotlib
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+from PIL import Image
+
 class Graph :
-    def __init__(self, width, height, style, label_text) :
-        self.width = width
-        self.height = height
-        self.style = style
+    def __init__(self, width, height, label_text) :
         self.labels = label_text.split(' ')
         random.shuffle(self.labels)
         self.num_points = random.randint(min(3, len(self.labels)),max(7,len(self.labels)))
-        self.fig = Figure()
+        dpi = 100
+        self.fig = Figure((width // dpi, height // dpi), dpi = dpi)
         self.canvas = FigureCanvas(self.fig)
                     
-    def generate_bar_graph(self) :
+    def generate_bar(self) :
         ax = self.fig.add_subplot(111)
         ax.bar(self.__get_x_data(), self.__get_y_data(), color = self.__get_color()) 
         
-    def generate_line_graph(self) :
+    def generate_line(self) :
         ax = self.fig.add_subplot(111)
         ax.plot(self.__get_x_data(), self.__get_y_data(), color = self.__get_color())    
         
@@ -32,6 +32,14 @@ class Graph :
         # figure.savefig("software.svg", bbox_inches="tight", transparent=True)
         self.canvas.print_png(filename)
         
+    def get_image(self) :
+        self.canvas.draw()
+        fig = self.canvas.figure
+        size = (int(fig.get_figwidth() * fig.get_dpi()),
+                int(fig.get_figheight() * fig.get_dpi()))
+        
+        return Image.frombytes("RGBA", size, self.canvas.buffer_rgba())
+    
     def __get_x_data(self) :
         return self.labels[:self.num_points]
     

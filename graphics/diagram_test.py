@@ -4,7 +4,9 @@ import random
 from question_generator.page import Page
 from question_generator.question_params import QuestionParams
 from graphics.draw_test import options
-from graphics import Draw
+import os
+
+from graphics import Draw, Bounds
 from graphics.diagram import Diagram
 
 class DiagramTest(unittest.TestCase) :
@@ -15,21 +17,26 @@ class DiagramTest(unittest.TestCase) :
         self.draw = Draw(self.params)
         self.draw.init_image()
         self.draw.create_draw()
-        self.diagram = Diagram(self.draw, 640, 480, 2)
+        self.diagram = Diagram(self.draw,Bounds(0,0,640,480) , 2)
+        
+    def __debug_save(self, name) :
+        output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'output')
+        os.makedirs(os.path.dirname(output_dir), exist_ok = True)
+        self.draw.save(os.path.join(output_dir, name))    
         
     def test_triangle(self) :
-        self.diagram.draw_triangle()
-        self.draw.save("triangle.png")
+        self.diagram.render_triangle()
+        self.__debug_save("triangle.png")
         
     def test_circle(self) :
-        self.diagram.draw_circle()
-        self.draw.save("circle.png")
+        self.diagram.render_circle()
+        self.__debug_save("circle.png")
         
     def test_quadrilateral(self) :
-        self.diagram.draw_quadrilateral()
-        self.draw.save("quad.png")
+        self.diagram.render_quadrilateral()
+        self.__debug_save("quad.png")
     
     def test_cross(self) :
-        self.diagram.draw_cross()
-        self.draw.save("cross.png") 
+        self.diagram.render_cross()
+        self.__debug_save("cross.png") 
    

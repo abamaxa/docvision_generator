@@ -7,9 +7,19 @@
             "border_probability" : 0.75 
         },
         {
-            "class" : "Rectangle",
-            "border_probability" : 0.75 
-        }
+            "class" : "Diagram",
+            "border_probability" : 0.5,
+            "type" : ["triangle", "circle", "quadrilateral", "cross"]
+        },
+        {
+            "class" : "Graph",
+            "border_probability" : 0.25,
+            "type" : ["bar", "line", "pie"]
+        },
+                {
+            "class" : "Formula",
+            "type" : ["quadratic", "intergral", "inequalities", "surds", "trig", "factorizations", "angle_ranges"]
+        },
     ]
 }
 }

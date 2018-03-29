@@ -35,11 +35,12 @@ class Drawable(AbstractDrawable) :
         self.update_colors(page)
     
     def get_content_size(self) :
-        return Size(FILL_PARENT, FILL_PARENT)
+        return Size(Drawable.FILL_PARENT, Drawable.FILL_PARENT)
     
     def calculate_dimensions(self, draw, bounds) :
         self._bounds = bounds
-    
+        self.update_bounds()   
+        
     def render(self, draw) :
         if self._has_border() :
             draw.draw_line(self.border_bounds, outline = self._border_color)
