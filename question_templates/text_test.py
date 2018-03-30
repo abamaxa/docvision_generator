@@ -8,15 +8,15 @@ from question_templates.drawable_test import DrawableTest, MARGIN, PADDING, BOUN
 from question_templates.text import Text
 
 class TextTest(DrawableTest) :
-    def create_drawable(self, parameters = {}) :
+    def _create_drawable(self, parameters = {}) :
         self.drawable = Text(parameters)
                 
     def update_drawable(self) :
         self.drawable.update_page_parameters(self.page)
         self.drawable.text = "Hello"
-        self.drawable.calculate_dimensions(self.get_draw_mock(), self.get_test_bounds())
+        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_bounds())
         
-    def get_draw_mock(self) :
+    def _get_draw_mock(self) :
         attrs = dict(draw_attrs)
         attrs["calculate_text_height"] = lambda x,y : LINE_HEIGHT * (1 + ((len(y) * CHAR_WIDTH) // x))
         return MagicMock(spec=Draw, **attrs)  
@@ -29,7 +29,7 @@ class TextTest(DrawableTest) :
             "bold_words_count" : 0.1                
         }
         
-        self.create_drawable(json)
+        self._create_drawable(json)
         self.update_drawable()           
 
     def test_margin(self) :
@@ -39,7 +39,7 @@ class TextTest(DrawableTest) :
             "margin_left" : 5                
         }
         
-        self.create_drawable(json) 
+        self._create_drawable(json) 
         self.update_drawable() 
         
         bounds = self.drawable.inner_bounds
@@ -52,22 +52,19 @@ class TextTest(DrawableTest) :
             "margin_left" : 5                
         }
         
-        self.create_drawable(json) 
+        self._create_drawable(json) 
         self.update_drawable() 
         
         bounds = self.drawable.inner_bounds
         self.assertEqual(bounds.x, 35)      
-        
-    def test_border_bounds(self) :
-        pass
-    
+
     def test_no_border_bounds(self) :   
         json ={
             "class" : "Text",
             "sentences" : 1              
         }
         
-        self.create_drawable(json) 
+        self._create_drawable(json) 
         self.update_drawable() 
         
         bounds = self.drawable.border_bounds

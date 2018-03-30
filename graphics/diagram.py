@@ -10,7 +10,7 @@ class Diagram :
         self.weight = weight
     
     def render_triangle(self) :
-        x = int(0.1 * self.width + (self.width * 0.4 * random.random()))
+        x = int((0.1 * self.width) + (self.width * 0.2 * random.random()))
         left = (x, self.height)
         right = (self.width - left[0],self.height)
         top = (int(random.random() * self.width),0)

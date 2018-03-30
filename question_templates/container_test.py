@@ -6,7 +6,7 @@ from question_templates.drawable_test import DrawableTest
 from question_templates.container import Container
 
 class ContainerTest(DrawableTest) :
-    def create_drawable(self, parameters = {}) :
+    def _create_drawable(self, parameters = {}) :
         self.drawable = Container(parameters) 
         
     def test_single(self) :
@@ -17,7 +17,7 @@ class ContainerTest(DrawableTest) :
             }]
         }
         
-        self.create_drawable()
+        self._create_drawable()
         self.drawable.create_children(json)
         
         self.assertEqual(len(self.drawable._children), 1)
@@ -31,7 +31,7 @@ class ContainerTest(DrawableTest) :
             }]
         }        
 
-        self.create_drawable()
+        self._create_drawable()
         self.drawable.create_children(json)
         self.assertEqual(len(self.drawable._children), 3)       
         
@@ -44,6 +44,6 @@ class ContainerTest(DrawableTest) :
             }]
         }        
 
-        self.create_drawable()
+        self._create_drawable()
         self.drawable.create_children(json)
         self.assertEqual(len(self.drawable._children), 0)          

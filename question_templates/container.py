@@ -2,11 +2,15 @@ from .drawable import Drawable
 from .text import Text
 from .line import HorizontalLine
 from .parameter_parser import ParameterParser
+from .formula import Formula
+from .graph import Graph
+from .diagram import Diagram
+from .layout import VerticalLayout, GridLayout
 
 class Container(Drawable) :
     def __init__(self, parameters) :
         super().__init__(parameters)
-        self._children = []
+        self._children = [] 
         self.create_children(parameters)
 
     def create_children(self, parameters) :
@@ -34,20 +38,34 @@ class Container(Drawable) :
         for child in self._children :
             child.update_page_parameters(page)         
             
-    def calculate_dimensions(self, draw, bounds) :
-        super().calculate_dimensions(draw, bounds)
+    def calculate_dimensions(self, draw, bounds) : 
+        layout_policy = self.__get_layout_policy(bounds)
+        max_child_size = layout_policy.get_max_child_size()
         for child in self._children :
-            child.calculate_dimensions(draw, bounds)   
+            child.calculate_dimensions(draw, max_child_size) 
+            
+        super().calculate_dimensions(draw, bounds)
     
     def layout(self, bounds) :
         super().layout(bounds)
-        y = self.bounds.y
-        bounds = self.bounds
-        for child in self._children :
-            child.layout(bounds)   
-            bounds = child.bounds.move(0, child.bounds.height)
+        layout_policy = self.__get_layout_policy(bounds)
+        layout_policy.layout(self._children)
                 
     def render(self, draw) :
         super().render(draw)
         for child in self._children :
             child.render(draw)    
+            
+    def __get_layout_policy(self, parent_bounds) :
+        policy_params = self.parameters.get("layout")
+        if policy_params :
+            parser = ParameterParser(policy_params)
+            class_name = parser.realize_parameter("class")  
+            klass = globals()[class_name]
+            values = parser.realize_as_dict()
+            return klass(parent_bounds, **values)
+        
+        else :
+            return VerticalLayout(parent_bounds)
+            
+            

@@ -14,6 +14,9 @@ class ConstructedQuestionFactory :
         
     def load_templates(self) :
         for file in os.listdir(self.template_dir) :
+            if not file.endswith(".json") :
+                continue
+            
             self.load_template(file)
 
     def load_template(self, file) :
@@ -26,7 +29,8 @@ class ConstructedQuestionFactory :
             logging.info(msg)
         
             if template['name'] in self.templates.keys() :
-                logging.warn("Replacing existing template", name)
+                msg = "File '{}' replaces existing template '{}'".format(file, name)
+                logging.warn(msg)
                 
             self.templates[name] = template
             

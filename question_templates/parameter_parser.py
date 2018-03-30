@@ -35,6 +35,16 @@ class ParameterParser :
         #return parser.realize_parameter()
         error_msg = "Don't know how to parse this dictionary: " + str(dict_value)
         raise NotImplementedError(error_msg)
+    
+    def realize_as_dict(self) :
+        values = {}
+        for key in self.parameters.keys() :
+            if key == 'class' :
+                continue
+            
+            values[key] = self.realize_parameter(key)
+            
+        return values
         
     def is_probability_list(self, value) :
         return isinstance(value, list) and isinstance(value[0], list) and \

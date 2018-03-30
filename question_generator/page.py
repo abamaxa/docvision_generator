@@ -150,5 +150,6 @@ class Page(object):
         return " ".join(sentences)
     
     def get_words(self, count):
-        return self.generator.generate_sentence()[2][:count]    
+        word_list = self.generator.generate_sentence()[2]
+        return " ".join(word_list.split(' ')[:count])    
         

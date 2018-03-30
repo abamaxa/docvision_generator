@@ -5,7 +5,7 @@ from .parameter_parser import ParameterParser
 from .abstract_drawable import AbstractDrawable
 
 class Drawable(AbstractDrawable) :
-    FILL_PARENT = -1
+    FILL_PARENT = 0
     
     def __init__(self, parameters) :
         self._parameters = parameters
@@ -37,13 +37,27 @@ class Drawable(AbstractDrawable) :
     def get_content_size(self) :
         return Size(Drawable.FILL_PARENT, Drawable.FILL_PARENT)
     
-    def calculate_dimensions(self, draw, bounds) :
-        self._bounds = bounds
+    def calculate_dimensions(self, draw, size) :
+        self._bounds = Bounds(0, 0, size.width, size.height)
         self.update_bounds()   
+        
+    def update_bounds(self) :
+        content_size = self.get_content_size()
+        if content_size.width != Drawable.FILL_PARENT :
+            new_width = content_size.width + self.__width_of_all_padding_and_margins()
+        else :
+            new_width = self.bounds.width
+            
+        if content_size.height != Drawable.FILL_PARENT :
+            new_height = content_size.height + self.__height_of_all_padding_and_margins()
+        else :
+            new_height = self.bounds.height   
+            
+        self.bounds = self.bounds.resize(new_width, new_height)
         
     def render(self, draw) :
         if self._has_border() :
-            draw.draw_line(self.border_bounds, outline = self._border_color)
+            draw.draw_line(self.border_bounds, color=self._border_color)
 
     def layout(self, bounds) :
         self._bounds = self._bounds.move_to(bounds.x, bounds.y)    
@@ -128,20 +142,14 @@ class Drawable(AbstractDrawable) :
     def __height_of_all_padding_and_margins(self) :
         return self._margin_top + self._padding_top \
                + self._padding_bottom + self._margin_bottom    
-    
-    def update_bounds(self) :
-        content_size = self.get_content_size()
-        if content_size.width != Drawable.FILL_PARENT :
-            new_width = content_size.width + self.__width_of_all_padding_and_margins()
-        else :
-            new_width = self.bounds.width
             
-        if content_size.height != Drawable.FILL_PARENT :
-            new_height = content_size.height + self.__height_of_all_padding_and_margins()
-        else :
-            new_height = self.bounds.height   
-            
-        self.bounds = self.bounds.resize(new_width, new_height)
+    def realize_required_parameter(self, parameter_name, default = None) :
+        if not parameter_name in self.parameters :
+            msg = "class '{}' requires missing parameter '{}'".format(
+                self.parameters.get("class"), parameter_name)
+            raise ValueError(msg)
+        
+        return self.realize_parameter(parameter_name, default)    
             
     def realize_parameter(self, parameter_name, default = None) :
         parser = ParameterParser(self.parameters)

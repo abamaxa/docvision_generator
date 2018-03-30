@@ -7,13 +7,12 @@ from .constructed_page_factory import ConstructedQuestionFactory
 class ConstructedPage(Page) :
     pass
 
-
 def make_question(name, options) :
     factory = ConstructedQuestionFactory()
     page = ConstructedPage(name, options)
-    bounds = Bounds(0, 0, 400, 1000)
+    bounds = Bounds(0, 0, 500, 1000)
         
-    question = factory.create_question_from_template("simple")
+    question = factory.create_question_from_template("graphics")
     question.update_page_parameters(page)
     question.calculate_dimensions(page.draw, bounds)
     question.layout(bounds)

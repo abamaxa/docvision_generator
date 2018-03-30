@@ -229,6 +229,7 @@ class QuestionParams(dict):
         self.generate_embedded_image_frames()
         
         self.padding = random.randint(int(self.line_height / 4), self.line_height * 2)
+        self.margins = self.padding // 2
         self.debug_dump()
 
     def generate_random_paragraph_features(self) :  

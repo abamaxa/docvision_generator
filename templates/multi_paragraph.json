@@ -1,13 +1,13 @@
 {
-"name" : "simple",
+"name" : "multi_paragraph",
 "question" : {
     "border_probability" : 0.1,
     "numerator" : {
         "probability" : 0.5,
-        "style" : {
-            0 : ["decimal", "roman", "letter"],
-            1 : ["roman", "letter"]
-        }
+        "style" : [
+            ["decimal", "roman", "letter"],
+            ["roman", "letter"]
+        ]
     },        
     "elements" : [
         {

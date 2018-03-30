@@ -1,24 +1,23 @@
 from .drawable import Drawable
 
+import graphics
+
 class Diagram(Drawable) :
-    GRAPH_XY = 1
-    
     def __init__(self, parameters) :
-       Drawable.__init__(self, parameters)
-       self.line_height = 1
-       
+        super().__init__(parameters)
+        self.graphic_type = self.realize_required_parameter("type")
+        self.weight = self.realize_parameter("weight", 1)
+        
     def get_content_size(self) :
-        return (FILL_PARENT, self.line_height)
-    
-    def calculate_dimensions(self, draw, parent_bounds) :
-        self.bounds = parent_bounds 
-        inner_width = self.inner_bounds.width
-        
-        super().update_bounds()    
-        
+        bounds = self.inner_bounds
+        return graphics.Size(bounds.width, int(bounds.width * 0.6))    
+                
     def render(self, draw) :
-        super().render(self, draw)
-        points = ((self.inner_bounds.x, self.inner_bounds.y),
-                  (self.inner_bounds.x2, self.inner_bounds.y2))
+        super().render(draw)
+        bounds = self.inner_bounds
         
-        draw.draw_line(points, self._foreground_color)
+        diagram = graphics.Diagram(draw, bounds, self.weight)
+        
+        function_name = "render_" + self.graphic_type
+        render_function = getattr(diagram, function_name)
+        render_function()  

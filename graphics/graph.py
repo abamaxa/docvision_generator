@@ -13,6 +13,8 @@ class Graph :
         self.num_points = random.randint(min(3, len(self.labels)),max(7,len(self.labels)))
         dpi = 100
         self.fig = Figure((width // dpi, height // dpi), dpi = dpi)
+        self.fig.patch.set_facecolor('none')
+        self.fig.patch.set_alpha(0)
         self.canvas = FigureCanvas(self.fig)
                     
     def generate_bar(self) :
@@ -21,17 +23,13 @@ class Graph :
         
     def generate_line(self) :
         ax = self.fig.add_subplot(111)
-        ax.plot(self.__get_x_data(), self.__get_y_data(), color = self.__get_color())    
+        ax.plot(self.__get_x_series(), self.__get_y_data(), color = self.__get_color())    
         
     def generate_pie(self) :
         ax = self.fig.add_subplot(111)    
         ax.pie(self.__get_y_data(), labels=self.__get_x_data())
         ax.axis('equal')
 
-    def debug_save(self, filename) :
-        # figure.savefig("software.svg", bbox_inches="tight", transparent=True)
-        self.canvas.print_png(filename)
-        
     def get_image(self) :
         self.canvas.draw()
         fig = self.canvas.figure
@@ -43,6 +41,9 @@ class Graph :
     def __get_x_data(self) :
         return self.labels[:self.num_points]
     
+    def __get_x_series(self) :
+        return list(range(len(self.__get_y_data())))
+
     def __get_y_data(self) :
         return [random.randint(1,10) for _ in range(self.num_points)]
     

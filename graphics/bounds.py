@@ -15,16 +15,26 @@ class Object(object) :
         return self    
     
     def __next__(self):
-        return self.next()        
+        return self.next()   
     
-    @abstractmethod
     def next(self):
-        raise StopIteration
+        try :
+            value = self.__getitem__(self._counter)
+            self._counter += 1
+            return value
+        except IndexError :
+            raise StopIteration     
 
 
 class Size(Object) :
     def __init__(self, width = None, height = None) :
         super().__init__()
+        if not width is None and width < 0 :
+            raise ValueError("Width cannot be less than zero : '{}'".format(width))
+        
+        if not height is None and height < 0 :
+            raise ValueError("Height cannot be less than zero : '{}'".format(height))
+        
         self._width = width
         self._height = height
         
@@ -39,17 +49,21 @@ class Size(Object) :
     def __repr__(self) :
         return "Width: {} Height: {}".format(self.width, self.height)
     
-    def next(self):
-        self._counter += 1
-        if self._counter == 1 :
+    def __getitem__(self, index):
+        if index == 0 :
             return self._width
-        elif self._counter == 2 :
-            return self._height
-        raise StopIteration    
+        elif index == 1 :
+            return self._height   
+        else :
+            raise IndexError
+    
+    def __len__(self) :
+        return 2
+   
     
 class Origin(Object) :
     def __init__(self, x = None, y = None) :
-        super().__init__()
+        super().__init__()            
         self._x = x
         self._y = y
         
@@ -63,6 +77,17 @@ class Origin(Object) :
     
     def __repr__(self) :
         return "x: {} y: {}".format(self.x, self.y)    
+    
+    def __getitem__(self, index):
+        if index == 0 :
+            return self._x
+        elif index == 1 :
+            return self._y   
+        else :
+            raise IndexError      
+    
+    def __len__(self) :
+        return 2    
     
     def next(self):
         self._counter += 1
@@ -174,25 +199,19 @@ class Bounds(Object) :
     def __repr__(self) :
         return "{} {}".format(str(self._origin), str(self._size))    
     
-    #def next(self):
-        #self._counter += 1
-        #if self._counter == 1 :
-            #return self._origin
-        #elif self._counter == 2 :
-            #return self._size
-        #raise StopIteration  
+    def __len__(self) :
+        return 5    
     
-    def next(self):
-        self._counter += 1
-        if self._counter == 1 :
+    def __getitem__(self, index):
+        if index == 0 :
             return (self.x, self.y)
-        elif self._counter == 2 :
+        elif index == 1 :
             return (self.x2, self.y)
-        elif self._counter == 3 :
+        elif index == 2 :
             return (self.x2, self.y2)
-        elif self._counter == 4 :
+        elif index == 3 :
             return (self.x, self.y2)
-        elif self._counter == 5 :
+        elif index == 4 :
             return (self.x, self.y)
         
-        raise StopIteration       
+        raise IndexError       

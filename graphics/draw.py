@@ -50,14 +50,17 @@ class Draw:
         if not self.measure_only_mode:
             self.draw.rectangle(points, fill, outline)
 
-    def draw_line(self, points, width=1, style=None):
-        if not self.measure_only_mode:
-            self.draw.line(
-                points,
-                fill=self.params.border_color,
-                width=width)
+    def draw_line(self, points, width=1, color = None, style=None):
+        if self.measure_only_mode:
+            return
+        
+        _color = color
+        if _color is None :
+            _color = self.params.border_color
+        
+        self.draw.line(points, fill=_color, width=width)
             
-    def draw_circle(self, center, radius):
+    def draw_circle(self, center, radius, color = None):
         if self.measure_only_mode:
             return
         
@@ -65,6 +68,10 @@ class Draw:
                   center[1] - radius),
                  (center[0] + radius,
                   center[1] + radius))
+        
+        _color = color
+        if _color is None :
+            _color = self.params.border_color        
         
         self.draw.ellipse(point, None, self.params.border_color)  
             
@@ -124,7 +131,7 @@ class Draw:
         return self.image
     
     def blit(self, image, points) :
-        self.image.paste(image, points)
+        self.image.paste(image, tuple(points))
     
     def copy_rect(self, rect, color):
         img = Image.new(
