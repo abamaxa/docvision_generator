@@ -147,11 +147,12 @@ class Draw:
     
     def blit(self, image, points) :
         width, height = image.size
-        if 0 and len(points) == 4 and \
-           (width != points[3] - points[0] or \
-            height != points[3] - points[0]) :
-            
-            img_crop = image.crop(points)
+        if len(points) == 4 and \
+           (width != points[2] - points[0] or \
+            height != points[3] - points[1]) :
+            img_crop = image.crop((0,0,
+                                   points[2] - points[0],
+                                   points[3] - points[1]))
             self.image.paste(img_crop, tuple(points))
         else :
             self.image.paste(image, tuple(points[:2]))

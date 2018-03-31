@@ -36,7 +36,6 @@ class GridLayout(Layout) :
         super().__init__(bounds, children)
         self.cell_width = bounds.width // cols
         self.cell_height = self.cell_width
-        print(bounds)
         self.cols = cols
         
     def layout(self) :
@@ -50,7 +49,6 @@ class GridLayout(Layout) :
             child_bounds = Bounds(x, y, self.cell_width, self.cell_height)
             child.layout(child_bounds)   
             max_height = max(max_height, child.bounds.height)
-            print (child_bounds, child.bounds)
             col += 1
             
             if col % self.cols == 0 :
@@ -60,8 +58,7 @@ class GridLayout(Layout) :
                 max_height = 0
             else :
                 x += self.cell_width
-                
-        print("===============================")
+
                 
         
                             
