@@ -10,11 +10,11 @@ class ConstructedPage(Page) :
 def make_question(name, options) :
     factory = ConstructedQuestionFactory()
     page = ConstructedPage(name, options)
-    bounds = Bounds(0, 0, 500, 1000)
+    bounds = Bounds(0, 0, 800, 1000)
         
-    question = factory.create_question_from_template("graphics")
+    question = factory.create_question_from_template("multi_paragraph")
     question.update_page_parameters(page)
-    question.calculate_dimensions(page.draw, bounds)
+    question.calculate_dimensions(page.draw, bounds.size)
     question.layout(bounds)
     question.render(page.draw)
     

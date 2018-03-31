@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-class Object(object) :
+class DimensionObject(object) :
     def __init__(self) :
         self._counter = 0
         
@@ -26,7 +26,7 @@ class Object(object) :
             raise StopIteration     
 
 
-class Size(Object) :
+class Size(DimensionObject) :
     def __init__(self, width = None, height = None) :
         super().__init__()
         if not width is None and width < 0 :
@@ -61,7 +61,7 @@ class Size(Object) :
         return 2
    
     
-class Origin(Object) :
+class Origin(DimensionObject) :
     def __init__(self, x = None, y = None) :
         super().__init__()            
         self._x = x
@@ -98,7 +98,7 @@ class Origin(Object) :
         raise StopIteration        
            
    
-class Bounds(Object) :
+class Bounds(DimensionObject) :
     def __init__(self, x = None, y = None, width = None, height = None, x2 = None, y2 = None) :
         super().__init__()
         self._origin = Origin(x, y)
@@ -166,16 +166,22 @@ class Bounds(Object) :
     def move(self, xoffset, yoffset):    
         return Bounds(self.x + xoffset,
                       self.y + yoffset,
-                      self.width, self.height)        
+                      self.width, self.height)    
+    
+    def merge(self, bounds) :
+        return Bounds(min(self.x,  bounds.x ),
+                      min(self.y,  bounds.y ),
+                      x2 = max(self.x2, bounds.x2),
+                      y2 = max(self.y2, bounds.y2))       
     
     def enclosed_by_bounds(self, bounds):
         return (
-            (self.x >= bounds.x) and
-            (self.x <= bounds.x2) and
+            (self.x  >= bounds.x) and
+            (self.x  <= bounds.x2) and
             (self.x2 >= bounds.x) and
             (self.x2 <= bounds.x2) and
-            (self.y >= bounds.y) and
-            (self.y <= bounds.y2) and
+            (self.y  >= bounds.y) and
+            (self.y  <= bounds.y2) and
             (self.y2 >= bounds.y) and
             (self.y2 <= bounds.y2)
         )
@@ -183,12 +189,12 @@ class Bounds(Object) :
     @staticmethod
     def __overlap(bounds, bounds2) :
         return  (
-            ((bounds.x >= bounds2.x) and
-             (bounds.x <= bounds2.x2)) or
+            ((bounds.x  >= bounds2.x) and
+             (bounds.x  <= bounds2.x2)) or
             ((bounds.x2 >= bounds2.x) and
              (bounds.x2 <= bounds2.x2)) or
-            ((bounds.y >= bounds2.y) and
-             (bounds.y <= bounds2.y2)) or
+            ((bounds.y  >= bounds2.y) and
+             (bounds.y  <= bounds2.y2)) or
             ((bounds.y2 >= bounds2.y) and
              (bounds.y2 <= bounds2.y2))
         )

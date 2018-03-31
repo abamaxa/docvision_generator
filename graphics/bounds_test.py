@@ -102,6 +102,18 @@ class BoundsTest(unittest.TestCase) :
         self.assertEqual(c,(4,6))
         self.assertEqual(d,(1,6))
         self.assertEqual(e,(1,2))
+        
+    def test_merge(self) :
+        bounds = Bounds(0, 0, 20, 10)
+        bounds2 = bounds.merge(bounds)
+        
+        self.assertEquals(bounds, bounds2)
+        
+        bounds2 = bounds.merge(Bounds(-1,-2, x2=21, y2=11))
+        self.assertEquals(bounds2.x, -1)
+        self.assertEquals(bounds2.y, -2)
+        self.assertEquals(bounds2.x2, 21)
+        self.assertEquals(bounds2.y2, 11)        
    
 
 if __name__ == '__main__':

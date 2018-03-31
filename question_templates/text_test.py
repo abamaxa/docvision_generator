@@ -14,7 +14,7 @@ class TextTest(DrawableTest) :
     def update_drawable(self) :
         self.drawable.update_page_parameters(self.page)
         self.drawable.text = "Hello"
-        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_bounds())
+        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_size())
         
     def _get_draw_mock(self) :
         attrs = dict(draw_attrs)

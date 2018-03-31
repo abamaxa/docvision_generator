@@ -18,12 +18,10 @@ class Text(Drawable) :
     def get_content_size(self) :  
         return Size(Drawable.FILL_PARENT, self.text_height)
         
-    def calculate_dimensions(self, draw, parent_bounds) :
-        self.bounds = parent_bounds
+    def calculate_dimensions(self, draw, size) :
+        self._bounds = Bounds(0, 0, size.width, size.height)
         render = TextRenderer(draw, self.text, self.color) 
-        self.text_height = render.calculate_text_height(self.inner_bounds)   
-        
-        #self.text_height = draw.calculate_text_height(self.inner_bounds.width, self.text)   
+        self.text_height = render.calculate_text_height(self.inner_bounds)      
         super().update_bounds()
         
     def render(self, draw) :

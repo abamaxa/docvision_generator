@@ -75,12 +75,27 @@ class Draw:
         
         self.draw.ellipse(point, None, self.params.border_color)  
             
-    def draw_text_line(self, position, text, text_color) :
+    def draw_text_line(self, position, text, text_color = None) :
+        self.__draw_text_line(position, text, text_color, False)  
+        
+    def draw_bold_text_line(self, position, text, text_color = None) :
+        self.__draw_text_line(position, text, text_color, True)  
+        
+    def __draw_text_line(self, position, text, text_color, bold) :
         if self.measure_only_mode:
             return
+        
+        _color = text_color
+        if _color is None :
+            _color = self.params.text_color  
             
-        self.draw.text(position, text, text_color, self.font)
+        if bold :
+            font = self.bold_font
+        else :
+            font = self.font
             
+        self.draw.text(position, text, _color, font)
+    
     def draw_question_circle(self, top_left):
         if not self.measure_only_mode:
             extra = int(self.params.font_size * 0.2)
@@ -131,7 +146,15 @@ class Draw:
         return self.image
     
     def blit(self, image, points) :
-        self.image.paste(image, tuple(points))
+        width, height = image.size
+        if 0 and len(points) == 4 and \
+           (width != points[3] - points[0] or \
+            height != points[3] - points[0]) :
+            
+            img_crop = image.crop(points)
+            self.image.paste(img_crop, tuple(points))
+        else :
+            self.image.paste(image, tuple(points[:2]))
     
     def copy_rect(self, rect, color):
         img = Image.new(

@@ -48,8 +48,8 @@ class DrawableTest(unittest.TestCase) :
     def _get_draw_mock(self) :
         return MagicMock()
     
-    def _get_test_bounds(self) :
-        return Bounds(0,0,BOUNDS_WIDTH,BOUNDS_HEIGHT) 
+    def _get_test_size(self) :
+        return Size(BOUNDS_WIDTH,BOUNDS_HEIGHT) 
     
     def _get_expected_inner_size(self) :
         width, height = self.drawable.get_content_size()
@@ -67,7 +67,7 @@ class DrawableTest(unittest.TestCase) :
             bounds = self.drawable.inner_bounds
         
         self.drawable.update_page_parameters(self.page)
-        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_bounds())
+        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_size())
         
         bounds = self.drawable.inner_bounds
         self.assertTrue(isinstance(bounds, Bounds))
@@ -75,14 +75,14 @@ class DrawableTest(unittest.TestCase) :
     def test_border_exists(self) :
         self._create_drawable(border_parameters) 
         self.drawable.update_page_parameters(self.page)
-        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_bounds())
+        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_size())
         
         self.assertTrue(self.drawable._has_border())
                 
     def test_border_bounds(self) :    
         self._create_drawable(border_parameters) 
         self.drawable.update_page_parameters(self.page)
-        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_bounds())
+        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_size())
         
         self.assertTrue(self.drawable._has_border())
         
@@ -107,7 +107,7 @@ class DrawableTest(unittest.TestCase) :
     def test_no_border_bounds(self) :    
         self._create_drawable()
         self.drawable.update_page_parameters(self.page)
-        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_bounds())
+        self.drawable.calculate_dimensions(self._get_draw_mock(), self._get_test_size())
         
         expected_inner_size = self._get_expected_inner_size()
         bounds = self.drawable.border_bounds

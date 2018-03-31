@@ -22,7 +22,7 @@ class Diagram :
         center = [(self.width / 2, self.height / 2)]
         center = self.__offset_points(center)
         min_dim = min(self.width, self.height)
-        radius = random.randint(min_dim // 4, min_dim // 3)
+        radius = random.randint(min_dim // 3, min_dim // 2.4)
         self.draw.draw_circle(center[0], radius)
         
     def render_quadrilateral(self) :

@@ -11,8 +11,16 @@ class Container(Drawable) :
     def __init__(self, parameters) :
         super().__init__(parameters)
         self._children = [] 
+        self.column_width = 0
         self.create_children(parameters)
-
+        
+    def get_content_size(self) :
+        if self._children :
+            layout_policy = self.__get_layout_policy(self.inner_bounds)
+            return layout_policy.get_content_size()    
+        else :
+            return self.size
+    
     def create_children(self, parameters) :
         for element in parameters.get("elements", []) :
             self.__create_elements(element)   
@@ -34,27 +42,34 @@ class Container(Drawable) :
         return parser.realize_parameter("repeat", 1)
       
     def update_page_parameters(self, page) :
-        super().update_page_parameters(page)
         for child in self._children :
-            child.update_page_parameters(page)         
+            child.update_page_parameters(page)   
             
-    def calculate_dimensions(self, draw, bounds) : 
-        layout_policy = self.__get_layout_policy(bounds)
+        super().update_page_parameters(page)
+            
+    def calculate_dimensions(self, draw, size) : 
+        inner_size = self.calculate_content_from_size(size)
+        layout_policy = self.__get_layout_policy(inner_size)
         max_child_size = layout_policy.get_max_child_size()
         for child in self._children :
             child.calculate_dimensions(draw, max_child_size) 
             
-        super().calculate_dimensions(draw, bounds)
+        super().calculate_dimensions(draw, size)
+
     
     def layout(self, bounds) :
         super().layout(bounds)
-        layout_policy = self.__get_layout_policy(bounds)
-        layout_policy.layout(self._children)
+        layout_policy = self.__get_layout_policy(self.inner_bounds)
+        layout_policy.layout()
                 
     def render(self, draw) :
         super().render(draw)
         for child in self._children :
             child.render(draw)    
+            
+    def set_numerator(self, numerator) :
+        for child in self._children :
+            child.set_numerator(numerator)
             
     def __get_layout_policy(self, parent_bounds) :
         policy_params = self.parameters.get("layout")
@@ -63,9 +78,9 @@ class Container(Drawable) :
             class_name = parser.realize_parameter("class")  
             klass = globals()[class_name]
             values = parser.realize_as_dict()
-            return klass(parent_bounds, **values)
+            return klass(parent_bounds, self._children, **values)
         
         else :
-            return VerticalLayout(parent_bounds)
+            return VerticalLayout(parent_bounds, self._children)
             
             

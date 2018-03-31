@@ -6,7 +6,7 @@ class AbstractDrawable(ABC) :
         pass
     
     @abstractmethod
-    def calculate_dimensions(self, draw, bounds) :
+    def calculate_dimensions(self, draw, size) :
         pass
     
     @abstractmethod

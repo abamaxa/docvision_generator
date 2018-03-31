@@ -5,29 +5,69 @@
     "numerator" : {
         "probability" : 0.5,
         "style" : [
-            ["decimal", "roman", "letter"],
-            ["roman", "letter"]
+            ["decimal","letter"],
+            ["roman", "letter", "decimal"]
         ]
     },        
     "elements" : [
         {
             "class" : "Text",
-            "sentences" : {"min": 1, "max": 3}
+            "padding_top" : 0,
+            "sentences" : {"min": 1, "max": 1} 
+        },
+        {
+            "class" : "Diagram",
+            "type" : ["triangle", "circle", "quadrilateral", "cross"],
+            "weight" :[2,4],
+            "border" : {
+                "probability" : 1.0,
+                "style" : 1,
+                "width" : {"min" : 1, "max" : 8}
+            }
         },
         {
             "class" : "Text",
-            "sentences" : {"min": 1, "max": 3},
+            "sentences" : {"min": 1, "max": 1},
             "bold_words_probability" : 0.1,
             "bold_words_count" : 0.1,
             "margin_left" : {"min": 1, "max": 15},
-            "repeat" : [1,5],
-            "level" : 1
+            "repeat" : [1,2],
+            "number_level" : 1
+        },
+        {
+            "class" : "Container",
+            "layout" : {
+                "class" : "GridLayout",
+                "cols" : 3
+            },
+            "elements" : [
+                {
+                    "class" : "Formula",
+                    "repeat" : 9,
+                    "number_level" : 1,
+                    "type" : ["quadratic", "intergral", "inequalities", "surds", "trig", "factorizations", "angle_ranges"],
+                    "border" : {
+                        "probability" : 1.0,
+                        "style" : 1,
+                        "width" : {"min" : 1, "max" : 8}
+                    }
+                }
+            ]
         },
         {
             "class" : "Text",
             "sentences" : [1,2],
             "probability" : 0.3
-        }       
+        },
+        {
+            "class" : "Graph",
+            "type" : ["bar", "line", "pie"],
+            "border" : {
+                "probability" : 1.0,
+                "style" : 1,
+                "width" : {"min" : 1, "max" : 8}
+            }
+        }
     ]
 }
 }

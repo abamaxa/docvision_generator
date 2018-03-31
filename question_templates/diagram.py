@@ -10,7 +10,8 @@ class Diagram(Drawable) :
         
     def get_content_size(self) :
         bounds = self.inner_bounds
-        return graphics.Size(bounds.width, int(bounds.width * 0.6))    
+        aspect = self.realize_parameter("aspect_ratio", 0.6)
+        return graphics.Size(bounds.width, int(bounds.width * aspect))    
                 
     def render(self, draw) :
         super().render(draw)

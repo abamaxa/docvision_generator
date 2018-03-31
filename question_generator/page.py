@@ -36,7 +36,6 @@ class Page(object):
     
     def generate_page(self):        
         self.parameters.generate_random_parameters()
-        self.generator = TextGen.get_generator()
         
         self._draw = Draw(self.parameters)
         self._draw.init_image()        
@@ -145,11 +144,8 @@ class Page(object):
         }
     
     def get_sentences(self, count):
-        generator = self.generator.generate_sentences(count)
-        sentences = [sentence[2] for sentence in generator]
-        return " ".join(sentences)
+        return self.parameters.get_sentences(count)
     
     def get_words(self, count):
-        word_list = self.generator.generate_sentence()[2]
-        return " ".join(word_list.split(' ')[:count])    
+        return self.parameters.get_words(count)
         
