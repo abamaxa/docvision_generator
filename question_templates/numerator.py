@@ -51,7 +51,7 @@ class Numerator :
             del self._sublevel_numbers[lower_level]
             
     def __get_number_for_style(self, number) :
-        style = self.__get_current_style()
+        style = self.get_current_style()
         
         if style == "decimal" :
             return str(number)
@@ -63,7 +63,7 @@ class Numerator :
             else :
                 return chr(64 + number)
             
-    def __get_current_style(self) :
+    def get_current_style(self) :
         style = self._styles.get(self._current_level)
         if not style :
             style = random.choice(("letter", "roman", "decimal"))
@@ -74,7 +74,7 @@ class SectionNumber :
     def __init__(self, drawable, numerator) :
         self._numerator = numerator
         self._drawable = drawable
-        self._level = self._number = None
+        self._style = self._level = self._number = None
     
         if self._numerator :
             default = None
@@ -84,8 +84,18 @@ class SectionNumber :
             self._level = drawable.realize_parameter("number_level", default)  
             
         if not self._level is None :
-            self._number = numerator.get_next_number(self._level)            
-    
+            self._number = numerator.get_next_number(self._level)  
+            self._style = numerator.get_current_style()  
+            
+    def get_width(self) :
+        # TODO need to calculate this
+        if self._number is None :
+            return 0
+        elif self._style in ("letter", "decimal") :
+            return (1 + len(self._number)) * 20
+        else :
+            return 80
+        
     def render(self, draw) :
         if not self._numerator or not self._number :
             return
@@ -94,6 +104,7 @@ class SectionNumber :
         
         inner_bounds = self._drawable.inner_bounds
         pos = (inner_bounds.x - number_length[0], inner_bounds.y)
+        #pos = (inner_bounds.x + self.get_width() - number_length[0], inner_bounds.y)
         
         if self._level == 0 and self._numerator.circles :
             draw_question_circle(pos)

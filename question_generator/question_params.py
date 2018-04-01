@@ -8,6 +8,11 @@ from .util import pick_from_list, generate_shade_of_dark_grey, generate_shade_of
 from .dictionary_generator import TextGen
 
 class QuestionParams(dict):
+    MICROSOFT_FONTS =  ["verdana.ttf", "times.ttf", "georgia.ttf", "arial.ttf"]
+    UBUNTU_FONTS = ["Ubuntu-B.ttf", "Ubuntu-C.ttf", "Ubuntu-LI.ttf", "Ubuntu-MI.ttf",
+                    "Ubuntu-RI.ttf","UbuntuMono-BI.ttf", "UbuntuMono-RI.ttf", "Ubuntu-BI.ttf",
+                    "Ubuntu-L.ttf", "Ubuntu-M.ttf", "Ubuntu-R.ttf","UbuntuMono-B.ttf","UbuntuMono-R.ttf"]
+    
     def __init__(self, name, options):
         super(QuestionParams, self).__init__()
         self.__dict__ = self
@@ -81,8 +86,9 @@ class QuestionParams(dict):
         self.top_margin = self.height * (0.04 + (0.05 * random.random()))
         self.bottom_margin = self.height * (0.04 + (0.05 * random.random()))
         
-        self.padding_top_bottom = random.randint(int(self.line_height / 4), int(self.line_height * 1.2))
-        self.padding_left_right = random.randint(int(self.line_height * 1.5), int(self.line_height * 2.5))
+        self.padding_top_bottom = 0 # random.randint(int(self.line_height / 4), int(self.line_height * 1.2))
+        #self.padding_left_right = random.randint(int(self.line_height * 1.5), int(self.line_height * 2.5))
+        self.padding_left_right = 0 #random.randint(int(self.line_height * 0.5), int(self.line_height * 1.5))
         self.margin_left_right = 0
         self.margin_top_bottom = 0
         self.inter_question_gap = min(self.line_height * 2,

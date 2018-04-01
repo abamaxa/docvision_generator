@@ -7,11 +7,13 @@ class Text(Drawable) :
     def __init__(self, parameters) :
         Drawable.__init__(self, parameters)
         self.text = ""
+        self.align = None
         self.text_height = 0
         self.color = None
                  
     def update_page_parameters(self, page) :
         super().update_page_parameters(page)
+        self.align = self.realize_parameter("align", TextRenderer.AlignJustify)
         self.__set_text(page)
         self.color = page.parameters.text_color
         
@@ -20,7 +22,7 @@ class Text(Drawable) :
         
     def calculate_dimensions(self, draw, size) :
         self._bounds = Bounds(0, 0, size.width, size.height)
-        render = TextRenderer(draw, self.text, self.color) 
+        render = TextRenderer(draw, self.text, self.color, self.align) 
         self.text_height = render.calculate_text_height(self.inner_bounds)      
         super().update_bounds()
         

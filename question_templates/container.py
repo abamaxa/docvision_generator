@@ -55,7 +55,6 @@ class Container(Drawable) :
             child.calculate_dimensions(draw, max_child_size) 
             
         super().calculate_dimensions(draw, size)
-
     
     def layout(self, bounds) :
         super().layout(bounds)

@@ -125,7 +125,7 @@ class TextRenderer :
         return width, height     
     
     def __measure_text_width(self, text) :
-        return self.__measure_text_size(self, text)[0]
+        return self.__measure_text_size(text)[0]
     
     def __should_justify_render_list(self) :
         return self.__align == TextRenderer.AlignJustify and self.__size_render_list() > 1
@@ -135,7 +135,7 @@ class TextRenderer :
             
     def __output_justifed_line(self, position) :   
         word_widths = self.__list_width_words()
-        if self.__line_too_short_to_justify(word_width) :
+        if self.__line_too_short_to_justify(word_widths) :
             self.__output_line(position, self.__render_list_to_text())
             return
         
@@ -150,7 +150,7 @@ class TextRenderer :
             if count == self.__size_render_list() :
                 x = position[0] + line_width - word_width
     
-            self.__draw.__output_line((x, y), word)
+            self.__output_line((x, y), word)
     
             x += word_width + inter_word_space
     

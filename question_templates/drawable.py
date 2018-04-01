@@ -42,12 +42,15 @@ class Drawable(AbstractDrawable) :
     @property
     def inner_bounds(self) :
         size = self.calculate_content_from_size(self._bounds.size)
-        return Bounds(self._bounds.x + self._margin_left + self._padding_left,
-                      self._bounds.y + self._margin_top + self._padding_top,
-                      size.width, size.height)   
+        left = self._bounds.x + self._margin_left
+        left += self._padding_left + self.get_section_number_width()
+        top = self._bounds.y + self._margin_top + self._padding_top
+        
+        return Bounds(left, top, size.width, size.height)   
     
     def calculate_content_from_size(self, size) :
         dx = self._margin_left + self._padding_left + self._margin_right + self._padding_right
+        dx += self.get_section_number_width()
         dy = self._margin_top + self._padding_top + self._margin_bottom + self._padding_bottom
         return Size(size.width - dx, size.height - dy)
         
@@ -66,6 +69,11 @@ class Drawable(AbstractDrawable) :
 
     def set_numerator(self, numerator) :
         self._section_number = SectionNumber(self, numerator)
+        
+    def get_section_number_width(self) :
+        if self._section_number :
+            return self._section_number.get_width()
+        return 0
             
     def update_page_parameters(self, page) :
         self.update_border(page)
