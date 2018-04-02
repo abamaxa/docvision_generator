@@ -9,6 +9,8 @@ ADD requirements.txt /question_factory
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
+RUN apt-get update && apt-get install -y texlive-latex-base dvipng
+
 # Copy the current directory contents into the container at /app
 ADD . /question_factory
 

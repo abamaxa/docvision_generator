@@ -2,10 +2,10 @@ import time
 import argparse
 import multiprocessing as mp
 import logging
+import cProfile, pstats, io
 
-from question_generator import SimpleQuestion, FilePersistence
+from page_generator import ConstructedPage, FilePersistence
 from webserver import Webserver
-from augmention import ImgAugAugmentor, ImageTiler
 
 def worker(input_queue, output_queue):
     for func, args in iter(input_queue.get, 'STOP'):
@@ -16,16 +16,12 @@ def make_question(idno, options):
     start = time.time()
 
     persister = FilePersistence(idno, options)
-    question = SimpleQuestion(idno, options)
-    
+    question = ConstructedPage(idno, options, persister)
+    foo = question.create_page
+
     question.create_page()
-    
-    tiler = ImageTiler(question, options)
-    augmentor = ImgAugAugmentor(question, tiler, options)
-    
-    for aug_image, aug_frames in augmentor :
-        persister.save_image(aug_image, aug_frames)
-    
+    question.save()
+        
     return (persister.get_count(), time.time() - start)
 
 def generate_questions(num_process, options, start_no, end_no):
@@ -63,7 +59,6 @@ def generate_questions(num_process, options, start_no, end_no):
     print("Generated {} images in {:.2f} seconds".format(
         end_no - start_no, time.time() - start))
 
-
 def main():
     parser = argparse.ArgumentParser()
 
@@ -73,11 +68,6 @@ def main():
         help="Whether to generate square tiles of"
         "top, middle and bottom of generated image",
         action="store_true")
-    parser.add_argument(
-        "-x",
-        "--overwrite",
-        help="Overwrite existing files",
-        action="store_true") 
     parser.add_argument(
         "--daemon",
         help="Instead of writing files to a directory, the process server images over HTTP",
@@ -104,7 +94,7 @@ def main():
         "--dimension",
         type=int,
         help="Width of output image",
-        default=300)
+        default=600)
     parser.add_argument(
         "-s",
         "--start",
@@ -125,6 +115,10 @@ def main():
         default=80)    
     parser.add_argument(
         "-a",
+        "--augment",
+        help="Augment images",
+        action="store_true")         
+    parser.add_argument(
         "--augmentation_file",
         help="JSON file containing parameters for the augmentor",
         default="augmentation.json")        
@@ -135,10 +129,10 @@ def main():
         default="png")
     parser.add_argument(
         "-e",
-        "--experimental",
-        help="Try code that is work in progress",
-        action="store_true")     
-   
+        "--profile",
+        help="Profile code",
+        action="store_true")    
+    
     parser.add_argument("count", type=int, help="Number of images to create or queue size if in daemon mode")
 
     args = parser.parse_args()
@@ -149,8 +143,8 @@ def main():
         "dimensions": (args.width, args.height),
         "outputSize": (args.dimension, args.dimension),
         "save_tiles": args.tile,
-        "overwrite": args.overwrite,
         "augmentation_file" : args.augmentation_file,
+        "augment" : args.augment,
         "draw_debug_rects" : False,
         "draw_final_rects" : True
     }
@@ -159,9 +153,17 @@ def main():
     if args.tile :
         print("Creating tiles of size {outputSize}".format_map(options))
 
-    if args.experimental :
-        import question_generator.constructed_page as experimental
-        experimental.make_question("test", options)
+    if args.profile :
+        pr = cProfile.Profile()
+        pr.enable()            
+        for i in range(args.start, args.start + args.count) :
+            count, elapsed = pr.runcall(make_question, *(str(i), options))
+            print(count, elapsed)
+            if elapsed > 2 :
+                ps = pstats.Stats(pr)
+                ps.sort_stats('cumtime')
+                ps.print_stats(0.1)
+            pr.clear()
         
     elif args.daemon :     
         print("Starting webserver, queue size {}".format(args.count))
@@ -169,12 +171,13 @@ def main():
                                      args.port, args.start, options)
         server.start_server()
     else :
-        print("Writing images to: {outputDir} overwrite existing: {overwrite}".format_map(options))
+        print("Writing images to: {outputDir}".format_map(options))
         print("Generating {} images starting at {}".format(args.count, args.start))
         
-        if args.num_processes == 0:
+        if args.num_processes == 0:    
             for i in range(args.start, args.start + args.count) :
                 print(make_question(str(i), options))
+                
         else:
             mp.freeze_support()
     
@@ -184,7 +187,6 @@ def main():
                 args.start,
                 args.start +
                 args.count)
-
 
 if __name__ == '__main__':
     main()

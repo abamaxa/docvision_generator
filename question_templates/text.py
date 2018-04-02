@@ -10,6 +10,7 @@ class Text(Drawable) :
         self.align = None
         self.text_height = 0
         self.color = None
+        self.text_render= None
                  
     def update_page_parameters(self, page) :
         super().update_page_parameters(page)
@@ -22,14 +23,14 @@ class Text(Drawable) :
         
     def calculate_dimensions(self, draw, size) :
         self._bounds = Bounds(0, 0, size.width, size.height)
-        render = TextRenderer(draw, self.text, self.color, self.align) 
-        self.text_height = render.calculate_text_height(self.inner_bounds)      
+        self.text_render = TextRenderer(draw, self.text, self.color, self.align) 
+        self.text_height = self.text_render.calculate_text_height(self.inner_bounds)      
         super().update_bounds()
         
     def render(self, draw) :
         super().render(draw)
-        render = TextRenderer(draw, self.text, self.color) 
-        render.draw_text(self.inner_bounds)
+        #render = TextRenderer(draw, self.text, self.color) 
+        self.text_render.draw_text(self.inner_bounds)
         
     def __set_text(self, page) :
         num_words = self.realize_parameter("words")

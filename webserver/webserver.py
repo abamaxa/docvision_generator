@@ -6,9 +6,7 @@ from aiohttp import web
 import aiohttp_jinja2
 import jinja2
 
-from question_generator import SimpleQuestion, ZipBufferPersistence
-
-from augmention import ImgAugAugmentor, ImageTiler
+from page_generator import ConstructedPage, ZipBufferPersistence
 
 class Webserver :
     def __init__(self, num_process, queue_size, port, first_image_number, options) :
@@ -128,7 +126,7 @@ class Webserver :
         self.app.router.add_get('/question', self.get_a_question)
         
         aiohttp_jinja2.setup(
-            self.app, loader=jinja2.FileSystemLoader('question_generator/templates'))        
+            self.app, loader=jinja2.FileSystemLoader('webserver/templates'))        
         
         web.run_app(self.app, port = self.port)        
         
@@ -157,17 +155,10 @@ class Webserver :
     @staticmethod  
     def make_question(idno, options):
         persister = ZipBufferPersistence(idno, options)
-        question = SimpleQuestion(idno, options)
+        question = SimpleQuestion(idno, options, persister)
         
         question.create_page()
-        
-        filename = persister.get_zip_filename()
-        
-        tiler = ImageTiler(question, options)
-        augmentor = ImgAugAugmentor(question, tiler, options)
-        
-        for aug_image, aug_frames in augmentor :
-            persister.save_image(aug_image, aug_frames)   
-            
+        question.save()
+
         print("Completed:", filename)
-        return persister.get_zip_buffer(), filename
+        return persister.get_zip_buffer(), persister.get_zip_filename()

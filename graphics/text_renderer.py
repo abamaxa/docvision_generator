@@ -14,6 +14,7 @@ class TextRenderer :
         self.__render_list = []
         self.__counter = 0
         self.__bounds = None
+        self.__word_lengths = {}
         
     def calculate_text_height(self, bounds) :
         try :
@@ -120,9 +121,39 @@ class TextRenderer :
                 
         return x, y
     
+    def __measure_word(self, word) :
+        if word in self.__word_lengths :
+            width, height = self.__word_lengths[word]
+        else :
+            width, height = self.__draw.text_size(word)
+            self.__word_lengths[word] = (width, height)
+            
+        return width, height
+    
+    def __measure_text_size_fast_inaccurate(self, text) :
+        total_width = 0
+        text_height = 0
+        words = text.split(" ")
+        counter = 0
+        for word in words :
+            width, height = self.__measure_word(word)
+                
+            total_width += width
+            text_height = max(text_height, height)
+            
+            if counter and counter != (len(words) - 1) :
+                width, height = self.__measure_word(' ')
+                total_width += width
+                
+            counter += 1
+      
+        return total_width, text_height    
+    
+    def __measure_text_size_accurate(self, text) :
+        return self.__draw.text_size(text)    
+    
     def __measure_text_size(self, text) :
-        width, height = self.__draw.text_size(text)
-        return width, height     
+        return self.__measure_text_size_fast_inaccurate(text)
     
     def __measure_text_width(self, text) :
         return self.__measure_text_size(text)[0]
@@ -159,11 +190,12 @@ class TextRenderer :
     
     def __line_too_short_to_justify(self, word_widths) :
         return sum(word_widths) < (self.__get_line_width() * 0.6)
-            
+              
     def __list_width_words(self) :
         word_widths = []
         for word in self.__render_list:
-            word_width = self.__measure_text_width(word)
+            #word_width = self.__measure_text_width(word)
+            word_width, _ = self.__measure_word(word)
             word_widths.append(word_width)   
             
         return word_widths

@@ -2,13 +2,6 @@
 "name" : "multi_paragraph",
 "question" : {
     "border_probability" : 0.1,
-    "numerator" : {
-        "probability" : 0.5,
-        "style" : [
-            ["decimal","letter"],
-            ["roman", "letter", "decimal"]
-        ]
-    },        
     "elements" : [
         {
             "class" : "Text",

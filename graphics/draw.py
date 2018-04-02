@@ -14,6 +14,8 @@ class Draw:
         self.params = state
         self.image = None
         self.font = None
+        self.font_bold = None
+        self.font_italic = None
         self.draw = None
         self._measure_only = False
 
@@ -24,8 +26,14 @@ class Draw:
         self.cleanup()
         this_dir = os.path.dirname(os.path.realpath(__file__))
         font_path = os.path.join(this_dir, "fonts", self.params.font_name)
-        
         self.font = ImageFont.truetype(font_path, self.params.font_size)
+        
+        font_path = os.path.join(this_dir, "fonts", self.params.font_bold_name)
+        self.font_bold = ImageFont.truetype(font_path, self.params.font_size)
+        
+        font_path = os.path.join(this_dir, "fonts", self.params.font_italic_name)
+        self.font_italic = ImageFont.truetype(font_path, self.params.font_size)
+        
         self.draw = ImageDraw.Draw(self.image)
 
     def get_line_height(self):

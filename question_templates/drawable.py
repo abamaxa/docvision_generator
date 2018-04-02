@@ -109,7 +109,6 @@ class Drawable(AbstractDrawable) :
             self._section_number.render(draw)
                     
     def layout(self, bounds) :
-        #self._bounds = self._bounds.move_to(bounds.x, bounds.y)
         self._bounds = Bounds(bounds.x, bounds.y, bounds.width, self._bounds.height)   
         
     def update_border(self, page) :
@@ -123,7 +122,7 @@ class Drawable(AbstractDrawable) :
             self._border_width = parser.realize_parameter("width", 1)
             
     def _has_border(self) :
-        return 1 or not self._border_style is None
+        return not self._border_style is None
     
     def update_margins(self, page) :
         default = self.realize_parameter("margin",page.parameters.margin_left_right)

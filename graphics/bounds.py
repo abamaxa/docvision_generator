@@ -139,11 +139,11 @@ class Bounds(DimensionObject) :
     
     @property
     def height(self) :
-        return self._size.height   
+        return self._size.height       
     
-    #@property
-    #def rectangle(self) :
-    #    return (self.x, self.y, self.x2, self.y2)
+    @property
+    def rectangle(self) :
+        return ((self.x, self.y), (self.x2, self.y2))
     
     def inflate(self, inflate_by_x, inflate_by_y):
         return Bounds(self.x - inflate_by_x,

@@ -1,6 +1,6 @@
 import random
 
-from question_generator.util import pick_from_list
+from page_generator.util import pick_from_list
 
 class ParameterParser :
     def __init__(self, parameters) :

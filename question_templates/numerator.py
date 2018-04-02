@@ -7,12 +7,12 @@ ROMAN_DIGITS = ["i", "ii", "iii", "iv", "v","vi", "vii", "viii",
     "ix", "x", "xi""xii", "xiii", "xiv",  "xv"]
 
 class Numerator :
-    def __init__(self, parameters) :
+    def __init__(self, parameters, question_number) :
        self._styles = {}
        
        parser = ParameterParser(parameters)
        default_start = random.randint(1,10)
-       self._start_number = parser.realize_parameter("start", default_start)
+       self._start_number = question_number
        self._bold = parser.realize_parameter("probability_bold")
        self._circles = parser.realize_parameter("probability_circles")
        self._current_level = 0
@@ -28,9 +28,9 @@ class Numerator :
     def circles(self) : return self._circles    
        
     def __create_styles(self, parameters) :
-        for level in range(len(parameters["style"])) :
-            level_style = parameters["style"][level] 
-            self._styles[level] = random.choice(level_style)
+        parser = ParameterParser(parameters["style"])
+        for level in parameters["style"].keys() :
+            self._styles[level] = parser.realize_parameter(level)
             
     def reset(self) :
         self._current_level = 0
@@ -64,7 +64,7 @@ class Numerator :
                 return chr(64 + number)
             
     def get_current_style(self) :
-        style = self._styles.get(self._current_level)
+        style = self._styles.get(str(self._current_level))
         if not style :
             style = random.choice(("letter", "roman", "decimal"))
             
@@ -91,10 +91,12 @@ class SectionNumber :
         # TODO need to calculate this
         if self._number is None :
             return 0
-        elif self._style in ("letter", "decimal") :
-            return (1 + len(self._number)) * 20
+        elif self._style == "letter" :
+            return 30
+        elif self._style == "decimal" :
+            return 45        
         else :
-            return 80
+            return 60
         
     def render(self, draw) :
         if not self._numerator or not self._number :

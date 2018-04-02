@@ -3,7 +3,7 @@ import random
 from unittest.mock import patch, call
 
 import graphics.draw
-from question_generator.question_params import QuestionParams
+from page_generator.question_params import QuestionParams
 #from graphics import Draw
 
 DIMENSIONS = (600,1000)

@@ -1,8 +1,8 @@
 import unittest
 import random
 
-from question_generator.page import Page
-from question_generator.question_params import QuestionParams
+from page_generator.page import Page
+from page_generator.question_params import QuestionParams
 from graphics.draw_test import options
 import os
 
