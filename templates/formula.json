@@ -1,0 +1,42 @@
+{
+"name" : "formula",
+"question" : {
+    "border_probability" : 0.1,    
+    "elements" : [
+        {
+            "class" : "Text",
+            "padding_top" : 0,
+            "sentences" : {"min": 1, "max": 2} 
+        },
+        {
+            "class" : "Container",
+            "layout" : {
+                "class" : "GridLayout",
+                "cols" : [2,3]
+            },
+            "elements" : [
+                {
+                    "class" : "Formula",
+                    "repeat" : [6,8,9,12],
+                    "type" : ["quadratic", "intergral", "inequalities", "surds", "trig", "factorizations", "angle_ranges"],
+                    "padding" : 10,
+                    "border" : {
+                        "probability" : 0.0,
+                        "style" : 1,
+                        "width" : {"min" : 1, "max" : 8}
+                    }
+                }
+            ]
+        },
+        {
+            "class" : "Text",
+            "probability" : 0.1,
+            "words" : {"min": 6, "max": 12},
+            "bold_words_probability" : 0.1,
+            "bold_words_count" : 0.1,
+            "repeat" : [1,2],
+            "number_level" : 1
+        }
+    ]
+}
+}

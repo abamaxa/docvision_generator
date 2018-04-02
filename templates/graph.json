@@ -1,0 +1,30 @@
+{
+"name" : "graph",
+"question" : {
+    "border_probability" : 0.1,    
+    "elements" : [
+        {
+            "class" : "Text",
+            "padding_top" : 0,
+            "sentences" : {"min": 1, "max": 1} 
+        },
+        {
+            "class" : "Graph",
+            "type" : ["bar", "line", "pie"],
+            "border" : {
+                "probability" : 1.0,
+                "style" : 1,
+                "width" : {"min" : 1, "max" : 8}
+            }
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 3, "max": 6},
+            "bold_words_probability" : 0.1,
+            "bold_words_count" : 0.1,
+            "repeat" : [2,4],
+            "number_level" : 1
+        }
+    ]
+}
+}
