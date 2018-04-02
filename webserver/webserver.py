@@ -155,10 +155,10 @@ class Webserver :
     @staticmethod  
     def make_question(idno, options):
         persister = ZipBufferPersistence(idno, options)
-        question = SimpleQuestion(idno, options, persister)
+        question = ConstructedPage(idno, options, persister)
         
         question.create_page()
         question.save()
 
-        print("Completed:", filename)
+        print("Completed:", persister.get_zip_filename())
         return persister.get_zip_buffer(), persister.get_zip_filename()

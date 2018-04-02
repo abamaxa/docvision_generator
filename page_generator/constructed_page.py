@@ -44,7 +44,7 @@ class ConstructedPage(Page) :
                         x2 = rect[1][0], y2 = rect[1][1])         
         
     def get_template(self) :
-        self.current_question = self.factory.create_question_from_template("paragraph")
+        self.current_question = self.factory.create_question_from_random_template()
     
     def prepare_question(self) :
         self.current_question.update_page_parameters(self)
@@ -58,7 +58,7 @@ class ConstructedPage(Page) :
     
     def __create_numerator(self) :
         numerator_parameters = {
-            "probability" : 0.8,
+            "probability" : 0.97,
             "style" : {
                 "0" : [[0.9, "decimal"], [1.0, "letter"]],
                 "1" : ["roman", "letter", "decimal"]

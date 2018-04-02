@@ -19,7 +19,7 @@ class Formula(Drawable) :
     def render(self, draw) :
         super().render(draw)        
         draw.blit(self.proxy.image, (
-            self.inner_bounds.x,
-            self.inner_bounds.y,                         
-            self.inner_bounds.x2, 
-            self.inner_bounds.y2))
+            int(self.inner_bounds.x),
+            int(self.inner_bounds.y),                         
+            int(self.inner_bounds.x2), 
+            int(self.inner_bounds.y2)))

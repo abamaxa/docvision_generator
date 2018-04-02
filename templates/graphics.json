@@ -1,5 +1,6 @@
 {
 "name" : "graphics",
+"test" : 1,
 "question" : {
     "elements" : [
         {

@@ -1,5 +1,6 @@
 {
 "name" : "simple",
+"test" : 1,
 "question" : {
     "border_probability" : 0.5,
     "elements" : [

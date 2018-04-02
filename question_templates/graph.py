@@ -35,5 +35,5 @@ class Graph(Drawable) :
         x += (width - image.width) // 2
         y += (height - image.height) // 2
         
-        draw.blit(image, (x, y))
+        draw.blit(image, (int(x), int(y)))
         

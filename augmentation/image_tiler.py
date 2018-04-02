@@ -42,8 +42,8 @@ class ImageTiler :
             else :
                 question_frames = self.frames
                 
-                question_tops = [1 + int(r[0][1]) for r in question_frames]
-                question_tops += [int(r[1][1]) - img_size[0] - 1 for r in question_frames]
+                question_tops = [1 + int(r[0][1]) for r,_ in question_frames]
+                question_tops += [int(r[1][1]) - img_size[0] - 1 for r,_ in question_frames]
                 question_tops = [t for t in question_tops 
                                  if t >= 0 and t < img_size[1] - img_size[0]]
 
@@ -83,7 +83,9 @@ class ImageTiler :
         bottom = top + max_dim
 
         question_region = ((left, top), (right, bottom))
-        inflate_by = random.choice([0, max_dim / 20, max_dim / 10])
+        inflate_by = random.choice([max_dim / 20, max_dim / 10, 
+                                    max_dim / 5, max_dim / 4, 
+                                    max_dim / 3, max_dim / 2])
         question_region = inflate_rect(question_region, inflate_by, inflate_by)
         
         frames = self.__get_frames_for_region(question_region)
