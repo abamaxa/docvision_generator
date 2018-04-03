@@ -21,10 +21,12 @@ PADDING = 10
 LINE_HEIGHT = 12
 
 page_parameters = {
-    "margins" : MARGIN,
-    "padding" : PADDING,
     "line_spacing" : draw_test.LINE_SPACING,
     "line_height" : LINE_HEIGHT,
+    "margin_left_right" : MARGIN,
+    "margin_top_bottom" : MARGIN,
+    "padding_left_right" : PADDING,
+    "padding_top_bottom" : PADDING
 }
 
 BOUNDS_HEIGHT = 200

@@ -1,0 +1,36 @@
+{
+"name" : "single_graph",
+"question" : {
+    "border" : {
+        "probability" : 0.1,
+        "style" : 1,
+        "width" : {"min" : 1, "max" : 8}
+    },   
+    "elements" : [
+        {
+            "class" : "Text",
+            "padding_top" : 0,
+            "sentences" : {"min": 1, "max": 2} 
+        },
+        {
+            "class" : "Graph",
+            "type" : ["bar", "line", "pie"],    
+            "padding_left_right" : {"min": 100, "max": 200},
+            "border" : {
+                "probability" : 1.0,
+                "style" : 1,
+                "width" : {"min" : 1, "max" : 2}
+            }
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 9, "max": 12},
+            "bold_words_probability" : 1.0,
+            "bold_words_count" : 0.1,
+            "repeat" : [2,5],
+            "number_level" : 1,
+            "padding_left_right" : {"min": 30, "max": 60}
+        }
+    ]
+}
+}

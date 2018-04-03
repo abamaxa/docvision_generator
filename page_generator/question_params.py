@@ -4,7 +4,7 @@ import json
 import os
 
 from graphics import Draw
-from .util import pick_from_list, generate_shade_of_dark_grey, generate_shade_of_light_grey
+from graphics.util import pick_from_list, generate_shade_of_dark_grey, generate_shade_of_light_grey
 from .dictionary_generator import TextGen
 
 class QuestionParams(dict):

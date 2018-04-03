@@ -1,21 +1,17 @@
 from .drawable import Drawable
+from .rectangular_content import RectangularContent
 
 import graphics
 
-class Graph(Drawable) :
+class Graph(RectangularContent) :
     def __init__(self, parameters) :
-       Drawable.__init__(self, parameters)
+       super().__init__(parameters)
        self.graphic_type = self.realize_required_parameter("type")
        self.proxy = None
     
     def update_page_parameters(self, page) :
         self.labels = page.get_words(10)
-        super().update_page_parameters(page)
-        
-    def get_content_size(self) :
-        bounds = self.inner_bounds
-        aspect = self.realize_parameter("aspect_ratio", 0.6)
-        return graphics.Size(bounds.width, int(bounds.width * aspect))        
+        super().update_page_parameters(page)     
         
     def create_proxy(self) :
         bounds = self.inner_bounds

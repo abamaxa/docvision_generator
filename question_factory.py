@@ -64,10 +64,10 @@ def main():
 
     parser.add_argument(
         "-t",
-        "--tile",
-        help="Whether to generate square tiles of"
-        "top, middle and bottom of generated image",
-        action="store_true")
+        "--template",
+        help="Name (as set in json file - not file name/path) of the template to use. " \
+        "This file containing this template must reside in the templates directory. " \
+        "If not set templates are choosen at random")
     parser.add_argument(
         "--daemon",
         help="Instead of writing files to a directory, the process server images over HTTP",
@@ -96,8 +96,8 @@ def main():
         help="Width of output image",
         default=600)
     parser.add_argument(
-        "-s",
-        "--start",
+        "-i",
+        "--initial",
         type=int,
         help="Index of first image",
         default=1)
@@ -132,6 +132,11 @@ def main():
         "--profile",
         help="Profile code",
         action="store_true")    
+    parser.add_argument(
+        "-s",
+        "--single",
+        help="Generate a page with a single rendering of a template - for testing",
+        action="store_true")      
     
     parser.add_argument("count", type=int, help="Number of images to create or queue size if in daemon mode")
 
@@ -142,21 +147,20 @@ def main():
         "outputDir": args.output,
         "dimensions": (args.width, args.height),
         "outputSize": (args.dimension, args.dimension),
-        "save_tiles": args.tile,
         "augmentation_file" : args.augmentation_file,
         "augment" : args.augment,
         "draw_debug_rects" : False,
-        "draw_final_rects" : True
+        "draw_final_rects" : True,
+        "template" : args.template,
+        "single" : args.single
     }
 
     print("Image dimensions: {dimensions} format: {format}".format_map(options))
-    if args.tile :
-        print("Creating tiles of size {outputSize}".format_map(options))
 
     if args.profile :
         pr = cProfile.Profile()
         pr.enable()            
-        for i in range(args.start, args.start + args.count) :
+        for i in range(args.initial, args.initial + args.count) :
             count, elapsed = pr.runcall(make_question, *(str(i), options))
             print(count, elapsed)
             if elapsed > 2 :
@@ -168,14 +172,14 @@ def main():
     elif args.daemon :     
         print("Starting webserver, queue size {}".format(args.count))
         server = Webserver(args.num_processes, args.count, 
-                                     args.port, args.start, options)
+                                     args.port, args.initial, options)
         server.start_server()
     else :
         print("Writing images to: {outputDir}".format_map(options))
-        print("Generating {} images starting at {}".format(args.count, args.start))
+        print("Generating {} images starting at {}".format(args.count, args.initial))
         
         if args.num_processes == 0:    
-            for i in range(args.start, args.start + args.count) :
+            for i in range(args.initial, args.initial + args.count) :
                 print(make_question(str(i), options))
                 
         else:
@@ -184,8 +188,8 @@ def main():
             generate_questions(
                 args.num_processes,
                 options,
-                args.start,
-                args.start +
+                args.initial,
+                args.initial +
                 args.count)
 
 if __name__ == '__main__':

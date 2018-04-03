@@ -5,14 +5,14 @@ from .numerator import Numerator
 
 class Question(Container) :
     DEFAULTS = {
-        "padding_top" : 0
+        "padding_top" : 0,
+        "number_level" : 0 
     }
     
     def __init__(self, parameters) :
         params = dict(Question.DEFAULTS)
-        params.update(parameters)
-        Drawable.__init__(self, params)
-        Container.__init__(self, params.get("question"))
+        params.update(parameters.get("question"))
+        super().__init__(params)
         self._type = parameters.get("name")
         self._numerator = None
                                 

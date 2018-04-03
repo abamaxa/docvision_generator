@@ -102,8 +102,8 @@ class ImgAugAugmentor(AbstractAugmentor) :
     def convert_frames_to_boxes(self, frames) :
         boxes = []
         for frame, _ in frames :
-            box = ia.BoundingBox(x1=frame[0][0], y1=frame[0][1],
-                                 x2=frame[1][0], y2=frame[1][1])
+            box = ia.BoundingBox(int(x1=frame[0][0]), int(y1=frame[0][1]),
+                                 int(x2=frame[1][0]), int(y2=frame[1][1]))
             boxes.append(box)
 
         return ia.BoundingBoxesOnImage(boxes, shape=self.image_np.shape)

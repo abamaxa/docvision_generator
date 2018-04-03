@@ -30,6 +30,7 @@ class Drawable(AbstractDrawable) :
         self._background_color = None
         
         self._section_number = None
+        self._primary_element = None
         
     @property
     def border_bounds(self) :
@@ -53,6 +54,12 @@ class Drawable(AbstractDrawable) :
         dx += self.get_section_number_width()
         dy = self._margin_top + self._padding_top + self._margin_bottom + self._padding_bottom
         return Size(size.width - dx, size.height - dy)
+    
+    def calculate_size_from_inner_size(self, size) :
+        dy = self._margin_top + self._padding_top + self._margin_bottom + self._padding_bottom
+        dx = self._margin_left + self._padding_left + self._margin_right + self._padding_right
+        dx += self.get_section_number_width()        
+        return Size(size.width + dx, size.height + dy)  
         
     @property
     def parameters(self) :  return self._parameters
@@ -125,15 +132,15 @@ class Drawable(AbstractDrawable) :
         return not self._border_style is None
     
     def update_margins(self, page) :
-        default = self.realize_parameter("margin",page.parameters.margin_left_right)
+        default = self.realize_parameter("margin_left_right", page.parameters.margin_left_right)
         self.__assign_side_attribute_group("margin", default)
-        default = self.realize_parameter("margin",page.parameters.margin_top_bottom)
+        default = self.realize_parameter("margin_top_bottom",page.parameters.margin_top_bottom)
         self.__assign_top_bottom_attribute_group("margin", default)        
         
     def update_padding(self, page) :
-        default = self.realize_parameter("padding", page.parameters.padding_left_right)
+        default = self.realize_parameter("padding_left_right", page.parameters.padding_left_right)
         self.__assign_side_attribute_group("padding", default)
-        default = self.realize_parameter("padding", page.parameters.padding_top_bottom)
+        default = self.realize_parameter("padding_top_bottom", page.parameters.padding_top_bottom)
         self.__assign_top_bottom_attribute_group("padding", default)
             
     def __assign_top_bottom_attribute_group(self, group_name, default) :
@@ -141,14 +148,18 @@ class Drawable(AbstractDrawable) :
             self.__assign_attribute(group_name, name, default)
             
     def __assign_side_attribute_group(self, group_name, default) :
-        default = self.realize_parameter(group_name, default)
         for name in ("left", "right") :
             self.__assign_attribute(group_name, name, default)
             
     def __assign_attribute(self, group_name, name, default) :
         param_name = group_name + "_" + name
-        value = self.realize_parameter(param_name, 1)
-        setattr(self, "_" + param_name, default * value) 
+        if self._primary_element :
+            value = getattr(self._primary_element, "_" + param_name)
+        else :
+            value = self.realize_parameter(param_name, 0)
+            value += default
+        
+        setattr(self, "_" + param_name, value) 
         
     def update_colors(self, page) :
         self._foreground_color = self.realize_parameter("text_color", page.parameters.text_color)
@@ -173,3 +184,6 @@ class Drawable(AbstractDrawable) :
     def realize_parameter(self, parameter_name, default = None) :
         parser = ParameterParser(self.parameters)
         return parser.realize_parameter(parameter_name, default)
+    
+    def set_primary_element(self, element) :
+        self._primary_element = element

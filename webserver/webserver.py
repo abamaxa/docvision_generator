@@ -81,10 +81,6 @@ class Webserver :
             self.options["dimensions"] = (width, length)
             self.options["outputSize"] = (tile_size, tile_size)
             self.options["format"] = data["format"]
-            if data.get("save_tiles") :
-                self.options["save_tiles"] = True
-            else :
-                self.options["save_tiles"] = False
             
         except Exception as exception :
             error_message = str(exception)
@@ -111,8 +107,7 @@ class Webserver :
             "width" : self.options["dimensions"][0],
             "height" : self.options["dimensions"][1],
             "tile_size" : self.options["outputSize"][0],
-            "format" : self.options["format"],
-            "save_tiles" : self.options["save_tiles"],
+            "format" : self.options["format"]
         }
 
         return display        

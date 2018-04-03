@@ -44,7 +44,11 @@ class ConstructedPage(Page) :
                         x2 = rect[1][0], y2 = rect[1][1])         
         
     def get_template(self) :
-        self.current_question = self.factory.create_question_from_random_template()
+        name = self.options.get("template")
+        if name :
+            self.current_question = self.factory.create_question_from_template(name)           
+        else :
+            self.current_question = self.factory.create_question_from_random_template()
     
     def prepare_question(self) :
         self.current_question.update_page_parameters(self)

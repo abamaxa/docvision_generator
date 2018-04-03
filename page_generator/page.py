@@ -6,7 +6,6 @@ from io import BytesIO
 import abc
 
 from .dictionary_generator import TextGen
-from .util import *
 from graphics import Draw
 from .question_params import QuestionParams
 from augmentation import ImgAugAugmentor, ImageTiler
@@ -45,10 +44,7 @@ class Page(object):
     def create_page(self):
         self.draw_columns()
         
-        while True:
-            if self.is_page_full() :
-                break
-
+        while not self.is_page_full() :
             new_rect = self.create_question()
 
             if self.rect_fits_in_current_frame(new_rect):
@@ -130,6 +126,9 @@ class Page(object):
                 self._draw.draw_rectangle(rect, outline="blue")  
                             
     def is_page_full(self) :
+        if self.options["single"] and self.question_frames :
+            return True
+        
         return self.get_current_write_location() is None
     
     def mark_page_as_full(self) :

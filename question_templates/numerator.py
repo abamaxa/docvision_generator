@@ -110,8 +110,8 @@ class SectionNumber :
         
         if self._level == 0 and self._numerator.circles :
             draw_question_circle(pos)
-        
-        if self._numerator.bold :
-            draw.draw_bold_text_line(pos, self._number)
-        else :
             draw.draw_text_line(pos, self._number)
+            
+        else :
+            draw.draw_bold_text_line(pos, self._number)
+            

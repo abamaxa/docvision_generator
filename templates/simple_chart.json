@@ -1,0 +1,38 @@
+{
+"name" : "simple_chart",
+"question" : {
+    "border_probability" : 0.1,
+    "elements" : [
+        {
+            "class" : "Text",
+            "padding_top" : 0,
+            "sentences" : {"min": 1, "max": 2} ,
+            "bold_words_probability" : 0.1,
+            "bold_words_count" : 0.1
+        },
+        {
+            "class" : "Container",
+            "layout" : {
+                "class" : "GridLayout",
+                "cols" : [2,4]
+            },
+            "elements" : [
+                {
+                    "class" : "Diagram",
+                    "type" : "cross",
+                    "repeat" : 4
+                }
+            ]
+        },
+        {
+            "class" : "Text",
+            "probability" : 0.5,
+            "words" : {"min": 6, "max": 9},
+            "bold_words_probability" : 0.1,
+            "bold_words_count" : 0.1,
+            "repeat" : [2,4],
+            "number_level" : 1
+        }
+    ]
+}
+}

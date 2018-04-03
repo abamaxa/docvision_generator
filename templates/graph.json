@@ -1,28 +1,42 @@
 {
 "name" : "graph",
 "question" : {
-    "border_probability" : 0.1,    
+    "border" : {
+        "probability" : 0.1,
+        "style" : 1,
+        "width" : {"min" : 1, "max" : 8}
+    },   
     "elements" : [
         {
             "class" : "Text",
             "padding_top" : 0,
-            "sentences" : {"min": 1, "max": 1} 
+            "sentences" : {"min": 1, "max": 2} 
         },
         {
-            "class" : "Graph",
-            "type" : ["bar", "line", "pie"],
+            "class" : "Container",
+            "layout" : {
+                "class" : "GridLayout",
+                "cols" : [2,4]
+            },
             "border" : {
-                "probability" : 1.0,
+                "probability" : 0.1,
                 "style" : 1,
-                "width" : {"min" : 1, "max" : 8}
-            }
+                "width" : {"min" : 1, "max" : 2},
+                "repeat" : [4,8]
+            },
+            "elements" : [
+                {
+                    "class" : "Graph",
+                    "type" : ["bar", "line", "pie"]
+                }
+            ]
         },
         {
             "class" : "Text",
-            "words" : {"min": 3, "max": 6},
+            "words" : {"min": 9, "max": 12},
             "bold_words_probability" : 0.1,
             "bold_words_count" : 0.1,
-            "repeat" : [2,4],
+            "repeat" : [1,2],
             "number_level" : 1
         }
     ]

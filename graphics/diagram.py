@@ -46,12 +46,27 @@ class Diagram :
         self.draw.draw_line(self.__offset_points(points), self.weight)
             
     def render_cross(self) :
-        x_axis = ((0, self.height // 2), (self.width, self.height // 2))
+        min_x = self.width // 5
+        max_x = self.width - min_x
+        min_y = self.height // 5
+        max_y = self.height - min_y      
+        
+        x_axis = ((min_x, self.height // 2), (max_x, self.height // 2))
         self.draw.draw_line(self.__offset_points(x_axis), self.weight)
         
-        y_axis = ((self.width // 2, 0), (self.width // 2, self.height))
+        y_axis = ((self.width // 2, min_y), (self.width // 2, max_y))
         self.draw.draw_line(self.__offset_points(y_axis), self.weight)
         
+        y1 = random.randint(2 * self.height // 3, max_y)
+        y2 = random.randint(min_y, self.height // 3) 
+        
+        if random.random() < 0.5 :
+            points = ((min_x, y1), (max_x, y2))
+        else :
+            points = ((min_x, y2), (max_x, y1))
+            
+        self.draw.draw_line(self.__offset_points(points))
+                            
     def __offset_points(self, points) :
         return [(p[0] + self.x, p[1] + self.y) for p in points]
         

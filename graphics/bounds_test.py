@@ -107,13 +107,13 @@ class BoundsTest(unittest.TestCase) :
         bounds = Bounds(0, 0, 20, 10)
         bounds2 = bounds.merge(bounds)
         
-        self.assertEquals(bounds, bounds2)
+        self.assertEqual(bounds, bounds2)
         
         bounds2 = bounds.merge(Bounds(-1,-2, x2=21, y2=11))
-        self.assertEquals(bounds2.x, -1)
-        self.assertEquals(bounds2.y, -2)
-        self.assertEquals(bounds2.x2, 21)
-        self.assertEquals(bounds2.y2, 11)        
+        self.assertEqual(bounds2.x, -1)
+        self.assertEqual(bounds2.y, -2)
+        self.assertEqual(bounds2.x2, 21)
+        self.assertEqual(bounds2.y2, 11)        
    
 
 if __name__ == '__main__':

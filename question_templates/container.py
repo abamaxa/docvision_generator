@@ -7,6 +7,8 @@ from .graph import Graph
 from .diagram import Diagram
 from .layout import VerticalLayout, GridLayout
 
+from graphics import Bounds, Size
+
 class Container(Drawable) :
     def __init__(self, parameters) :
         super().__init__(parameters)
@@ -19,7 +21,7 @@ class Container(Drawable) :
             layout_policy = self.__get_layout_policy(self.inner_bounds)
             return layout_policy.get_content_size()    
         else :
-            return self.size
+            return super().get_content_size()
     
     def create_children(self, parameters) :
         for element in parameters.get("elements", []) :
@@ -31,15 +33,23 @@ class Container(Drawable) :
         if not class_name :
             raise ValueError("Elements must specify a class") 
         
-        klass = globals()[class_name]
-        for _ in range(self.__number_of_elements_to_create(parser)) :
-            self._children.append(klass(element))             
-            
-    def __number_of_elements_to_create(self, parser) :
-        if not parser.realize_parameter("probability", True) :
-            return 0
+        if self.__skip_element(parser) :
+            return
         
-        return parser.realize_parameter("repeat", 1)
+        klass = globals()[class_name]
+        primary_element = klass(element)
+        self._children.append(primary_element)
+        
+        for _ in range(self.__number_of_extra_elements_to_create(parser)) :
+            new_element = klass(element)
+            new_element.set_primary_element(primary_element)
+            self._children.append(new_element)  
+            
+    def __skip_element(self, parser) :
+        return not parser.realize_parameter("probability", True)
+            
+    def __number_of_extra_elements_to_create(self, parser) :
+        return parser.realize_parameter("repeat", 0)
       
     def update_page_parameters(self, page) :
         for child in self._children :
@@ -60,6 +70,9 @@ class Container(Drawable) :
         super().layout(bounds)
         layout_policy = self.__get_layout_policy(self.inner_bounds)
         layout_policy.layout()
+        size = layout_policy.get_content_size()
+        outer_size = self.calculate_size_from_inner_size(size)
+        self._bounds = Bounds(bounds.x, bounds.y, bounds.width, outer_size.height)
                 
     def render(self, draw) :
         super().render(draw)

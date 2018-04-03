@@ -98,7 +98,7 @@ class Draw:
             _color = self.params.text_color  
             
         if bold :
-            font = self.bold_font
+            font = self.font_bold
         else :
             font = self.font
             

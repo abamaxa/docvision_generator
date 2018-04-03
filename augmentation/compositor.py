@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw
 
-from page_generator.util import generate_background_color, generate_shade_of_light_grey
+from graphics.util import generate_background_color, generate_shade_of_light_grey
 
 class QuestionCompositor :
     def __init__(self, question_image, question_rect) :

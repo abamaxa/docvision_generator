@@ -21,3 +21,5 @@ class FormulaTest(DrawableTest) :
     def test_no_type(self) :
         with self.assertRaises(ValueError) :
             self.drawable = Formula({})
+            
+    
