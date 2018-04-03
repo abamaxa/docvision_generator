@@ -50,14 +50,14 @@ class AbstractAugmentor(object) :
             self.augmented_frames = None
             self.image, self.frames = self.tiler.get_tile()
 
-            #self.generate_augmented_image()
+            self.generate_augmented_image()
             
             #self.draw_debug_rects()
             
             self.current += 1
             
-            #return self.augmented_image, self.augmented_frames 
-            return self.image, self.frames
+            return self.augmented_image, self.augmented_frames 
+            #return self.image, self.frames
 
     def draw_debug_rects(self) :
         if not self.options.get("draw_final_rects") :
