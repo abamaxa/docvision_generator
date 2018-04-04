@@ -10,7 +10,10 @@ test_params = {
     "probability_list" : [[0.5, "Option 1"], [1.0, "Option 2"]],
     "min_max_dict" : {"min" : 1, "max" : 100},
     "min_max_scale_dict" : {"min" : 100, "max" : 10000, "scale": 0.01},
-    "invalid_dict" : {}
+    "invalid_dict" : {},
+    "percent" : "10%",
+    "percent_dict" : {"min" : "5%", "max" : "30%"},
+    "percent_list" : ["5%", "10%", "15%"]
 }
 
 class ParameterParserTest(unittest.TestCase) :
@@ -60,6 +63,24 @@ class ParameterParserTest(unittest.TestCase) :
         self.assertTrue(isinstance(value, float))
         self.assertAlmostEqual(value, 19.24)
         
+    def test_percent_value(self):
+        self.assertFalse(self.parser.is_percentage_value("min_max_scale_dict"))
+        self.assertTrue(self.parser.is_percentage_value("percent"))
+        value = self.parser.realize_parameter("percent")  
+        self.assertTrue(isinstance(value, float))
+        self.assertAlmostEqual(value, 0.1)    
+        
+    def test_percent_list_value(self):
+        self.assertTrue(self.parser.is_percentage_value("percent_list"))
+        value = self.parser.realize_parameter("percent_list")  
+        self.assertTrue(isinstance(value, float))
+        self.assertAlmostEqual(value, 0.15)  
+        
+    def test_percent_dict_value(self):
+        self.assertTrue(self.parser.is_percentage_value("percent_dict"))
+        value = self.parser.realize_parameter("percent_dict")  
+        self.assertTrue(isinstance(value, float))
+        self.assertAlmostEqual(value, 0.20985669)  
         
     def test_invalid_dict(self) :
         with self.assertRaises(NotImplementedError) :

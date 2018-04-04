@@ -3,6 +3,7 @@ import argparse
 import multiprocessing as mp
 import logging
 import cProfile, pstats, io
+import random
 
 from page_generator import ConstructedPage, FilePersistence
 from webserver import Webserver
@@ -117,7 +118,12 @@ def main():
         "-a",
         "--augment",
         help="Augment images",
-        action="store_true")         
+        action="store_true")   
+    parser.add_argument(
+        "-c",
+        "--chop",
+        help="Chop up image into subimages",
+        action="store_true")            
     parser.add_argument(
         "--augmentation_file",
         help="JSON file containing parameters for the augmentor",
@@ -149,6 +155,7 @@ def main():
         "outputSize": (args.dimension, args.dimension),
         "augmentation_file" : args.augmentation_file,
         "augment" : args.augment,
+        "chop" : args.chop,
         "draw_debug_rects" : False,
         "draw_final_rects" : True,
         "template" : args.template,
@@ -179,6 +186,8 @@ def main():
         print("Generating {} images starting at {}".format(args.count, args.initial))
         
         if args.num_processes == 0:    
+            random.seed(42)
+            #logging.basicConfig(level=logging.DEBUG)
             for i in range(args.initial, args.initial + args.count) :
                 print(make_question(str(i), options))
                 

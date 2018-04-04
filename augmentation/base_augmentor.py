@@ -36,7 +36,8 @@ class AbstractAugmentor(object) :
         self.augmented_frames = None
         
         self.current = 0
-        self.count = int(len(question.get_frames()) * 1.5)
+        self.count = 0
+        self.__calculate_number_of_images_to_generate()
         self.load_augmentation_options()
         
     def __iter__(self):
@@ -50,21 +51,37 @@ class AbstractAugmentor(object) :
             self.augmented_frames = None
             self.image, self.frames = self.tiler.get_tile()
 
-            self.generate_augmented_image()
+            if self.options["augment"] :
+                self.generate_augmented_image()
             
-            #self.draw_debug_rects()
+            self.draw_debug_rects()
             
             self.current += 1
             
+            return self.__images_to_return()
+            
+            
+    def __images_to_return(self) :
+        if self.options["augment"] :
             return self.augmented_image, self.augmented_frames 
-            #return self.image, self.frames
+        else :
+            return self.image, self.frames
+        
+    def __calculate_number_of_images_to_generate(self) :
+        if self.options["chop"] :
+            self.count = int(len(question.get_frames()) * 1.5)
+        else :
+            self.count = 1   
 
     def draw_debug_rects(self) :
         if not self.options.get("draw_final_rects") :
             return
         
-        draw = ImageDraw.Draw(self.augmented_image)
-        for rect, _ in self.augmented_frames :
+        image, frames = self.__images_to_return()
+        
+        draw = ImageDraw.Draw(image)
+        
+        for rect, _ in frames :
             if rect[0][0] == -1 and rect[0][1] == -1 :
                 continue
             

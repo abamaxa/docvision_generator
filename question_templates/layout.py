@@ -11,7 +11,7 @@ class Layout :
     def get_max_child_size(self) :
         return Size(self.width, self.height)
     
-    def get_content_size(self) :   
+    def get_element_size(self) :   
         self.layout()
         bounds = self.children[0].bounds
         for i in range(1, len(self.children)) :

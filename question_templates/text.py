@@ -14,12 +14,13 @@ class Text(Drawable) :
                  
     def update_page_parameters(self, page) :
         super().update_page_parameters(page)
-        self.align = self.realize_parameter("align", TextRenderer.AlignJustify)
+        self.align = self.realize_parameter("align", page.parameters.text_align)
         self.__set_text(page)
         self.color = page.parameters.text_color
         
-    def get_content_size(self) :  
-        return Size(Drawable.FILL_PARENT, self.text_height)
+    def get_element_size(self) :  
+        size = self.calculate_size_from_inner_size(Size(Drawable.FILL_PARENT, self.text_height))
+        return Size(Drawable.FILL_PARENT, size.height)
         
     def calculate_dimensions(self, draw, size) :
         self._bounds = Bounds(0, 0, size.width, size.height)

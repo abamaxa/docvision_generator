@@ -1,5 +1,8 @@
 from abc import abstractmethod
 
+class BoundsError(Exception):
+    pass
+        
 class DimensionObject(object) :
     def __init__(self) :
         self._counter = 0
@@ -30,10 +33,10 @@ class Size(DimensionObject) :
     def __init__(self, width = None, height = None) :
         super().__init__()
         if not width is None and width < 0 :
-            raise ValueError("Width cannot be less than zero : '{}'".format(width))
+            raise BoundsError("Width cannot be less than zero : '{}'".format(width))
         
         if not height is None and height < 0 :
-            raise ValueError("Height cannot be less than zero : '{}'".format(height))
+            raise BoundsError("Height cannot be less than zero : '{}'".format(height))
         
         self._width = width
         self._height = height
@@ -51,9 +54,9 @@ class Size(DimensionObject) :
     
     def __getitem__(self, index):
         if index == 0 :
-            return self._width
+            return int(self._width)
         elif index == 1 :
-            return self._height   
+            return int(self._height)   
         else :
             raise IndexError
     
@@ -80,9 +83,9 @@ class Origin(DimensionObject) :
     
     def __getitem__(self, index):
         if index == 0 :
-            return self._x
+            return int(self._x)
         elif index == 1 :
-            return self._y   
+            return int(self._y)  
         else :
             raise IndexError      
     
@@ -210,14 +213,14 @@ class Bounds(DimensionObject) :
     
     def __getitem__(self, index):
         if index == 0 :
-            return (self.x, self.y)
+            return (int(self.x), int(self.y))
         elif index == 1 :
-            return (self.x2, self.y)
+            return (int(self.x2), int(self.y))
         elif index == 2 :
-            return (self.x2, self.y2)
+            return (int(self.x2), int(self.y2))
         elif index == 3 :
-            return (self.x, self.y2)
+            return (int(self.x), int(self.y2))
         elif index == 4 :
-            return (self.x, self.y)
+            return (int(self.x), int(self.y))
         
         raise IndexError       

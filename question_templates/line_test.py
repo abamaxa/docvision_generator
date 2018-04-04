@@ -9,3 +9,8 @@ from question_templates import *
 class HorizontalLineTest(DrawableTest) :
     def _create_drawable(self, parameters = {}) :
         self.drawable = HorizontalLine(parameters)
+        
+
+class VerticalLineTest(DrawableTest) :
+    def _create_drawable(self, parameters = {}) :
+        self.drawable = VerticalLine(parameters)

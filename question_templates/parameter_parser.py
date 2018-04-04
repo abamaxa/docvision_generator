@@ -2,9 +2,15 @@ import random
 
 from graphics.util import pick_from_list
 
+class ParameterError(Exception) :
+    pass
+
 class ParameterParser :
     def __init__(self, parameters) :
         self.parameters = parameters
+        
+    def is_percentage_value(self, parameter_name) :
+        return self.__is_percentage_value(self.parameters.get(parameter_name))
 
     def realize_parameter(self, parameter_name, default = None) :
         if not parameter_name in self.parameters :
@@ -18,17 +24,29 @@ class ParameterParser :
             return pick_from_list(value)
         
         elif isinstance(value, list) :
-            return random.choice(value)
+            return self.random_choice(value)
         
         elif isinstance(value, dict) :
             return self.realize_dict(value)
         
         else :
-            return value
+            return self.as_value(value)
         
     def realize_dict(self, dict_value) :
+        rand_value = None
+        if self.__is_percentage_value(dict_value) :
+            dict_value = self.__convert_percentage_value(dict_value)
+                    
         if "min" in dict_value and "max" in dict_value :
-            rand_value = random.randint(dict_value.get("min"), dict_value.get("max"))
+            min_v = dict_value.get("min")
+            max_v = dict_value.get("max")
+            if isinstance(min_v, int) and isinstance(max_v, int) :
+                rand_value = random.randint(dict_value.get("min"), dict_value.get("max"))
+            else :
+                rand_value = dict_value.get("min")
+                rand_value += random.random() * (dict_value.get("max") - dict_value.get("min"))            
+            
+        if not rand_value is None :    
             return rand_value * dict_value.get("scale", 1)        
         
         #parser = ParameterParser(dict_value)
@@ -55,3 +73,41 @@ class ParameterParser :
     
     def true_or_false(self, value):
         return random.random() < value
+    
+    def random_choice(self, value) :
+        value = random.choice(value)
+        if self.__is_percentage_value(value) :
+            value = self.__convert_percentage_value(value)
+            
+        return value
+    
+    def __is_percentage_value(self, value) :
+        if isinstance(value, str) and value.endswith('%') :
+            return True
+        elif isinstance(value, list) :
+            return all([self.__is_percentage_value(v) for v in value])
+        elif isinstance(value, dict) :
+            if "min" in value and "max" in value :
+                return self.__is_percentage_value(value["min"]) and \
+                       self.__is_percentage_value(value["max"])         
+            
+        return False 
+    
+    def __convert_percentage_value(self, value) :
+        if isinstance(value, str) and value.endswith('%') :
+            return float(value[:-1]) * 0.01
+        elif isinstance(value, list) :
+            return [self.__convert_percentage_value(v) for v in value]
+        elif isinstance(value, dict) :
+            if "min" in value and "max" in value :
+                value["min"] = self.__convert_percentage_value(value["min"])
+                value["max"] = self.__convert_percentage_value(value["max"])
+                return value                
+                            
+        raise ParameterError("Values {} could not be converted as a percerntage".format(value))
+                        
+    def as_value(self, value) :
+        if self.__is_percentage_value(value) :
+            value = self.__convert_percentage_value(value)
+            
+        return value

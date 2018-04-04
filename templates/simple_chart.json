@@ -1,5 +1,6 @@
 {
 "name" : "simple_chart",
+"test" : 1,
 "question" : {
     "border_probability" : 0.1,
     "elements" : [
@@ -20,7 +21,7 @@
                 {
                     "class" : "Diagram",
                     "type" : "cross",
-                    "repeat" : 4
+                    "repeat" : 3
                 }
             ]
         },

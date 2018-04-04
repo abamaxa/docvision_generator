@@ -1,7 +1,7 @@
 from .drawable import Drawable
 from .text import Text
 from .line import HorizontalLine
-from .parameter_parser import ParameterParser
+from .parameter_parser import ParameterParser, ParameterError
 from .formula import Formula
 from .graph import Graph
 from .diagram import Diagram
@@ -16,12 +16,12 @@ class Container(Drawable) :
         self.column_width = 0
         self.create_children(parameters)
         
-    def get_content_size(self) :
+    def get_element_size(self) :
         if self._children :
             layout_policy = self.__get_layout_policy(self.inner_bounds)
-            return layout_policy.get_content_size()    
+            return layout_policy.get_element_size()    
         else :
-            return super().get_content_size()
+            return super().get_element_size()
     
     def create_children(self, parameters) :
         for element in parameters.get("elements", []) :
@@ -31,7 +31,7 @@ class Container(Drawable) :
         parser = ParameterParser(element)
         class_name = parser.realize_parameter("class")
         if not class_name :
-            raise ValueError("Elements must specify a class") 
+            raise ParameterError("Elements must specify a class") 
         
         if self.__skip_element(parser) :
             return
@@ -42,7 +42,7 @@ class Container(Drawable) :
         
         for _ in range(self.__number_of_extra_elements_to_create(parser)) :
             new_element = klass(element)
-            new_element.set_primary_element(primary_element)
+            new_element.primary_element = primary_element
             self._children.append(new_element)  
             
     def __skip_element(self, parser) :
@@ -58,7 +58,7 @@ class Container(Drawable) :
         super().update_page_parameters(page)
             
     def calculate_dimensions(self, draw, size) : 
-        inner_size = self.calculate_content_from_size(size)
+        inner_size = self._calculate_content_from_size(size)
         layout_policy = self.__get_layout_policy(inner_size)
         max_child_size = layout_policy.get_max_child_size()
         for child in self._children :
@@ -70,7 +70,7 @@ class Container(Drawable) :
         super().layout(bounds)
         layout_policy = self.__get_layout_policy(self.inner_bounds)
         layout_policy.layout()
-        size = layout_policy.get_content_size()
+        size = layout_policy.get_element_size()
         outer_size = self.calculate_size_from_inner_size(size)
         self._bounds = Bounds(bounds.x, bounds.y, bounds.width, outer_size.height)
                 

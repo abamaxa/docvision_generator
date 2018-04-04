@@ -54,12 +54,18 @@ class DrawableTest(unittest.TestCase) :
         return Size(BOUNDS_WIDTH,BOUNDS_HEIGHT) 
     
     def _get_expected_inner_size(self) :
-        width, height = self.drawable.get_content_size()
-        padding_and_margin = MARGIN + PADDING
+        width, height = self.drawable.get_element_size()
+        padding_and_margin = 2 * (MARGIN + PADDING)
         if width == Drawable.FILL_PARENT :
-            width = BOUNDS_WIDTH - (2 * padding_and_margin)
+            width = BOUNDS_WIDTH - padding_and_margin
+        else :
+            width -= padding_and_margin
+            
         if height == Drawable.FILL_PARENT :
-            height = BOUNDS_HEIGHT - (2 * padding_and_margin)
+            height = BOUNDS_HEIGHT - padding_and_margin
+        else :
+            height -= padding_and_margin
+            
         return Size(width, height)
               
     def test_inner_bounds(self) :    

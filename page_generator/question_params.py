@@ -3,7 +3,7 @@ import string
 import json
 import os
 
-from graphics import Draw
+from graphics import Draw, TextRenderer
 from graphics.util import pick_from_list, generate_shade_of_dark_grey, generate_shade_of_light_grey
 from .dictionary_generator import TextGen
 
@@ -85,6 +85,9 @@ class QuestionParams(dict):
 
         self.line_spacing = pick_from_list(
             ((0.65, 1.2), (0.85, 1.3), (1.0, 1.5)))
+        
+        self.text_align = pick_from_list(((0.9, TextRenderer.AlignLeft), 
+                                          (1.0, TextRenderer.AlignJustify)))
 
     def generate_margins_and_padding(self) :
         self.left_margin = self.width * (0.03 + (0.05 * random.random()))

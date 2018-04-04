@@ -1,3 +1,5 @@
+import logging
+
 from .drawable import Drawable
 from .rectangular_content import RectangularContent
 
@@ -26,10 +28,18 @@ class Graph(RectangularContent) :
         self.create_proxy()
         x, y = self.inner_bounds.origin
         width, height = self.inner_bounds.size
+        logging.debug("Render Graphic of type %s (%d,%d) (%d,%d)", 
+                      self.graphic_type, x, y, width, height)
+        
         image = self.proxy.get_image()
-        
-        x += (width - image.width) // 2
-        y += (height - image.height) // 2
-        
-        draw.blit(image, (int(x), int(y)))
+        image = image.resize(tuple(self.bounds.size))
+        #x += (width - image.width) // 2
+        #y += (height - image.height) // 2
+        #draw.blit(image, (int(x), int(y)))
+                
+        draw.blit(image, (
+            int(self.inner_bounds.x),
+            int(self.inner_bounds.y),                         
+            int(self.inner_bounds.x2), 
+            int(self.inner_bounds.y2)))        
         

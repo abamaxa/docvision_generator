@@ -36,27 +36,27 @@ class TextTest(DrawableTest) :
         json ={
             "class" : "Text",
             "sentences" : 1,
-            "margin_left" : 5                
+            "margin_left" : 20                
         }
         
         self._create_drawable(json) 
         self.update_drawable() 
         
         bounds = self.drawable.inner_bounds
-        self.assertEqual(bounds.x, 35)  
+        self.assertEqual(bounds.x, PADDING + json['margin_left'])  
         
     def test_padding(self) :
         json ={
             "class" : "Text",
             "sentences" : 1,
-            "margin_left" : 5                
+            "padding_left" : 20                
         }
         
         self._create_drawable(json) 
         self.update_drawable() 
         
         bounds = self.drawable.inner_bounds
-        self.assertEqual(bounds.x, 35)      
+        self.assertEqual(bounds.x, MARGIN + json['padding_left'])      
 
     def test_no_border_bounds(self) :   
         json ={

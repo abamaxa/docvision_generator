@@ -12,9 +12,9 @@ class Formula(Drawable) :
         function = getattr(self.proxy, function_name)
         function()    
         
-    def get_content_size(self) :
+    def get_element_size(self) :
         size = self.proxy.image.size
-        return graphics.Size(size[0], size[1])
+        return self.calculate_size_from_inner_size(graphics.Size(size[0], size[1]))
         
     def render(self, draw) :
         super().render(draw)        

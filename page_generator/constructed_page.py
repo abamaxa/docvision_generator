@@ -1,4 +1,6 @@
-from graphics import Bounds
+import logging
+
+from graphics import Bounds, BoundsError
 from .page import Page
 from .constructed_page_factory import ConstructedQuestionFactory
 from question_templates import ParameterParser, Numerator
@@ -12,14 +14,14 @@ class ConstructedPage(Page) :
         self._numerator = None
         self.__create_numerator()
                       
-    def create_question(self):
-        trys = 0
-        try :
-            for attempts in range(3) :
+    def create_question(self) :
+        for attempts in range(3) :
+            try :
                 self.get_area_for_next_question()
                 if self.area_for_next_question is None:
+                    logging.debug("No space available")
                     break
-
+    
                 self.get_template()
                 self.prepare_question()
                 new_rect = self.get_question_area()
@@ -30,9 +32,9 @@ class ConstructedPage(Page) :
                     self.add_detection_frame(new_rect, self.current_question.type)
                     return new_rect
 
-        except ValueError :
-            # Ran out of space
-            pass
+            except BoundsError as e :
+                # Ran out of space
+                logging.debug("Ran out of space")
             
     def get_area_for_next_question(self) :
         self.area_for_next_question = None
@@ -49,6 +51,8 @@ class ConstructedPage(Page) :
             self.current_question = self.factory.create_question_from_template(name)           
         else :
             self.current_question = self.factory.create_question_from_random_template()
+            
+        logging.debug("Current template is '%s'", self.current_question.type)
     
     def prepare_question(self) :
         self.current_question.update_page_parameters(self)

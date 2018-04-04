@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 class AbstractDrawable(ABC) :
     @abstractmethod
-    def get_content_size(self) :
+    def get_element_size(self) :
         pass
     
     @abstractmethod

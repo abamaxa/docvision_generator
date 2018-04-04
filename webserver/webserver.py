@@ -8,6 +8,9 @@ import jinja2
 
 from page_generator import ConstructedPage, ZipBufferPersistence
 
+class WebserverError(Exception) :
+    pass
+
 class Webserver :
     def __init__(self, num_process, queue_size, port, first_image_number, options) :
         self.queue_size = queue_size
@@ -68,15 +71,15 @@ class Webserver :
         try :
             width = int(data['width'])
             if width < 100 or width > 4000 :
-                raise ValueError("Image width must be between 100 and 4000")
+                raise WebserverError("Image width must be between 100 and 4000")
             
             length = int(data['height'])
             if length < 100 or length > 4000 :
-                raise ValueError("Image height must be between 100 and 4000")    
+                raise WebserverError("Image height must be between 100 and 4000")    
             
             tile_size = int(data["tile_size"])
             if tile_size < 100 or tile_size > 4000 :
-                raise ValueError("Tile size must be between 100 and 4000")              
+                raise WebserverError("Tile size must be between 100 and 4000")              
             
             self.options["dimensions"] = (width, length)
             self.options["outputSize"] = (tile_size, tile_size)

@@ -1,5 +1,5 @@
 import random
-
+import math
 import matplotlib
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -12,23 +12,29 @@ class Graph :
         random.shuffle(self.labels)
         self.num_points = random.randint(min(3, len(self.labels)),max(7,len(self.labels)))
         dpi = 100
-        self.fig = Figure((width // dpi, height // dpi), dpi = dpi)
+        self.fig = Figure((math.ceil(width / dpi), math.ceil(height / dpi)), dpi = dpi)
         self.fig.patch.set_facecolor('none')
         self.fig.patch.set_alpha(0)
         self.canvas = FigureCanvas(self.fig)
                     
     def generate_bar(self) :
-        ax = self.fig.add_subplot(111)
+        ax = self.__get_sub_plot()   
         ax.bar(self.__get_x_data(), self.__get_y_data(), color = self.__get_color()) 
         
     def generate_line(self) :
-        ax = self.fig.add_subplot(111)
+        ax = self.__get_sub_plot()   
         ax.plot(self.__get_x_series(), self.__get_y_data(), color = self.__get_color())    
         
     def generate_pie(self) :
-        ax = self.fig.add_subplot(111)    
+        ax = self.__get_sub_plot()   
         ax.pie(self.__get_y_data(), labels=self.__get_x_data())
         ax.axis('equal')
+        
+    def __get_sub_plot(self) :
+        ax = self.fig.add_subplot(111)
+        ax.set_facecolor('none')
+        ax.set_alpha(0)   
+        return ax
 
     def get_image(self) :
         self.canvas.draw()

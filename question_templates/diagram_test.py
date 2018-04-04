@@ -17,7 +17,7 @@ class DiagramTest(DrawableTest) :
         self.drawable = Diagram(parameters)
         
     def test_no_type(self) :
-        with self.assertRaises(ValueError) :
+        with self.assertRaises(ParameterError) :
             self.drawable = Diagram({})   
             
     def test_layout(self) :

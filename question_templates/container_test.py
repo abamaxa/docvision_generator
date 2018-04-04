@@ -33,7 +33,7 @@ class ContainerTest(DrawableTest) :
 
         self._create_drawable()
         self.drawable.create_children(json)
-        self.assertEqual(len(self.drawable._children), 3)       
+        self.assertEqual(len(self.drawable._children), 4)       
         
     def test_create_probability(self) :
         json = {

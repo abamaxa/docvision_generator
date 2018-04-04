@@ -10,9 +10,11 @@
         },
         {
             "class" : "Diagram",
-            "type" : ["triangle", "circle", "quadrilateral"],
+            "type" : ["triangle", "circle", "quadrilateral", "cross"],
+            "number_level" : 1,
+            "padding_left_right" : {"min": "15%", "max": "30%"},
             "border" : {
-                "probability" : 1.0,
+                "probability" : 0.1,
                 "style" : 1,
                 "width" : {"min" : 1, "max" : 8}
             }
@@ -20,6 +22,7 @@
         {
             "class" : "Text",
             "probability" : 0.5,
+            "padding_left_right" : {"min": "0%", "max": "30%"},
             "words" : {"min": 3, "max": 6},
             "bold_words_probability" : 0.1,
             "bold_words_count" : 0.1,

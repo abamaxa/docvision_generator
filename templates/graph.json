@@ -1,5 +1,6 @@
 {
-"name" : "graph",
+"name" : "multi_graph",
+
 "question" : {
     "border" : {
         "probability" : 0.1,
@@ -27,6 +28,7 @@
             "elements" : [
                 {
                     "class" : "Graph",
+                    "repeat" : 3,
                     "type" : ["bar", "line", "pie"]
                 }
             ]
