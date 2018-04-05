@@ -69,7 +69,7 @@ class AbstractAugmentor(object) :
         
     def __calculate_number_of_images_to_generate(self) :
         if self.options["chop"] :
-            self.count = int(len(question.get_frames()) * 1.5)
+            self.count = int(len(self.question.get_frames()) * 1.5)
         else :
             self.count = 1   
 
