@@ -29,7 +29,8 @@
                 {
                     "class" : "Graph",
                     "repeat" : 3,
-                    "type" : ["bar", "line", "pie"]
+                    "type" : ["bar", "line", "pie"],
+                    "padding" : {"min" : "1%", "max" : "2%"}
                 }
             ]
         },
@@ -39,7 +40,8 @@
             "bold_words_probability" : 0.1,
             "bold_words_count" : 0.1,
             "repeat" : [1,2],
-            "number_level" : 1
+            "number_level" : 1,
+            "padding_top_bottom" : ["0.5%", "1%", "2%"]
         }
     ]
 }

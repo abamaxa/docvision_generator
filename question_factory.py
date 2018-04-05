@@ -187,7 +187,7 @@ def main():
         
         if args.num_processes == 0:    
             random.seed(42)
-            #logging.basicConfig(level=logging.DEBUG)
+            #logging.basicConfig(level=logging.INFO)
             for i in range(args.initial, args.initial + args.count) :
                 print(make_question(str(i), options))
                 

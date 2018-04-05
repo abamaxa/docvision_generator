@@ -28,13 +28,20 @@ class ConstructedPage(Page) :
                 
                 if self.rect_fits_in_current_frame(new_rect):
                     self.set_measure_only_mode(False)
+                    logging.info("Rendering %s to %s", self.current_question.type, 
+                             self.current_question.bounds)
                     self.current_question.render(self.draw)
                     self.add_detection_frame(new_rect, self.current_question.type)
                     return new_rect
+                else :
+                    logging.info("Could not render %s, %s into %s", self.current_question.type, 
+                             self.current_question.bounds, self.area_for_next_question.size)                    
 
             except BoundsError as e :
                 # Ran out of space
-                logging.debug("Ran out of space")
+                logging.info("Ran out of space %s %s %s", self.current_question.type, 
+                             self.current_question.bounds.size,
+                             self.area_for_next_question.size)
             
     def get_area_for_next_question(self) :
         self.area_for_next_question = None
@@ -52,7 +59,7 @@ class ConstructedPage(Page) :
         else :
             self.current_question = self.factory.create_question_from_random_template()
             
-        logging.debug("Current template is '%s'", self.current_question.type)
+        logging.info("Current template is '%s'", self.current_question.type)
     
     def prepare_question(self) :
         self.current_question.update_page_parameters(self)

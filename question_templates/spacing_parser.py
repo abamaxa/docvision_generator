@@ -18,7 +18,7 @@ class SpacingParser :
         value = self.parser.realize_parameter(parameter_name, default)
         if self.parser.is_percentage_value(parameter_name) :
             value *= self.page.parameters.get_column_width() 
-            
+                
         return value
         
     def __get_top_name(self) :

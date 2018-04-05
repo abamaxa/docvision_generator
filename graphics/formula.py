@@ -37,11 +37,12 @@ LATEX_TEMPLATE_END = r"""
 """
 
 class Formula :
-    def __init__(self) :
+    def __init__(self, text_size) :
         self.working_dir = None
         self._image = None
         self.latex_stdout = None
         self.dvipng_stdout = None
+        self.text_size = str(text_size * 80)
         self.__calculate_random_value_dict()
         
     @property
@@ -188,7 +189,7 @@ class Formula :
     def __convert_dvi_to_image(self) :
         # dvipng is not available in brew or the light version of mactex, although
         # it is readily available on linux/docker.
-        cmd = ["dvipng", "-q", "-x", "1400", "-p", "1", "--height", "--depth"]
+        cmd = ["dvipng", "-q", "-x", self.text_size, "-p", "1", "--height", "--depth"]
         cmd.extend(["-T", "tight", "-bg", "transparent", "--png", "-z", "0", "-o"])
         cmd.append(self.__get_image_filepath())
         cmd.append(self.__get_dvi_filepath())

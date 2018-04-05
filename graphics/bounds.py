@@ -43,11 +43,11 @@ class Size(DimensionObject) :
         
     @property
     def width(self) :
-        return self._width
+        return int(self._width)
     
     @property
     def height(self) :
-        return self._height
+        return int(self._height)
     
     def __repr__(self) :
         return "Width: {} Height: {}".format(self.width, self.height)
@@ -72,11 +72,11 @@ class Origin(DimensionObject) :
         
     @property
     def x(self) :
-        return self._x
+        return int(self._x)
     
     @property
     def y(self) :
-        return self._y 
+        return int(self._y)
     
     def __repr__(self) :
         return "x: {} y: {}".format(self.x, self.y)    

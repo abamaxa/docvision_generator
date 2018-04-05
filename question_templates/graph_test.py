@@ -3,7 +3,7 @@ import random
 from unittest.mock import patch, call, MagicMock
 
 from graphics import Bounds, Draw
-from question_templates.drawable_test import DrawableTest
+from question_templates.drawable_test import DrawableTest, create_test_page
 from question_templates import *
 
 graph_parameters = {
@@ -19,3 +19,6 @@ class GraphTest(DrawableTest) :
     def test_no_type(self) :
         with self.assertRaises(ParameterError) :
             self.drawable = Graph({})    
+            
+
+        

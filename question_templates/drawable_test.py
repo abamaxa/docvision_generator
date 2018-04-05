@@ -20,21 +20,23 @@ MARGIN = 5
 PADDING = 10
 LINE_HEIGHT = 12
 
+BOUNDS_HEIGHT = 200
+BOUNDS_WIDTH = 100
+
 page_parameters = {
     "line_spacing" : draw_test.LINE_SPACING,
     "line_height" : LINE_HEIGHT,
     "margin_left_right" : MARGIN,
     "margin_top_bottom" : MARGIN,
     "padding_left_right" : PADDING,
-    "padding_top_bottom" : PADDING
+    "padding_top_bottom" : PADDING,
+    "get_column_width.return_value" : BOUNDS_WIDTH,
 }
-
-BOUNDS_HEIGHT = 200
-BOUNDS_WIDTH = 100
 
 def create_test_page() :
     attrs = {
         "parameters" : MagicMock(**page_parameters)
+        
     }
     return MagicMock(spec=Page, **attrs)    
 

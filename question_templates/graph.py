@@ -8,8 +8,12 @@ import graphics
 class Graph(RectangularContent) :
     def __init__(self, parameters) :
        super().__init__(parameters)
-       self.graphic_type = self.realize_required_parameter("type")
-       self.proxy = None
+       self._graphic_type = None
+       self._proxy = None
+    
+    @property
+    def graphic_type(self) :
+        return self._graphic_type
     
     def update_page_parameters(self, page) :
         self.labels = page.get_words(10)
@@ -17,10 +21,15 @@ class Graph(RectangularContent) :
         
     def create_proxy(self) :
         bounds = self.inner_bounds
-        self.proxy = graphics.Graph(bounds.width, bounds.height, self.labels)
+        self._proxy = graphics.Graph(bounds.width, bounds.height, self.labels)
         
+        if self.primary_element :
+            self._graphic_type = self.primary_element.graphic_type
+        else :
+            self._graphic_type = self.realize_required_parameter("type")
+            
         function_name = "generate_" + self.graphic_type
-        function = getattr(self.proxy, function_name)
+        function = getattr(self._proxy, function_name)
         function()        
         
     def render(self, draw) :
@@ -31,8 +40,8 @@ class Graph(RectangularContent) :
         logging.debug("Render Graphic of type %s (%d,%d) (%d,%d)", 
                       self.graphic_type, x, y, width, height)
         
-        image = self.proxy.get_image()
-        image = image.resize(tuple(self.bounds.size))
+        image = self._proxy.get_image()
+        image = image.resize(tuple(self.inner_bounds.size))
         #x += (width - image.width) // 2
         #y += (height - image.height) // 2
         #draw.blit(image, (int(x), int(y)))

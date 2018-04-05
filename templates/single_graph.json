@@ -15,7 +15,8 @@
         {
             "class" : "Graph",
             "type" : ["bar", "line", "pie"],    
-            "padding_left_right" : {"min": "10%", "max": "20%"},
+            "margin_left_right" : {"min": "2%", "max": "5%"},
+            "margin_top_bottom" : {"min": "2%", "max": "5%"},
             "border" : {
                 "probability" : 1.0,
                 "style" : 1,
@@ -29,7 +30,8 @@
             "bold_words_count" : 0.1,
             "repeat" : [2,5],
             "number_level" : 1,
-            "padding_left_right" : {"min": "10%", "max": "30%"}
+            "padding_left_right" : {"min": "5%", "max": "10%"},
+            "padding_top_bottom" : {"min" : "1%", "max" : "2%"}
         }
     ]
 }

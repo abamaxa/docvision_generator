@@ -55,5 +55,3 @@ class Graph :
     
     def __get_color(self) :
         return random.choice(['red','green','blue'])
-    
-    

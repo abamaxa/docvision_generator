@@ -100,9 +100,10 @@ class ParameterParser :
             return [self.__convert_percentage_value(v) for v in value]
         elif isinstance(value, dict) :
             if "min" in value and "max" in value :
-                value["min"] = self.__convert_percentage_value(value["min"])
-                value["max"] = self.__convert_percentage_value(value["max"])
-                return value                
+                copy_value = dict(value)
+                copy_value["min"] = self.__convert_percentage_value(value["min"])
+                copy_value["max"] = self.__convert_percentage_value(value["max"])
+                return copy_value                
                             
         raise ParameterError("Values {} could not be converted as a percerntage".format(value))
                         
