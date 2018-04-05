@@ -21,7 +21,17 @@ class AbstractPersistence(object) :
             "filename": self.get_image_filename(),
         }
         
-        meta_data.update({"frames" : frames})
+        frame_list = []
+        for frame in frames :
+            frame_list.append({
+                "xmin" : frame[0][0][0],
+                "ymin" : frame[0][0][1],
+                "xmax" : frame[0][1][0],
+                "ymax" : frame[0][1][1], 
+                "label" : frame[1]
+            })
+            
+        meta_data.update({"frames" : frame_list})
         return meta_data
     
     def increment_file_count(self) :
