@@ -50,7 +50,13 @@ class AbstractPersistence(object) :
         
     def get_image_type(self) :
         return self.image_format.upper() == "PNG" and "PNG" or "JPEG"
-        
+
+    def get_rbg_image(self, image) :
+        if image.mode == "RGB" :
+            return image
+        else :
+            return image.convert("RGB")        
+
     @abc.abstractmethod
     def save_image(self, image, frames) :
         pass
@@ -69,6 +75,7 @@ class ZipBufferPersistence(AbstractPersistence) :
         self.image_zip = zipfile.ZipFile(self.zip_buffer, 'w') 
         
     def save_image(self, image, frames) :
+        image = self.get_rbg_image(image)
         image_buffer = io.BytesIO()
         image.save(image_buffer, self.get_image_type())
         
@@ -93,6 +100,7 @@ class FilePersistence(AbstractPersistence) :
         super(FilePersistence, self).__init__(name, options)
         
     def save_image(self, image, frames) :
+        image = self.get_rbg_image(image)
         image.save(self.get_image_filename(), self.get_image_type())        
         
         meta_data = self.get_meta_data_dict(image, frames)

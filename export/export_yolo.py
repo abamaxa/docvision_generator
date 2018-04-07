@@ -37,6 +37,7 @@ class YoloImageExport :
             self.output_dir = exporter.make_output_path('eval')
             
         self.file_list = []
+        self.label_map = exporter.label_map
             
     def export(self) :
         self.__prepare_directories()
@@ -75,7 +76,7 @@ class YoloImageExport :
             if idx % 1000 == 0:
                 logging.info('On image %d of %d', idx, len(self.data))
                 
-            yolo_image = YoloImage(json_data, 
+            yolo_image = YoloImage(json_data, self.label_map, 
                                    self.__get_label_directory(), 
                                    self.__get_images_directory()) 
             yolo_image.write()    
@@ -89,11 +90,12 @@ class YoloImageExport :
         return os.path.join(self.output_dir, "filelist.txt")
             
 class YoloImage :
-    def __init__(self, json_data, labels_dir, images_dir) :
+    def __init__(self, json_data, label_map, labels_dir, images_dir) :
         self.labels_dir = labels_dir
         self.images_dir = images_dir
         self.json_data = json_data
         self.labels_records = []
+        self.label_map = label_map
         self.__create_label_records()
         
     def write(self) :
@@ -105,12 +107,12 @@ class YoloImage :
         image_height = self.json_data["height"]
         
         for label in self.json_data["frames"] :
-            class_name = label["label"]
+            class_name = self.label_map[label["label"]]
              
             x = label["xmin"] / image_width
             y = label["ymin"] / image_height
-            width = (label["xmin"] - label["xmax"]) / image_width
-            height = (label["ymin"] - label["ymax"]) / image_height
+            width = (label["xmax"] - label["xmin"]) / image_width
+            height = (label["ymax"] - label["ymin"]) / image_height
 
             if x < 0 or y < 0 :
                 logging.info("Skipping label with invalid x/y")
@@ -126,8 +128,8 @@ class YoloImage :
         
     def __create_symlink_to_image(self) :
         dest_path = self.get_symlink_path()
-        os.symlink(self.json_data["filepath"], dest_path)      
-        
+        #os.symlink(self.json_data["filepath"], dest_path)      
+        shutil.copyfile(self.json_data["filepath"], dest_path)
     def __write_label_records(self) :
         with open(self.__get_label_record_filename(), "w") as label_file :
             label_file.write("\n".join(self.labels_records))
