@@ -61,7 +61,7 @@ class YoloImageExport :
             return
         
         if not self.overwrite_existing :
-            print("Directory {} already exists\n",
+            print("Directory {} already exists\n" \
                   "Any files in this directory will be deleted".format(self.output_dir))
             answer=input("Are you sure you want to overwrite it?\n"
                          "Answer Y to proceed, anything else to abort:")
@@ -79,7 +79,7 @@ class YoloImageExport :
                                    self.__get_label_directory(), 
                                    self.__get_images_directory()) 
             yolo_image.write()    
-            self.file_list.append(yolo_image.get_symlink_path())
+            self.file_list.append(self.json_data["filepath"])
             
     def __write_file_list(self) :
         with open(self.__get_filelist_path(), "w") as file_list :
