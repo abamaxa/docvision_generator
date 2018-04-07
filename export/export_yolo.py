@@ -36,9 +36,12 @@ class YoloImageExport :
             self.data = exporter.evaulation_data
             self.output_dir = exporter.make_output_path('eval')
             
+        self.file_list = []
+            
     def export(self) :
         self.__prepare_directories()
         self.__make_links()
+        self.__write_file_list()
             
     def __prepare_directories(self) :
         self.__check_and_delete_exisiting_directory()
@@ -58,9 +61,9 @@ class YoloImageExport :
             return
         
         if not self.overwrite_existing :
-            print("Directory {} already exists"
+            print("Directory {} already exists\n",
                   "Any files in this directory will be deleted".format(self.output_dir))
-            answer=input("Are you sure you want to overwrite it?"
+            answer=input("Are you sure you want to overwrite it?\n"
                          "Answer Y to proceed, anything else to abort:")
             if answer != "Y" :
                 raise YoloException("Used cancelled")
@@ -75,7 +78,15 @@ class YoloImageExport :
             yolo_image = YoloImage(json_data, 
                                    self.__get_label_directory(), 
                                    self.__get_images_directory()) 
-            yolo_image.write()            
+            yolo_image.write()    
+            self.file_list.append(yolo_image.get_symlink_path())
+            
+    def __write_file_list(self) :
+        with open(self.__get_filelist_path(), "w") as file_list :
+            file_list.write("\n".join(self.file_list))
+        
+    def __get_filelist_path(self) :
+        return os.path.join(self.output_dir, "filelist.txt")
             
 class YoloImage :
     def __init__(self, json_data, labels_dir, images_dir) :
@@ -107,12 +118,15 @@ class YoloImage :
         self.labels_records.append("\n")
         
     def __create_symlink_to_image(self) :
-        dest_path = os.path.join(self.images_dir, self.json_data["filename"])
+        dest_path = self.get_symlink_path()
         os.symlink(self.json_data["filepath"], dest_path)      
         
     def __write_label_records(self) :
         with open(self.__get_label_record_filename(), "w") as label_file :
             label_file.write("\n".join(self.labels_records))
+            
+    def get_symlink_path(self) :
+        return os.path.join(self.images_dir, self.json_data["filename"])
     
     def __get_label_record_filename(self) :
         base_name = os.path.splitext(self.json_data["filename"])[0]
