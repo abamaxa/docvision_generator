@@ -115,6 +115,7 @@ output*/
 .bin
 .vscode/
 www_output/
+yolo/
 
 .DS_Store
 ._.DS_Store
