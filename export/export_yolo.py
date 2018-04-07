@@ -10,7 +10,23 @@ import logging
 class YoloException(Exception) :
     pass
     
-class YoloExport :
+class YoloLabelExport :
+    def __init__(self, exporter) :
+        self.output_dir = exporter.output_dir
+        self.label_map = exporter.label_map
+        self.name = exporter.base_name
+        
+    def export(self) :
+        labels = list(self.label_map.keys())
+        labels.sort()
+        
+        with open(self.__get_label_filepath(), "w") as label_file :
+            label_file.write("\n".join(labels))
+            
+    def __get_label_filepath(self) :
+        return os.path.join(self.output_dir, "{}.names".format(self.name))
+    
+class YoloImageExport :
     def __init__(self, exporter, is_training) :
         self.overwrite_existing = exporter.overwrite_existing
         if is_training :
@@ -21,14 +37,22 @@ class YoloExport :
             self.output_dir = exporter.make_output_path('eval')
             
     def export(self) :
-        self.__prepare_directory()
+        self.__prepare_directories()
         self.__make_links()
             
-    def __prepare_directory(self) :
+    def __prepare_directories(self) :
         self.__check_and_delete_exisiting_directory()
             
         os.makedirs(self.output_dir)
+        os.makedirs(self.__get_label_directory())
+        os.makedirs(self.__get_images_directory())
         
+    def __get_label_directory(self) :
+        return os.path.join(self.output_dir, "labels")
+    
+    def __get_images_directory(self) :
+        return os.path.join(self.output_dir, "images")
+    
     def __check_and_delete_exisiting_directory(self) :
         if not os.path.exists(self.output_dir) :
             return
@@ -48,12 +72,15 @@ class YoloExport :
             if idx % 1000 == 0:
                 logging.info('On image %d of %d', idx, len(self.data))
                 
-            yolo_image = YoloImage(json_data, self.output_dir) 
+            yolo_image = YoloImage(json_data, 
+                                   self.__get_label_directory(), 
+                                   self.__get_images_directory()) 
             yolo_image.write()            
             
 class YoloImage :
-    def __init__(self, json_data, output_dir) :
-        self.output_dir = output_dir
+    def __init__(self, json_data, labels_dir, images_dir) :
+        self.labels_dir = labels_dir
+        self.images_dir = images_dir
         self.json_data = json_data
         self.labels_records = []
         self.__create_label_records()
@@ -80,7 +107,7 @@ class YoloImage :
         self.labels_records.append("\n")
         
     def __create_symlink_to_image(self) :
-        dest_path = os.path.join(self.output_dir, self.json_data["filename"])
+        dest_path = os.path.join(self.images_dir, self.json_data["filename"])
         os.symlink(self.json_data["filepath"], dest_path)      
         
     def __write_label_records(self) :
@@ -89,4 +116,4 @@ class YoloImage :
     
     def __get_label_record_filename(self) :
         base_name = os.path.splitext(self.json_data["filename"])[0]
-        return os.path.join(self.output_dir, base_name + ".txt")
+        return os.path.join(self.labels_dir, base_name + ".txt")

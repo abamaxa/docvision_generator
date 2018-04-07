@@ -110,14 +110,17 @@ class Exporter(object) :
         tf_eval.export()
           
     def create_yolo_files(self) :
-        from export_yolo import YoloExport, YoloException
+        from export_yolo import YoloImageExport, YoloLabelExport, YoloException
         
         try :
-            yolo_training = YoloExport(self, is_training=True)
+            yolo_training = YoloImageExport(self, is_training=True)
             yolo_training.export()
             
-            yolo_evaluate = YoloExport(self, is_training=False)
+            yolo_evaluate = YoloImageExport(self, is_training=False)
             yolo_evaluate.export()    
+            
+            yolo_labels = YoloLabelExport(self)
+            yolo_labels.export()
             
         except YoloException as yolo_except :
             logging.warn(yolo_except.message)
