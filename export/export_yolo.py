@@ -79,7 +79,7 @@ class YoloImageExport :
                                    self.__get_label_directory(), 
                                    self.__get_images_directory()) 
             yolo_image.write()    
-            self.file_list.append(self.json_data["filepath"])
+            self.file_list.append(yolo_image.get_symlink_path())
             
     def __write_file_list(self) :
         with open(self.__get_filelist_path(), "w") as file_list :
@@ -111,7 +111,14 @@ class YoloImage :
             y = label["ymin"] / image_height
             width = (label["xmin"] - label["xmax"]) / image_width
             height = (label["ymin"] - label["ymax"]) / image_height
-           
+
+            if x < 0 or y < 0 :
+                logging.info("Skipping label with invalid x/y")
+                continue
+            if x + width > 1 or y + height > 1 :
+                logging.info("Skipping label with invalid width/height")
+                continue
+
             label_text = "{} {} {} {} {}".format(class_name, x,y,width,height)
             self.labels_records.append(label_text)
             
