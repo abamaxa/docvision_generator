@@ -109,17 +109,11 @@ class YoloImage :
         for label in self.json_data["frames"] :
             class_name = self.label_map[label["label"]]
              
-            x = label["xmin"] / image_width
-            y = label["ymin"] / image_height
             width = (label["xmax"] - label["xmin"]) / image_width
             height = (label["ymax"] - label["ymin"]) / image_height
-
-            if x < 0 or y < 0 :
-                logging.info("Skipping label with invalid x/y")
-                continue
-            if x + width > 1 or y + height > 1 :
-                logging.info("Skipping label with invalid width/height")
-                continue
+            
+            x = (label["xmin"] / image_width) + (width / 2)
+            y = (label["ymin"] / image_height) + (height / 2)           
 
             label_text = "{} {} {} {} {}".format(class_name, x,y,width,height)
             self.labels_records.append(label_text)
@@ -127,9 +121,9 @@ class YoloImage :
         self.labels_records.append("\n")
         
     def __create_symlink_to_image(self) :
-        dest_path = self.get_symlink_path()
-        #os.symlink(self.json_data["filepath"], dest_path)      
+        dest_path = self.get_symlink_path()   
         shutil.copyfile(self.json_data["filepath"], dest_path)
+        
     def __write_label_records(self) :
         with open(self.__get_label_record_filename(), "w") as label_file :
             label_file.write("\n".join(self.labels_records))

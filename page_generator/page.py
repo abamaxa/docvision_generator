@@ -56,15 +56,12 @@ class Page(object):
         self.draw_question_frames()
                
     def save(self) :
-        if self.options["augment"] :
-            tiler = ImageTiler(self, self.options)
-            augmentor = ImgAugAugmentor(self, tiler, self.options)
-        
-            for aug_image, aug_frames in augmentor :
-                self.persister.save_image(aug_image, aug_frames)
-        else :
-            self.persister.save_image(self.get_image(), self.get_frames())
-            
+        tiler = ImageTiler(self, self.options)
+        augmentor = ImgAugAugmentor(self, tiler, self.options)
+    
+        for aug_image, aug_frames in augmentor :
+            self.persister.save_image(aug_image, aug_frames)
+           
     def draw_columns(self):
         params = self.parameters
         column = 1

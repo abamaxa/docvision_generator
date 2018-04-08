@@ -17,9 +17,6 @@ class FormulaTest(DrawableTest) :
         parameters = dict(parameters)
         parameters.update(formula_parameters)
         self.drawable = Formula(parameters)
-        
-    def test_no_type(self) :
-        with self.assertRaises(ParameterError) :
-            self.drawable = Formula({})
+    
             
     

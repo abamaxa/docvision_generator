@@ -2,11 +2,18 @@ from graphics import Bounds, Size, Origin
 from .drawable import Drawable
 
 class Layout :
-    def __init__(self, bounds, children) :
-        self.bounds = bounds
+    def __init__(self, bounds, children, cols = 1) :
         self.children = children
+        self._cols = cols
+        self.update_bounds(bounds)
+                
+    def update_bounds(self, bounds) :
+        self.bounds = bounds
         self.width =  bounds.width # Drawable.FILL_PARENT
-        self.height = bounds.height # Drawable.FILL_PARENT
+        self.height = bounds.height # Drawable.FILL_PARENT    
+        
+    @property
+    def columns(self) : return self._cols
 
     def get_max_child_size(self) :
         return Size(self.width, self.height)
@@ -22,8 +29,10 @@ class Layout :
 class VerticalLayout(Layout) :
     def __init__(self, bounds, children) :
         super().__init__(bounds, children)
-        self.width = bounds.width
-        self.height = int(bounds.width * 0.5)
+                
+    def update_bounds(self, bounds) :
+        super().update_bounds(bounds)
+        self.height = int(bounds.width * 0.5)   
             
     def layout(self) :
         bounds = self.bounds
@@ -33,10 +42,12 @@ class VerticalLayout(Layout) :
     
 class GridLayout(Layout) :
     def __init__(self, bounds, children, cols) :
-        super().__init__(bounds, children)
-        self.cell_width = bounds.width // cols
-        self.cell_height = self.cell_width
-        self.cols = cols
+        super().__init__(bounds, children, cols)
+
+    def update_bounds(self, bounds) :
+        super().update_bounds(bounds)
+        self.cell_width = bounds.width // self.columns
+        self.cell_height = self.cell_width    
         
     def layout(self) :
         x = self.bounds.x
@@ -51,7 +62,7 @@ class GridLayout(Layout) :
             max_height = max(max_height, child.bounds.height)
             col += 1
             
-            if col % self.cols == 0 :
+            if col % self._cols == 0 :
                 x = self.bounds.x
                 y += max_height
                 self.height += max_height

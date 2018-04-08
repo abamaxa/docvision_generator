@@ -16,9 +16,6 @@ class GraphTest(DrawableTest) :
         parameters.update(graph_parameters)        
         self.drawable = Graph(parameters)
         
-    def test_no_type(self) :
-        with self.assertRaises(ParameterError) :
-            self.drawable = Graph({})    
             
 
         

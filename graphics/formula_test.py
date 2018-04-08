@@ -5,16 +5,17 @@ import os
 from PIL import Image
 
 from graphics.formula import Formula
+TEXT_SIZE = 14
 
 class FormulaTest(unittest.TestCase) :
     def setUp(self) :
-        self.formula = Formula()
+        self.formula = Formula(TEXT_SIZE)
         
     def __test_many_times(self, name) :
         for _ in range(10) :
             seed = random.randint(1,35000)
             random.seed(seed)
-            self.formula = Formula()
+            self.formula = Formula(TEXT_SIZE)
             foo = getattr(self.formula, "generate_" + name) 
             foo()
             

@@ -149,7 +149,7 @@ def main():
     args = parser.parse_args()
 
     options = {
-        "format": args.format,
+        "format": args.format.strip(),
         "outputDir": args.output,
         "dimensions": (args.width, args.height),
         "outputSize": (args.dimension, args.dimension),

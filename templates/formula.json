@@ -17,7 +17,7 @@
             "elements" : [
                 {
                     "class" : "Formula",
-                    "repeat" : [6,8,9,12],
+                    "repeat" : [0,1,2],
                     "number_level" : 1,
                     "type" : ["quadratic", "intergral", "inequalities", "surds", "trig", "factorizations", "angle_ranges"],
                     "padding_top_bottom" : 10

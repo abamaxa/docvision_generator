@@ -3,6 +3,9 @@ import os
 import random
 import json
 
+class ExporterException(Exception) :
+    pass
+
 class Exporter(object) :
     def __init__(self, commandline_arguments) :
         self._image_dir = os.path.expanduser(commandline_arguments.image_dir)
@@ -67,12 +70,35 @@ class Exporter(object) :
                 logging.info('On file %d of %d', idx, len(self._file_list))
 
             with open(os.path.join(self._image_dir, filename), "r") as fid:
-                json_data = json.load(fid)
+                try :
+                    json_data = json.load(fid)
+                    
+                    self.__remove_invalid_boxes(json_data)
+                    self.__add_image_file_paths(json_data, filename)
+                    self.__add_missing_labels(json_data)
+                    self._image_list.append(json_data)
+                    
+                except ExporterException as e :
+                    logging.info(e.message)
                 
-                self.__add_image_file_paths(json_data, filename)
-                self.__add_missing_labels(json_data)
-                self._image_list.append(json_data)
-                
+    def __remove_invalid_boxes(self, json_data) : 
+        frames = []
+        width = json_data["width"]
+        height = json_data["height"]
+        for frame in json_data["frames"] :
+            if frame["xmin"] < 0 or frame["ymin"] < 0 :
+                continue
+            
+            if frame["xmax"] > width or frame["ymax"] > height :
+                continue   
+            
+            frames.append(frame)
+            
+        if not len(frames) :
+            raise ExporterException("File contains not valid boxes")
+        
+        json_data["frames"] = frames
+            
     def __add_image_file_paths(self, json_data, json_filename) :
         json_fileparts = os.path.splitext(os.path.basename(json_filename))
         image_fileparts = os.path.splitext(os.path.basename(json_data['filename']))

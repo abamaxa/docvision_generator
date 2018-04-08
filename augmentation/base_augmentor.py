@@ -44,7 +44,7 @@ class AbstractAugmentor(object) :
         return self
 
     def __next__(self): 
-        if self.current > self.count:
+        if self.current >= self.count:
             raise StopIteration
         else:
             self.augmented_image = None
@@ -59,8 +59,7 @@ class AbstractAugmentor(object) :
             self.current += 1
             
             return self.__images_to_return()
-            
-            
+
     def __images_to_return(self) :
         if self.options["augment"] :
             return self.augmented_image, self.augmented_frames 
