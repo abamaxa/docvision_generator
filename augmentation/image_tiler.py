@@ -2,33 +2,39 @@ import random
 
 from PIL import Image, ImageDraw
 from .compositor import QuestionCompositor
-from .rect import *
+from graphics import Frame, Bounds
 
 class ImageTiler :
-    def __init__(self, question, options) :
+    def __init__(self, question) :
         self.image = question.get_image()
         self.frames = question.get_frames()
-        self.options = options
-        self.questions_to_frame = list(self.frames)
         self.returned_whole_page = False
+        self.current = 0
+        self.num_page_tiles = 0
         
     def get_tile(self) :
+        num_frames = len(self.frames) 
         tile = None
         
-        if not self.returned_whole_page :
+        if self.current == 0 :
             tile = self.__get_whole_page()
-            self.returned_whole_page = True
             
-        elif random.random() < 0.7 :
-            tile = self.__get_question_tile()
+        elif self.current <= num_frames * 3 :
+            frame = self.frames[self.current % num_frames]
+            tile = self.__get_question_tile(frame)
             
-        if not tile :
+        elif self.num_page_tiles < 3 :
+            self.num_page_tiles += 1
             tile = self.__get_page_tile()
             
+        if tile is None :
+            raise StopIteration
+
+        self.current += 1
         return tile
-    
+        
     def __get_whole_page(self) :
-        rect = ((0,0), self.image.size)
+        rect = Bounds(0,0, self.image.width, self.image.height)
         image = QuestionCompositor.copy_image_from_rect(self.image, rect)
         return image, self.frames
         
@@ -36,45 +42,20 @@ class ImageTiler :
         img_size = self.image.size
         
         for attempts in range(5) :
-            if attempts < 3 :
-                y_offset = random.randint(0, img_size[1] - img_size[0])
-                
-            else :
-                question_frames = self.frames
-                
-                question_tops = [1 + int(r[0][1]) for r,_ in question_frames]
-                question_tops += [int(r[1][1]) - img_size[0] - 1 for r,_ in question_frames]
-                question_tops = [t for t in question_tops 
-                                 if t >= 0 and t < img_size[1] - img_size[0]]
-
-                y_offset = random.choice(question_tops)
-
-            rect = ((0, y_offset), (img_size[0], img_size[0] + y_offset))
-
-            frames = self.__get_frames_for_region(rect)
-
+            y_offset = random.randint(0, img_size[1] - img_size[0])
+            bounds = Bounds(0, y_offset, img_size[0], img_size[0])
+            
+            frames = self.__get_frames_for_region(bounds)
+            
             if frames :
-                break
+                img = self.__extract_image_region(bounds)
+                return img, frames  
 
-        img = self.__extract_image_region(rect)
-        return img, frames  
-    
-    def __get_question_tile(self) :
-        question_frames = self.questions_to_frame 
-        if not question_frames :
-            return
-    
-        frame_record = random.choice(question_frames)
-        self.questions_to_frame.remove(frame_record)
-        frame, object_type = frame_record
+    def __get_question_tile(self, frame) :                
+        mid_x = frame.x + frame.width / 2
+        mid_y = frame.y + frame.height / 2
         
-        width = frame[1][0] - frame[0][0]
-        height = frame[1][1] - frame[0][1]
-        
-        mid_x = (frame[1][0] + frame[0][0]) / 2
-        mid_y = (frame[1][1] + frame[0][1]) / 2
-        
-        max_dim = max(width, height)
+        max_dim = max(frame.width, frame.height)
         half_dim = max_dim / 2
                 
         top = mid_y - half_dim
@@ -82,35 +63,27 @@ class ImageTiler :
         right = left + max_dim
         bottom = top + max_dim
 
-        question_region = ((left, top), (right, bottom))
-        inflate_by = random.choice([max_dim / 20, max_dim / 10, 
-                                    max_dim / 5, max_dim / 4, 
-                                    max_dim / 3, max_dim / 2])
-        question_region = inflate_rect(question_region, inflate_by, inflate_by)
+        question_region = Bounds(left, top, x2=right, y2=bottom)
+        inflate_by = random.randint(max_dim // 4, max_dim // 2)
+        question_region = question_region.inflate(inflate_by, inflate_by)
         
         frames = self.__get_frames_for_region(question_region)
         
         compositor = QuestionCompositor(self.image, question_region)
-        return compositor.get_composite_image(), frames
+        return compositor.make_composite_image(), frames
             
-    def __get_frames_for_region(self, region_rect) :
-        question_frames = list(self.frames)
-        
-        x_offset = region_rect[0][0]
-        y_offset = region_rect[0][1]
-
+    def __get_frames_for_region(self, region_bounds) :
         region_frames = []
-        for rect, object_type in question_frames :
-            if not rect_enclosed_by_rect(region_rect, rect) :
+        for frame in self.frames :
+            if not frame.enclosed_by_bounds(region_bounds) :
                 continue
             
-            rect = offset_rects([rect], (x_offset, y_offset))
-            region_frames.append((rect[0], object_type))
+            region_frames.append(frame.move(-region_bounds.x, -region_bounds.y))
         
         return region_frames
     
-    def __extract_image_region(self, rect) :
-        return QuestionCompositor.copy_image_from_rect(self.image, rect)
+    def __extract_image_region(self, bounds) :
+        return QuestionCompositor.copy_image_from_rect(self.image, bounds)
     
     def get_frames(self) :
         return self.frames

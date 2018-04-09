@@ -42,10 +42,7 @@ class Graph(RectangularContent) :
         
         image = self._proxy.get_image()
         image = image.resize(tuple(self.inner_bounds.size))
-        #x += (width - image.width) // 2
-        #y += (height - image.height) // 2
-        #draw.blit(image, (int(x), int(y)))
-                
+        
         draw.blit(image, (
             int(self.inner_bounds.x),
             int(self.inner_bounds.y),                         

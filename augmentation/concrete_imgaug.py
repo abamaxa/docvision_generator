@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 
 from .base_augmentor import *
+from graphics import Bounds, Frame
 
 class ImgAugAugmentor(AbstractAugmentor) :
     def __init__(self, question, tiler, options) :
@@ -101,9 +102,9 @@ class ImgAugAugmentor(AbstractAugmentor) :
         
     def convert_frames_to_boxes(self, frames) :
         boxes = []
-        for frame, _ in frames :
-            box = ia.BoundingBox(x1=int(frame[0][0]), y1=int(frame[0][1]),
-                                 x2=int(frame[1][0]), y2=int(frame[1][1]))
+        for frame in frames :
+            box = ia.BoundingBox(x1=int(frame.x),  y1=int(frame.y),
+                                 x2=int(frame.x2), y2=int(frame.y2))
             boxes.append(box)
 
         return ia.BoundingBoxesOnImage(boxes, shape=self.image_np.shape)
@@ -111,12 +112,8 @@ class ImgAugAugmentor(AbstractAugmentor) :
     def convert_boxes_to_frames(self, bbs) :
         frames = []   
         for box, frame in zip(bbs.bounding_boxes, self.frames) :
-            x1 = int(box.x1)
-            y1 = int(box.y1)
-            x2 = int(box.x2)
-            y2 = int(box.y2)
-            rect = ( (x1, y1) , (x2, y2) )
-            frames.append((rect, frame[1]))
+            bounds = Bounds(box.x1, box.y1, x2 = box.x2, y2 = box.y2)
+            frames.append(Frame(bounds, frame.label))
             
         return frames
     

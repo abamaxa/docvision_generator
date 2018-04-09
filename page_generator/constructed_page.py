@@ -31,7 +31,7 @@ class ConstructedPage(Page) :
                     logging.info("Rendering %s to %s", self.current_question.type, 
                              self.current_question.bounds)
                     self.current_question.render(self.draw)
-                    self.add_detection_frame(new_rect, self.current_question.type)
+                    self.add_detection_frame(self.current_question.frame)
                     return new_rect
                 else :
                     logging.info("Could not render %s, %s into %s", self.current_question.type, 

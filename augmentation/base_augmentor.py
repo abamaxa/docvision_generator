@@ -34,31 +34,31 @@ class AbstractAugmentor(object) :
         
         self.augmented_image = None
         self.augmented_frames = None
+        self.num_page_tiles = 0
         
         self.current = 0
-        self.count = 0
-        self.__calculate_number_of_images_to_generate()
         self.load_augmentation_options()
         
     def __iter__(self):
         return self
 
     def __next__(self): 
-        if self.current >= self.count:
-            raise StopIteration
-        else:
-            self.augmented_image = None
-            self.augmented_frames = None
-            self.image, self.frames = self.tiler.get_tile()
-
-            if self.options["augment"] :
-                self.generate_augmented_image()
+        self.__exit_if_not_chopping_pages()
+        self.augmented_image = None
+        self.augmented_frames = None
+        
+        self.image, self.frames = self.tiler.get_tile()
+        
+        if self.options["augment"] :
+            self.generate_augmented_image()
+        else :
+            self.resize_image()
             
-            self.draw_debug_rects()
-            
-            self.current += 1
-            
-            return self.__images_to_return()
+        self.draw_debug_rects()
+        
+        self.current += 1
+        
+        return self.__images_to_return()
 
     def __images_to_return(self) :
         if self.options["augment"] :
@@ -66,11 +66,9 @@ class AbstractAugmentor(object) :
         else :
             return self.image, self.frames
         
-    def __calculate_number_of_images_to_generate(self) :
-        if self.options["chop"] :
-            self.count = int(len(self.question.get_frames()) * 1.5)
-        else :
-            self.count = 1   
+    def __exit_if_not_chopping_pages(self) :
+        if not self.options["chop"] and self.current > 0 :
+            raise StopIteration
 
     def draw_debug_rects(self) :
         if not self.options.get("draw_final_rects") :
@@ -80,11 +78,11 @@ class AbstractAugmentor(object) :
         
         draw = ImageDraw.Draw(image)
         
-        for rect, _ in frames :
-            if rect[0][0] == -1 and rect[0][1] == -1 :
+        for frame in frames :
+            if frame.x == -1 and frame.y == -1 :
                 continue
             
-            draw.rectangle(rect, outline="green") 
+            draw.rectangle(frame.rectangle, outline="green") 
             
         del draw
     
@@ -96,6 +94,14 @@ class AbstractAugmentor(object) :
     def load_augmentation_options(self) :
         with open(self.options.get("augmentation_file"), "r") as json_file :
             self.augmentation_options = json.load(json_file)
+            
+    def resize_image(self) :
+        final_size = self.options.get("outputSize")
+        xscale = final_size[0] / self.image.width
+        yscale = final_size[1] / self.image.height
+        
+        self.frames =[f.scale(xscale, yscale) for f in self.frames]
+        self.image = self.image.resize(final_size, Image.BICUBIC)
     
     @abc.abstractmethod
     def generate_augmented_image(self) :

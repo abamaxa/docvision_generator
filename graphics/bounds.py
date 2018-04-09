@@ -148,6 +148,10 @@ class Bounds(DimensionObject) :
     def rectangle(self) :
         return ((self.x, self.y), (self.x2, self.y2))
     
+    @property
+    def region(self) :
+        return (self.x, self.y, self.x2, self.y2)    
+    
     def inflate(self, inflate_by_x, inflate_by_y):
         return Bounds(self.x - inflate_by_x,
                       self.y - inflate_by_y,

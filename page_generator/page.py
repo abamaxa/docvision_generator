@@ -56,7 +56,7 @@ class Page(object):
         self.draw_question_frames()
                
     def save(self) :
-        tiler = ImageTiler(self, self.options)
+        tiler = ImageTiler(self)
         augmentor = ImgAugAugmentor(self, tiler, self.options)
     
         for aug_image, aug_frames in augmentor :
@@ -114,13 +114,13 @@ class Page(object):
             self.frames.insert(
                 0, ((current_frame[0][0], current_frame[0][1] + height), current_frame[1]))    
            
-    def add_detection_frame(self, frame, object_type) :
-        self.question_frames.append((frame, object_type))
+    def add_detection_frame(self, frame) :
+        self.question_frames.append(frame)
         
     def draw_question_frames(self) :
         if self.options.get("draw_debug_rects") :
-            for rect, object_type in self.question_frames :
-                self._draw.draw_rectangle(rect, outline="blue")  
+            for frame in self.question_frames :
+                self._draw.draw_rectangle(frame.rectangle, outline="blue")  
                             
     def is_page_full(self) :
         if self.options["single"] and self.question_frames :

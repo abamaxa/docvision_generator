@@ -1,6 +1,5 @@
 {
 "google" : {
-    "zone" : 
-}
-
+    "zone" : "europe-west4-b"
+    }
 }

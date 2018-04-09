@@ -4,7 +4,7 @@ This module relies on Latex. To install on mac osx
 1. Download BasicTeX, the basic version of MacTex,
 (http://tug.org/mactex/) and install the pkg file.
 
-2. Install “dvipng” by executing the following commands
+2. Install "dvipng" by executing the following commands
 
 $ sudo tlmgr update --self
 $ sudo tlmgr install dvipng

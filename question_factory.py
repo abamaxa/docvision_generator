@@ -157,7 +157,7 @@ def main():
         "augment" : args.augment,
         "chop" : args.chop,
         "draw_debug_rects" : False,
-        "draw_final_rects" : True,
+        "draw_final_rects" : False,
         "template" : args.template,
         "single" : args.single
     }

@@ -2,6 +2,7 @@ from .drawable import Drawable
 from .container import Container
 from .parameter_parser import ParameterParser
 from .numerator import Numerator
+from graphics import Frame
 
 class Question(Container) :
     DEFAULTS = {
@@ -19,6 +20,10 @@ class Question(Container) :
     @property
     def type(self) :
         return self._type
+    
+    @property
+    def frame(self) :
+        return Frame(self.bounds, self.type)
         
     def update_page_parameters(self, page) :
         Drawable.update_page_parameters(self, page)

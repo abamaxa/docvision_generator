@@ -34,14 +34,3 @@ def generate_background_color():
     color = "#%02x%02x%02x" % (int(red), int(green), int(blue))
     return color
 
-def inflate_rect(rect, inflate_by_x, inflate_by_y):
-    return (
-        (
-            rect[0][0] - inflate_by_x,
-            rect[0][1] - inflate_by_y
-        ),
-        (
-            rect[1][0] + inflate_by_x,
-            rect[1][1] + inflate_by_y
-        ),
-    )
