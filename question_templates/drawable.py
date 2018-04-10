@@ -70,17 +70,24 @@ class Drawable(AbstractDrawable) :
         
         return Bounds(left, top, size.width, size.height)   
     
-    def _calculate_content_from_size(self, size) :
+    @property 
+    def inner_width(self) : 
+        dx = self._margin_left + self._padding_left + self._margin_right + self._padding_right
+        self._bounds.width - dx
+        
+    @property 
+    def _total_margin_left_right(self) : 
         dx = self._margin_left + self._padding_left + self._margin_right + self._padding_right
         dx += self.get_section_number_width()
+        return dx   
+    
+    def _calculate_content_from_size(self, size) :
         dy = self._margin_top + self._padding_top + self._margin_bottom + self._padding_bottom
-        return Size(size.width - dx, size.height - dy)
+        return Size(size.width - self._total_margin_left_right, size.height - dy)
     
     def calculate_size_from_inner_size(self, size) :
-        dy = self._margin_top + self._padding_top + self._margin_bottom + self._padding_bottom
-        dx = self._margin_left + self._padding_left + self._margin_right + self._padding_right
-        dx += self.get_section_number_width()        
-        return Size(size.width + dx, size.height + dy)  
+        dy = self._margin_top + self._padding_top + self._margin_bottom + self._padding_bottom       
+        return Size(size.width +  self._total_margin_left_right, size.height + dy)  
         
     def set_numerator(self, numerator) :
         self._section_number = SectionNumber(self, numerator)

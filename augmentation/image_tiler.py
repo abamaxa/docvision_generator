@@ -14,16 +14,20 @@ class ImageTiler :
         
     def get_tile(self) :
         num_frames = len(self.frames) 
+        if num_frames == 0 :
+            raise StopIteration
+        
         tile = None
         
         if self.current == 0 :
             tile = self.__get_whole_page()
             
-        elif self.current <= num_frames * 3 :
+        elif self.current <= num_frames :
+            raise StopIteration
             frame = self.frames[self.current % num_frames]
             tile = self.__get_question_tile(frame)
             
-        elif self.num_page_tiles < 3 :
+        elif self.num_page_tiles < 1 :
             self.num_page_tiles += 1
             tile = self.__get_page_tile()
             

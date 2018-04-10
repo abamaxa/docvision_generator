@@ -51,6 +51,9 @@ class Page(object):
                 self.update_current_write_location(new_rect)
                 
             else :
+                if not self.question_frames :
+                    logging.error("Created an empty page")
+                    
                 self.mark_page_as_full()
                 
         self.draw_question_frames()

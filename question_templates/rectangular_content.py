@@ -3,10 +3,13 @@ from .drawable import Drawable
 import graphics
 
 class RectangularContent(Drawable) :
+    def __init__(self, parameters) :
+        super().__init__(parameters)
+        self.aspect = self.realize_parameter("aspect_ratio", 0.6)
+        
     def get_element_size(self) :
-        bounds = self.inner_bounds
-        aspect = self.realize_parameter("aspect_ratio", 0.6)
-        size = graphics.Size(bounds.width, int(bounds.width * aspect)) 
+        inner_width = self.bounds.width - self._total_margin_left_right
+        size = graphics.Size(inner_width, int(inner_width * self.aspect)) 
         return self.calculate_size_from_inner_size(size)
     
     def layout(self, bounds) :
