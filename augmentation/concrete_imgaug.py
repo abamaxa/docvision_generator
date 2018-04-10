@@ -79,10 +79,11 @@ class ImgAugAugmentor(AbstractAugmentor) :
     
     def crop_and_pad(self) :
         augmentation = iaa.CropAndPad(
-                percent=(0.0, 0.25),
-                pad_mode=["constant"],
-                pad_cval=(0, 255),
-                #keep_size = False,
+                percent=(self.get_parameter(CROP_AND_PAD,MIN_PERCENT), 
+                         self.get_parameter(CROP_AND_PAD,MAX_PERCENT)),
+                pad_mode=self.get_parameter(CROP_AND_PAD, PAD_MODE),
+                pad_cval=tuple(self.get_parameter(CROP_AND_PAD, CVAL)),
+                keep_size = self.get_parameter(CROP_AND_PAD, KEEP_SIZE),
             )
         return self.sometimes(CROP_AND_PAD, augmentation) 
     
@@ -120,7 +121,7 @@ class ImgAugAugmentor(AbstractAugmentor) :
     def prepare_pipeline(self) :
         self.pipeline = iaa.Sequential(
             [
-                #self.crop_and_pad(),
+                self.crop_and_pad(),
                 iaa.OneOf([
                     self.perspective(),
                     self.affine()

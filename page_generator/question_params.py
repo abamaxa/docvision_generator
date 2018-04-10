@@ -70,8 +70,9 @@ class QuestionParams(dict):
             [self.border_color, self.text_color, "blue", "grey", "green", "purple"])
         
     def create_column_parameters(self) :
-        columns = ((0.66, 1), (0.9, 2), (1., 3))
-        self.columns = pick_from_list(columns)
+        #columns = ((0.66, 1), (0.9, 2), (1., 3))
+        #self.columns = pick_from_list(columns)
+        self.columns = 1
         
     def select_text_parameters(self) :
         font = random.choice(list(QuestionParams.FONTS.keys()))  

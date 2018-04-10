@@ -14,10 +14,7 @@ class ConstructedPage(Page) :
         self._numerator = None
         self.__create_numerator()
                       
-    def create_question(self) :
-        if self.name == "20" :
-            print(self.name)
-            
+    def create_question(self) :            
         for attempts in range(3) :
             try :
                 self.get_area_for_next_question()

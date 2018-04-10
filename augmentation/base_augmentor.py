@@ -43,13 +43,13 @@ class AbstractAugmentor(object) :
         return self
 
     def __next__(self): 
-        self.__exit_if_not_chopping_pages()
         self.augmented_image = None
         self.augmented_frames = None
         
         self.image, self.frames = self.tiler.get_tile()
         
-        if self.options["augment"] :
+        # Never augment the first image
+        if self.options["augment"] and self.current :
             self.generate_augmented_image()
         else :
             self.resize_image()
@@ -61,15 +61,11 @@ class AbstractAugmentor(object) :
         return self.__images_to_return()
 
     def __images_to_return(self) :
-        if self.options["augment"] :
+        if self.options["augment"] and self.augmented_image :
             return self.augmented_image, self.augmented_frames 
         else :
             return self.image, self.frames
         
-    def __exit_if_not_chopping_pages(self) :
-        if not self.options["chop"] and self.current > 0 :
-            raise StopIteration
-
     def draw_debug_rects(self) :
         if not self.options.get("draw_final_rects") :
             return
@@ -97,6 +93,9 @@ class AbstractAugmentor(object) :
             
     def resize_image(self) :
         final_size = self.options.get("outputSize")
+        if self.image.width == final_size[0] and self.image.height == final_size[1] :
+            return
+        
         xscale = final_size[0] / self.image.width
         yscale = final_size[1] / self.image.height
         

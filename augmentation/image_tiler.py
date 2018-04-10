@@ -5,13 +5,19 @@ from .compositor import QuestionCompositor
 from graphics import Frame, Bounds
 
 class ImageTiler :
-    def __init__(self, question) :
-        self.image = question.get_image()
-        self.frames = question.get_frames()
+    def __init__(self, page) :
+        self.image = page.get_image()
+        self.frames = page.get_frames()
         self.returned_whole_page = False
         self.current = 0
+        self.chop = page.options["chop"]
         self.num_page_tiles = 0
         
+        if self.chop :
+            self.num_page_tiles = 1
+        elif page.options["augment"] :
+            self.num_page_tiles = 3
+                
     def get_tile(self) :
         num_frames = len(self.frames) 
         if num_frames == 0 :
@@ -22,12 +28,12 @@ class ImageTiler :
         if self.current == 0 :
             tile = self.__get_whole_page()
             
-        elif self.current <= num_frames :
+        elif self.current <= num_frames and self.chop :
             frame = self.frames[self.current % num_frames]
             tile = self.__get_question_tile(frame)
             
-        elif self.num_page_tiles < 1 :
-            self.num_page_tiles += 1
+        elif self.num_page_tiles :
+            self.num_page_tiles -= 1
             tile = self.__get_page_tile()
             
         if tile is None :

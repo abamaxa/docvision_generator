@@ -92,9 +92,9 @@ class SectionNumber :
         if self._number is None :
             return 0
         elif self._style == "letter" :
-            return 30
+            return 40
         elif self._style == "decimal" :
-            return 45        
+            return 50        
         else :
             return 60
         
@@ -105,8 +105,8 @@ class SectionNumber :
         number_length = draw.text_size(self._number + "  ")
         
         inner_bounds = self._drawable.inner_bounds
-        pos = (inner_bounds.x - number_length[0], inner_bounds.y)
-        #pos = (inner_bounds.x + self.get_width() - number_length[0], inner_bounds.y)
+        #pos = (inner_bounds.x - number_length[0], inner_bounds.y)
+        pos = (inner_bounds.x - int(self.get_width() * 0.75), inner_bounds.y)
         
         if self._level == 0 and self._numerator.circles :
             draw_question_circle(pos)
