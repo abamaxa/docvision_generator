@@ -21,6 +21,7 @@ class YoloLabelExport :
         labels.sort()
         
         with open(self.__get_label_filepath(), "w") as label_file :
+            label_file.write("background\n")
             label_file.write("\n".join(labels))
             
     def __get_label_filepath(self) :
