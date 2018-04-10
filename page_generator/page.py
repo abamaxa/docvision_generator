@@ -4,6 +4,7 @@ import json
 import zipfile
 from io import BytesIO
 import abc
+import logging
 
 from .dictionary_generator import TextGen
 from graphics import Draw

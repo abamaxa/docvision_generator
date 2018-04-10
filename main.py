@@ -131,8 +131,8 @@ def main():
     parser.add_argument(
         "-f",
         "--format",
-        help="File format to generate, png (default) or jpg",
-        default="png")
+        help="File format to generate, png or jpg (default)",
+        default="jpg")
     parser.add_argument(
         "-e",
         "--profile",
