@@ -23,7 +23,6 @@ class ImageTiler :
             tile = self.__get_whole_page()
             
         elif self.current <= num_frames :
-            raise StopIteration
             frame = self.frames[self.current % num_frames]
             tile = self.__get_question_tile(frame)
             
