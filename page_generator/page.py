@@ -8,7 +8,7 @@ import logging
 
 from .dictionary_generator import TextGen
 from graphics import Draw
-from .question_params import QuestionParams
+from .page_params import PageParameters
 from augmentation import ImgAugAugmentor, ImageTiler
 
 class Page(object):
@@ -18,12 +18,12 @@ class Page(object):
         self.name = str(name)
         self.options = options
         self.persister = persister
-        self._params = QuestionParams(self.name, self.options)
+        self._params = PageParameters(self.name, self.options)
         
         self.frames = []   
-        self.question_frames = []        
+        self.fragment_frames = []        
         self.draw_debug_rects = False
-        self.current_question_number = random.randint(1, 20)
+        self.current_fragment_number = random.randint(1, 20)
 
         self.generate_page()
         
@@ -46,18 +46,18 @@ class Page(object):
         self.draw_columns()
         
         while not self.is_page_full() :
-            new_rect = self.create_question()
+            new_rect = self.create_fragment()
 
             if self.rect_fits_in_current_frame(new_rect):
                 self.update_current_write_location(new_rect)
                 
             else :
-                if not self.question_frames :
+                if not self.fragment_frames :
                     logging.error("Created an empty page")
                     
                 self.mark_page_as_full()
                 
-        self.draw_question_frames()
+        self.draw_fragment_frames()
                
     def save(self) :
         tiler = ImageTiler(self)
@@ -86,7 +86,7 @@ class Page(object):
     def get_current_write_location(self):
         """
         This should return a rectangle specifiying where to write the next
-        question.
+        fragment.
         """
         if self.frames:
             return self.frames[0]
@@ -104,8 +104,8 @@ class Page(object):
     def update_current_write_location(self, remove_rect):
         """
         Remove rect specifies an area to remove from the available space, either
-        because a question has been written to it or because its too small to
-        write the next question into.
+        because a fragment has been written to it or because its too small to
+        write the next fragment into.
         """
         height = remove_rect[1][1] - remove_rect[0][1]
         current_frame = self.frames[0]
@@ -119,15 +119,15 @@ class Page(object):
                 0, ((current_frame[0][0], current_frame[0][1] + height), current_frame[1]))    
            
     def add_detection_frame(self, frame) :
-        self.question_frames.append(frame)
+        self.fragment_frames.append(frame)
         
-    def draw_question_frames(self) :
+    def draw_fragment_frames(self) :
         if self.options.get("draw_debug_rects") :
-            for frame in self.question_frames :
+            for frame in self.fragment_frames :
                 self._draw.draw_rectangle(frame.rectangle, outline="blue")  
                             
     def is_page_full(self) :
-        if self.options["single"] and self.question_frames :
+        if self.options["single"] and self.fragment_frames :
             return True
         
         return self.get_current_write_location() is None
@@ -136,7 +136,7 @@ class Page(object):
         self.update_current_write_location(self.get_current_write_location())
     
     @abc.abstractmethod
-    def create_question(self, question_number):
+    def create_fragment(self):
         pass
     
     @property
@@ -154,7 +154,7 @@ class Page(object):
         return self._draw.get_image()    
      
     def get_frames(self) :
-        return self.question_frames
+        return self.fragment_frames
     
     def get_sentences(self, count):
         return self.parameters.get_sentences(count)

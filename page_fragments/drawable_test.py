@@ -5,8 +5,8 @@ from unittest.mock import patch, call, MagicMock
 from graphics import draw_test
 from graphics.bounds import Bounds, Size
 from page_generator.page import Page
-from page_generator.question_params import QuestionParams
-from question_templates.drawable import Drawable
+from page_generator.page_params import PageParameters
+from page_fragments.drawable import Drawable
 
 border_parameters = {
     "border" : {

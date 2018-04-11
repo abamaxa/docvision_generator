@@ -1,7 +1,7 @@
 import random
 
 from PIL import Image, ImageDraw
-from .compositor import QuestionCompositor
+from .compositor import PageCompositor
 from graphics import Frame, Bounds
 
 class ImageTiler :
@@ -11,6 +11,7 @@ class ImageTiler :
         self.returned_whole_page = False
         self.current = 0
         self.chop = page.options["chop"]
+        self.columns = page.parameters.columns
         self.num_page_tiles = 0
         
         if self.chop :
@@ -28,9 +29,9 @@ class ImageTiler :
         if self.current == 0 :
             tile = self.__get_whole_page()
             
-        elif self.current <= num_frames and self.chop :
+        elif self.__should_create_fragment_tiles() :
             frame = self.frames[self.current % num_frames]
-            tile = self.__get_question_tile(frame)
+            tile = self.__get_fragment_tile(frame)
             
         elif self.num_page_tiles :
             self.num_page_tiles -= 1
@@ -41,10 +42,14 @@ class ImageTiler :
 
         self.current += 1
         return tile
+    
+    def __should_create_fragment_tiles(self) :
+        num_frames = len(self.frames)
+        return self.current <= num_frames and self.chop and self.columns > 1
         
     def __get_whole_page(self) :
         rect = Bounds(0,0, self.image.width, self.image.height)
-        image = QuestionCompositor.copy_image_from_rect(self.image, rect)
+        image = PageCompositor.copy_image_from_rect(self.image, rect)
         return image, self.frames
         
     def __get_page_tile(self) :
@@ -60,7 +65,7 @@ class ImageTiler :
                 img = self.__extract_image_region(bounds)
                 return img, frames  
 
-    def __get_question_tile(self, frame) :                
+    def __get_fragment_tile(self, frame) :                
         mid_x = frame.x + frame.width / 2
         mid_y = frame.y + frame.height / 2
         
@@ -72,13 +77,13 @@ class ImageTiler :
         right = left + max_dim
         bottom = top + max_dim
 
-        question_region = Bounds(left, top, x2=right, y2=bottom)
+        fragment_region = Bounds(left, top, x2=right, y2=bottom)
         inflate_by = random.randint(max_dim // 4, max_dim // 2)
-        question_region = question_region.inflate(inflate_by, inflate_by)
+        fragment_region = fragment_region.inflate(inflate_by, inflate_by)
         
-        frames = self.__get_frames_for_region(question_region)
+        frames = self.__get_frames_for_region(fragment_region)
         
-        compositor = QuestionCompositor(self.image, question_region)
+        compositor = PageCompositor(self.image, fragment_region)
         return compositor.make_composite_image(), frames
             
     def __get_frames_for_region(self, region_bounds) :
@@ -92,7 +97,7 @@ class ImageTiler :
         return region_frames
     
     def __extract_image_region(self, bounds) :
-        return QuestionCompositor.copy_image_from_rect(self.image, bounds)
+        return PageCompositor.copy_image_from_rect(self.image, bounds)
     
     def get_frames(self) :
         return self.frames

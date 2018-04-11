@@ -4,8 +4,8 @@ from unittest.mock import patch, call, MagicMock
 
 from graphics import Bounds, Draw
 from graphics.text_renderer_test import draw_attrs, CHAR_WIDTH, LINE_HEIGHT, LINE_SPACING
-from question_templates.drawable_test import DrawableTest, MARGIN, PADDING, BOUNDS_WIDTH
-from question_templates.text import Text
+from page_fragments.drawable_test import DrawableTest, MARGIN, PADDING, BOUNDS_WIDTH
+from page_fragments.text import Text
 
 class TextTest(DrawableTest) :
     def _create_drawable(self, parameters = {}) :

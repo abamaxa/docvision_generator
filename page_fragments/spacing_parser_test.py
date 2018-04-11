@@ -3,8 +3,8 @@ from unittest import TestCase
 
 from graphics.bounds import Bounds, Size
 from page_generator.page import Page
-from question_templates.spacing_parser import SpacingParser
-from question_templates import *
+from page_fragments.spacing_parser import SpacingParser
+from page_fragments import *
 
 BOUNDS_HEIGHT = 200
 BOUNDS_WIDTH = 100

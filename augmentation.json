@@ -1,7 +1,7 @@
 {
 "crop_and_pad" : 
     {
-        "probability" : 0.9,
+        "probability" : 0.5,
         "min_percent" : 0.0,
         "max_percent" : 0.1,
         "pad_mode" : ["constant"],
@@ -10,24 +10,24 @@
     },
 "perspective" :
     {
-        "probability" : 0.2,
+        "probability" : 0.5,
         "scale" : [0.01, 0.03]
     },
 "piecewise" :
     {
-        "probability" : 0.2,
-        "scale" : [0.0005, 0.003]
+        "probability" : 0.5,
+        "scale" : [0.008, 0.025]
     },
 "affine" :
     {
-        "scale" : [0.95, 1.05],
-        "probability" : 0.2,
+        "scale" : [0.8, 0.95],
+        "probability" : 0.5,
         "translate_percent" : {
-            "x": [-0.05, 0.05],
-            "y": [-0.05, 0.05]
+            "x": [-0.1, 0.1],
+            "y": [-0.1, 0.1]
         },
-        "rotate" : [-2, 2],
-        "shear" : [-1, 1],
+        "rotate" : [-5, 5],
+        "shear" : [-2, 2],
         "order" : [3],
         "cval" : [0, 255]        
     }

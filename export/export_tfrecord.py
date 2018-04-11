@@ -24,7 +24,6 @@ class TFLabelExport :
 class TFRecordExport :
     def __init__(self, exporter, is_training) :
         self.label_map = exporter.label_map
-        self.convert_hsv = exporter.convert_hsv
         
         if is_training :
             self.data = exporter.training_data
@@ -33,8 +32,6 @@ class TFRecordExport :
             self.data = exporter.evaulation_data
             self.output_filename = exporter.make_output_path('_val.record')
         
-        logging.info("Writing records to %s, convert HSV is: %s", self.output_filename, self.convert_hsv)
-
     def export(self):
         writer = tf.python_io.TFRecordWriter(self.output_filename)
         for idx, data in enumerate(self.data):
@@ -42,7 +39,7 @@ class TFRecordExport :
                 logging.info('On image %d of %d', idx, len(self.data))
 
             try:
-                example = TFExample(data, self.label_map, self.convert_hsv)
+                example = TFExample(data, self.label_map)
                 tf_example = example.create_example()
                 writer.write(tf_example.SerializeToString())
             except TFException:
@@ -52,10 +49,9 @@ class TFRecordExport :
         writer.close()
 
 class TFExample :
-    def __init__(self, json_data, label_map, convert_hsv) :
+    def __init__(self, json_data, label_map) :
         self.json_data = json_data
         self.label_map = label_map
-        self.convert_hsv = convert_hsv
 
         self.width = int(json_data['width'])
         self.height = int(json_data['height'])
@@ -112,20 +108,6 @@ class TFExample :
 
         if not image_format in ('JPEG', "PNG"):
             raise TFException('Image format {} not supported, must be JPEG or PNG'.format(image.format))
-
-        if not image.mode in ("RGB", "HSV") :
-            raise TFException('Image must be encoded as HSV or RGB, {} is not supported'.format(image.mode))
-
-        if self.convert_hsv : 
-            image = image.convert("HSV")
-            # cannot directly save HSV as a PNG with PIL
-            image = PIL.Image.frombytes("RGB", (self.width, self.height),image.tobytes())
-            file_obj = io.BytesIO()
-            image.save(file_obj, "PNG")
-            image_format = "PNG"
-            image.save("test.png")
-            file_obj.seek(0)
-            self.image_bytes = file_obj.read()
 
         self.image_format = image_format.lower().encode('utf8')
 

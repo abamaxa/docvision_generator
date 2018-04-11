@@ -8,11 +8,11 @@ from .base_augmentor import *
 from graphics import Bounds, Frame
 
 class ImgAugAugmentor(AbstractAugmentor) :
-    def __init__(self, question, tiler, options) :
-        super(ImgAugAugmentor, self).__init__(question, tiler, options)
+    def __init__(self, page, tiler, options) :
+        super(ImgAugAugmentor, self).__init__(page, tiler, options)
         
         self.pipeline = None
-        self.question_boxes = []
+        self.label_boxes = []
         self.image_np = None
         
         self.prepare_pipeline()
@@ -60,8 +60,8 @@ class ImgAugAugmentor(AbstractAugmentor) :
         #         for the newly created pixels (e.g. sometimes black,
         #         sometimes white)
         augmentation = iaa.Affine(
-            #scale=self.get_parameter(AFFINE, SCALE),
-            #translate_percent=self.get_parameter(AFFINE, TRANSLATE_PERCENT),
+            scale=self.get_parameter(AFFINE, SCALE),
+            translate_percent=self.get_parameter(AFFINE, TRANSLATE_PERCENT),
             rotate=self.get_parameter(AFFINE, ROTATE),
             shear=self.get_parameter(AFFINE, SHEAR),
             order=self.get_parameter(AFFINE, ORDER),
@@ -99,7 +99,7 @@ class ImgAugAugmentor(AbstractAugmentor) :
         self.image_np = np.array(array_data).reshape(array_shape).astype(np.uint8)    
     
     def prepare_frames(self) :
-        self.question_boxes = self.convert_frames_to_boxes(self.frames)
+        self.label_boxes = self.convert_frames_to_boxes(self.frames)
         
     def convert_frames_to_boxes(self, frames) :
         boxes = []
@@ -151,8 +151,8 @@ class ImgAugAugmentor(AbstractAugmentor) :
         self.augmented_frames = []
 
         if self.frames :
-            question_boxes_aug = seq_det.augment_bounding_boxes([self.question_boxes])[0]
-            self.augmented_frames = self.convert_boxes_to_frames(question_boxes_aug)          
+            label_boxes_aug = seq_det.augment_bounding_boxes([self.label_boxes])[0]
+            self.augmented_frames = self.convert_boxes_to_frames(label_boxes_aug)          
         
         self.augmented_image = Image.fromarray(image_aug)
                 

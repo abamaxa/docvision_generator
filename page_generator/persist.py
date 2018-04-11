@@ -42,12 +42,24 @@ class AbstractPersistence(object) :
     def get_image_type(self) :
         return self.image_format.upper() == "PNG" and "PNG" or "JPEG"
 
-    def get_rbg_image(self, image) :
+    def prepare_image(self, image) :
+        if self.options["color_model"] == "RGB" :
+            return self.__convert_to_rgb(image)
+        elif self.options["color_model"] == "HSV" :
+            return self.__convert_to_hsv(image)        
+    
+    def __convert_to_rgb(self, image) :
         if image.mode == "RGB" :
             return image
         else :
-            return image.convert("RGB")        
-
+            return image.convert("RGB")    
+        
+    def __convert_to_hsv(self, image) :
+        image = image.convert("HSV")
+        # cannot directly save HSV as a PNG/JPG with PIL so create a
+        # new image and tell PIL the images raw bytes are RGB
+        return PIL.Image.frombytes("RGB", image.size, image.tobytes())
+           
     @abc.abstractmethod
     def save_image(self, image, frames) :
         pass
@@ -66,7 +78,7 @@ class ZipBufferPersistence(AbstractPersistence) :
         self.image_zip = zipfile.ZipFile(self.zip_buffer, 'w') 
         
     def save_image(self, image, frames) :
-        image = self.get_rbg_image(image)
+        image = self.prepare_image(image)
         image_buffer = io.BytesIO()
         image.save(image_buffer, self.get_image_type())
         
@@ -84,14 +96,14 @@ class ZipBufferPersistence(AbstractPersistence) :
     
     def get_zip_filename(self) :
         return self.zip_filename
-       
-        
+               
 class FilePersistence(AbstractPersistence) :
     def __init__(self, name, options) :
         super(FilePersistence, self).__init__(name, options)
         
     def save_image(self, image, frames) :
-        image = self.get_rbg_image(image)
+        image = self.prepare_image(image)
+        
         image.save(self.get_image_filename(), self.get_image_type())        
         
         meta_data = self.get_meta_data_dict(image, frames)

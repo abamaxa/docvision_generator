@@ -1,6 +1,6 @@
 """
 Provides a tool for downloading and saving images from the daemon version
-of the question generator (launched uing the --daemon command line).
+of the page generator (launched uing the --daemon command line).
 """
 
 import aiohttp

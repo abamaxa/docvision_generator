@@ -3,9 +3,9 @@ import random
 from unittest.mock import patch, call, MagicMock
 
 from graphics import Bounds, Draw
-from question_templates.drawable_test import create_test_page, page_parameters
-from question_templates.drawable import Drawable
-from question_templates.layout import VerticalLayout, GridLayout
+from page_fragments.drawable_test import create_test_page, page_parameters
+from page_fragments.drawable import Drawable
+from page_fragments.layout import VerticalLayout, GridLayout
 
 class LayoutTest(unittest.TestCase) :
     def setUp(self) :

@@ -2,8 +2,8 @@ import unittest
 import random
 from unittest.mock import patch, call, MagicMock
 
-from question_templates.drawable_test import DrawableTest
-from question_templates.container import Container
+from page_fragments.drawable_test import DrawableTest
+from page_fragments.container import Container
 
 class ContainerTest(DrawableTest) :
     def _create_drawable(self, parameters = {}) :

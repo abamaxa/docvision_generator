@@ -9,7 +9,7 @@ def pick_from_list(probability_choices):
     return probability_choices[-1][1]
 
 def generate_shade_of_light_grey():
-    return __generate_shade_of_grey(random.randint(245, 255))
+    return __generate_shade_of_grey(random.randint(192, 255))
 
 def generate_shade_of_dark_grey():
     return __generate_shade_of_grey(random.randint(4, 96))

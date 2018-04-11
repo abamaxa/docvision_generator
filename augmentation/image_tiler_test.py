@@ -4,7 +4,7 @@ import re
 import random
 
 from augmentation.image_tiler import ImageTiler
-from augmentation.compositor import QuestionCompositor
+from augmentation.compositor import PageCompositor
 from graphics import Frame, Bounds
 
 FRAMES = [Frame(Bounds(0,0,100,100), "0"), 
@@ -15,14 +15,14 @@ class ImageTilerTest(TestCase) :
         random.seed(42)
         
     def create_tiler(self, document_size, frames) :
-        self.question = MagicMock(**{
+        self.page = MagicMock(**{
             "get_frames.return_value" : frames,
             "get_image.return_value" : MagicMock(**{
                 "size" : document_size
             }),
         })
         
-        self.image_tiler = ImageTiler(self.question)
+        self.image_tiler = ImageTiler(self.page)
         
     def __bounds_from_call(self, call) :
         m = re.search(r'x: ([-\d]+) y: ([-\d]+) Width: (\d+) Height: (\d+)', str(call))
@@ -30,7 +30,7 @@ class ImageTilerTest(TestCase) :
         bounds = Bounds(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)))
         return bounds
                 
-    @patch.object(QuestionCompositor, "copy_image_from_rect")
+    @patch.object(PageCompositor, "copy_image_from_rect")
     def test_page_tile(self, compositor) :
         DOC_SIZE = (1000,1000)
         self.create_tiler(DOC_SIZE, FRAMES)
@@ -42,7 +42,7 @@ class ImageTilerTest(TestCase) :
         self.assertEqual(bounds.width, DOC_SIZE[0])
         self.assertEqual(bounds.height, DOC_SIZE[1])
            
-    @patch.object(QuestionCompositor, "copy_image_from_rect")  
+    @patch.object(PageCompositor, "copy_image_from_rect")  
     def test_offset_page_tile(self, compositor) :
         DOC_SIZE = (1000,2000)
         self.create_tiler(DOC_SIZE, FRAMES)
@@ -55,7 +55,7 @@ class ImageTilerTest(TestCase) :
         self.assertEqual(bounds.y2, 1114)        
 
         
-    @patch.object(QuestionCompositor, "copy_image_from_rect", lambda x, y: x)  
+    @patch.object(PageCompositor, "copy_image_from_rect", lambda x, y: x)  
     def test_impossible_page_tile(self) :
         DOC_SIZE = (1000,2000)
         FRAMES = [Frame(Bounds(0,0,1000,1200), "0") ]
@@ -65,13 +65,13 @@ class ImageTilerTest(TestCase) :
         tile = self.image_tiler._ImageTiler__get_page_tile()
         self.assertIs(tile, None)
         
-    @patch.object(QuestionCompositor, "__init__", return_value=None)
-    @patch.object(QuestionCompositor, "make_composite_image") 
-    def test_question_tile(self, make_composite_image, compositor) :
+    @patch.object(PageCompositor, "__init__", return_value=None)
+    @patch.object(PageCompositor, "make_composite_image") 
+    def test_page_tile(self, make_composite_image, compositor) :
         DOC_SIZE = (1000,2000)        
         self.create_tiler(DOC_SIZE, FRAMES)
         
-        tile = self.image_tiler._ImageTiler__get_question_tile(FRAMES[0])
+        tile = self.image_tiler._ImageTiler__get_page_tile(FRAMES[0])
         self.assertIsInstance(tile, tuple)
         
         frame_bounds = self.__bounds_from_call(tile)

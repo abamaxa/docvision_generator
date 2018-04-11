@@ -23,9 +23,9 @@ ORDER = "order"
 
 
 class AbstractAugmentor(object) :
-    def __init__(self, question, tiler, options) :
+    def __init__(self, page, tiler, options) :
         self.options = options
-        self.question = question
+        self.page = page
         self.augmentation_options = {}
         self.tiler = tiler
         

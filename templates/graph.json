@@ -11,25 +11,25 @@
         {
             "class" : "Text",
             "padding_top" : 0,
+            "probability" : 0.75,
             "sentences" : {"min": 1, "max": 2} 
         },
         {
             "class" : "Container",
             "layout" : {
                 "class" : "GridLayout",
-                "cols" : [2,4]
+                "cols" : [2,3]
             },
             "border" : {
                 "probability" : 0.1,
                 "style" : 1,
-                "width" : {"min" : 1, "max" : 2},
-                "repeat" : [4,8]
+                "width" : {"min" : 1, "max" : 2}
             },
             "elements" : [
                 {
                     "class" : "Graph",
-                    "repeat" : [1,2,3],
-                    "type" : [[0.2, "bar"], [0.85, "line"], [1.0, "pie"]],
+                    "repeat" : 1,
+                    "type" : [[0.8, "line"], [0.9, "bar"], [1.0, "pie"]],
                     "padding" : {"min" : "1%", "max" : "2%"}
                 }
             ]
@@ -38,6 +38,7 @@
             "class" : "Text",
             "words" : {"min": 9, "max": 12},
             "bold_words_probability" : 0.1,
+            "probability" : 0.75,
             "bold_words_count" : 0.1,
             "repeat" : [1,2],
             "number_level" : 1,

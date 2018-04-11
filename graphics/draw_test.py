@@ -3,8 +3,7 @@ import random
 from unittest.mock import patch, call
 
 import graphics.draw
-from page_generator.question_params import QuestionParams
-#from graphics import Draw
+from page_generator.page_params import PageParameters
 
 DIMENSIONS = (600,1000)
 LINE_SPACING = 1.2
@@ -20,7 +19,7 @@ options = {
 class DrawTest(unittest.TestCase) :
     def setUp(self) :
         random.seed(42)
-        self.params = QuestionParams("test", options)
+        self.params = PageParameters("test", options)
         self.params.generate_random_parameters()
         
         self.pil_image = None

@@ -6,6 +6,7 @@
         {
             "class" : "Text",
             "padding_top" : 0,
+            "probability" : 0.95,
             "sentences" : {"min": 1, "max": 2} 
         },
         {
@@ -26,7 +27,7 @@
         },
         {
             "class" : "Text",
-            "probability" : 0.1,
+            "probability" : 0.2,
             "words" : {"min": 6, "max": 12},
             "bold_words_probability" : 0.1,
             "bold_words_count" : 0.1,

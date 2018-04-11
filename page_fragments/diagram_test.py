@@ -3,8 +3,8 @@ import random
 from unittest.mock import patch, call, MagicMock
 
 from graphics import Bounds, Draw
-from question_templates.drawable_test import *
-from question_templates import *
+from page_fragments.drawable_test import *
+from page_fragments import *
 
 diagram_parameters = {
     "type" : random.choice(["triangle", "circle", "quadrilateral", "cross"])

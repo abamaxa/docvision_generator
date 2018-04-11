@@ -3,9 +3,9 @@ import os
 import logging
 import random
 
-from question_templates import Question
+from page_fragments import Question
 
-class ConstructedQuestionFactory :
+class FragmentFactory :
     def __init__(self) :
         self.templates = {}
         self.live_templates = {}
@@ -42,11 +42,11 @@ class ConstructedQuestionFactory :
             logging.error("Corrupt template " + file)
             logging.error(decode_error)
             
-    def create_question_from_random_template(self) :
+    def create_fragment_from_random_template(self) :
         template = self.live_templates[random.choice(list(self.live_templates.keys()))]
         return Question(template) 
             
-    def create_question_from_template(self, name) :
+    def create_fragment_from_template(self, name) :
         template = self.templates[name]
         return Question(template)                
 

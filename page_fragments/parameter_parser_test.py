@@ -1,6 +1,6 @@
 import unittest
 import random
-from question_templates.parameter_parser import ParameterParser
+from page_fragments.parameter_parser import ParameterParser
 
 test_params = {
     "int" : 1,

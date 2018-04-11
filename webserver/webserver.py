@@ -6,7 +6,7 @@ from aiohttp import web
 import aiohttp_jinja2
 import jinja2
 
-from page_generator import ConstructedPage, ZipBufferPersistence
+from page_generator import FragmentPage, ZipBufferPersistence
 
 class WebserverError(Exception) :
     pass
@@ -21,16 +21,16 @@ class Webserver :
         self.port = port
         self.image_count = 0
     
-    async def get_a_question(self, request):   
+    async def get_a_page(self, request):   
         try :
             # Don't block, this method can sometimes raise a queue.Empty
             # exception while waiting for the multiprocess background thread
             # to finish flushing the queue. If problematic use
-            # __get_a_question_using_filesystem instead.
+            # __get_a_page_using_filesystem instead.
             zip_file_object, filename = self.done_queue.get_nowait()
             
             # Add a request for another image to the queue.  
-            self.__request_question()            
+            self.__request_page()            
         except queue.Empty :
             # No files available
             return web.Response(status=404, text="No images ready")
@@ -42,12 +42,12 @@ class Webserver :
         }
         return web.Response(content_type="application/zip", body=zip_bytes, headers=headers)
     
-    async def get_a_question_using_filesystem(self, request) :
+    async def get_a_page_using_filesystem(self, request) :
         try :
             # Don't block
             filename = self.done_queue.get_nowait()
             # Make sure there is work in the queue  
-            self.__request_question()            
+            self.__request_page()            
         except queue.Empty :
             # No files available
             return web.Response(status=404, text="No images ready")
@@ -121,7 +121,7 @@ class Webserver :
         self.app = web.Application()
         self.app.router.add_get('/', self.status)
         self.app.router.add_post('/', self.update_config)
-        self.app.router.add_get('/question', self.get_a_question)
+        self.app.router.add_get('/page', self.get_a_page)
         
         aiohttp_jinja2.setup(
             self.app, loader=jinja2.FileSystemLoader('webserver/templates'))        
@@ -133,15 +133,15 @@ class Webserver :
         self.done_queue = mp.Queue()
         
         for _ in range(self.queue_size) :
-            self.__request_question()       
+            self.__request_page()       
         
         for _ in range(self.num_process):
             mp.Process(target=Webserver.worker, 
                        args=(self.task_queue, self.done_queue)).start()   
     
           
-    def __request_question(self) :
-        self.task_queue.put((Webserver.make_question, (self.image_number, self.options))) 
+    def __request_page(self) :
+        self.task_queue.put((Webserver.make_page, (self.image_number, self.options))) 
         self.image_number += 1
         
     @staticmethod  
@@ -151,12 +151,12 @@ class Webserver :
             output_queue.put(result)
     
     @staticmethod  
-    def make_question(idno, options):
+    def make_page(idno, options):
         persister = ZipBufferPersistence(idno, options)
-        question = ConstructedPage(idno, options, persister)
+        page = FragmentPage(idno, options, persister)
         
-        question.create_page()
-        question.save()
+        page.create_page()
+        page.save()
 
         print("Completed:", persister.get_zip_filename())
         return persister.get_zip_buffer(), persister.get_zip_filename()

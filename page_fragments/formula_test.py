@@ -3,8 +3,8 @@ import random
 from unittest.mock import patch, call, MagicMock
 
 from graphics import Bounds, Draw
-from question_templates.drawable_test import DrawableTest
-from question_templates import *
+from page_fragments.drawable_test import DrawableTest
+from page_fragments import *
 
 formula_parameters = {
     "type" : random.choice(["quadratic", "intergral", "inequalities",

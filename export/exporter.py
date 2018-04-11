@@ -35,9 +35,6 @@ class Exporter(object) :
     def label_map(self) :   return self._label_map
     
     @property
-    def convert_hsv(self) : return self.args.convert_hsv
-    
-    @property
     def overwrite_existing(self) : return self.args.force
         
     def make_output_path(self, suffix) :
@@ -95,7 +92,7 @@ class Exporter(object) :
             frames.append(frame)
             
         if not len(frames) :
-            raise ExporterException("File contains not valid boxes")
+            raise ExporterException("File contains no valid boxes")
         
         json_data["frames"] = frames
             

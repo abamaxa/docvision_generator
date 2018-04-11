@@ -2,7 +2,7 @@ import unittest
 import random
 
 from page_generator.page import Page
-from page_generator.question_params import QuestionParams
+from page_generator.page_params import PageParameters
 from graphics.draw_test import options
 import os
 
@@ -12,7 +12,7 @@ from graphics.diagram import Diagram
 class DiagramTest(unittest.TestCase) :
     def setUp(self):
         random.seed(42)
-        self.params = QuestionParams("test", options)
+        self.params = PageParameters("test", options)
         self.params.generate_random_parameters()        
         self.draw = Draw(self.params)
         self.draw.init_image()

@@ -7,7 +7,7 @@ from graphics import Draw, TextRenderer
 from graphics.util import pick_from_list, generate_shade_of_dark_grey, generate_shade_of_light_grey
 from .dictionary_generator import TextGen
 
-class QuestionParams(dict):
+class PageParameters(dict):
     FONTS = {"roboto" : "Roboto", 
              "robotocondensed" : "RobotoCondensed",
              "robotomono" : "RobotoMono",
@@ -15,7 +15,7 @@ class QuestionParams(dict):
              "ibmplexserif" : "IBMPlexSerif"}
     
     def __init__(self, name, options):
-        super(QuestionParams, self).__init__()
+        super(PageParameters, self).__init__()
         self.__dict__ = self
 
         self.name = str(name)
@@ -71,15 +71,16 @@ class QuestionParams(dict):
         
     def create_column_parameters(self) :
         #columns = ((0.66, 1), (0.9, 2), (1., 3))
-        #self.columns = pick_from_list(columns)
-        self.columns = 1
+        columns = ((0.8, 1), (1.0, 2))
+        self.columns = pick_from_list(columns)
+        #self.columns = 1
         
     def select_text_parameters(self) :
-        font = random.choice(list(QuestionParams.FONTS.keys()))  
+        font = random.choice(list(PageParameters.FONTS.keys()))  
         
-        self.font_name = os.path.join(font, QuestionParams.FONTS[font] + "-Regular.ttf")   
-        self.font_bold_name = os.path.join(font, QuestionParams.FONTS[font] + "-Bold.ttf")   
-        self.font_italic_name = os.path.join(font, QuestionParams.FONTS[font] + "-Italic.ttf")  
+        self.font_name = os.path.join(font, PageParameters.FONTS[font] + "-Regular.ttf")   
+        self.font_bold_name = os.path.join(font, PageParameters.FONTS[font] + "-Bold.ttf")   
+        self.font_italic_name = os.path.join(font, PageParameters.FONTS[font] + "-Italic.ttf")  
         
         self.line_height = self.font_size = random.randint(
             int(self.width / 70), int(self.width / 50))
@@ -91,7 +92,7 @@ class QuestionParams(dict):
                                           (1.0, TextRenderer.AlignJustify)))
 
     def generate_margins_and_padding(self) :
-        self.left_margin = self.width * (0.03 + (0.05 * random.random()))
+        self.left_margin = self.width * (0.05 * random.random())
         self.right_margin = self.width * (0.03 + (0.05 * random.random()))
         self.top_margin = self.height * (0.04 + (0.05 * random.random()))
         self.bottom_margin = self.height * (0.04 + (0.05 * random.random()))

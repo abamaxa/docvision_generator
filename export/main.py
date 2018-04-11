@@ -14,8 +14,6 @@ def main() :
                       default="records", help='the directory to store the records') 
     parser.add_argument('--name', dest='name', action='store', required= True,
                       default="images", help='the file name to use for the record sets')  
-    parser.add_argument('--convert_hsv', dest='convert_hsv', action='store_true',
-                      help='If set, all images are converted to hsv')    
     parser.add_argument('--force', dest='force', action='store_true',
                       help='Force overwriting existing files without warning')   
     parser.add_argument('export_type', help="Specify the type of data to export.\n" \
