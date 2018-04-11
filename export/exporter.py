@@ -76,7 +76,7 @@ class Exporter(object) :
                     self._image_list.append(json_data)
                     
                 except ExporterException as e :
-                    logging.info(e.message)
+                    logging.info(e)
                 
     def __remove_invalid_boxes(self, json_data) : 
         frames = []
@@ -146,4 +146,4 @@ class Exporter(object) :
             yolo_labels.export()
             
         except YoloException as yolo_except :
-            logging.warn(yolo_except.message)
+            logging.warn(yolo_except)

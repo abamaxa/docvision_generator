@@ -199,7 +199,6 @@ def main():
         print("Generating {} images starting at {}".format(args.count, args.initial))
         
         if args.num_processes == 0:    
-            random.seed(69)
             #logging.basicConfig(level=logging.INFO)
             for i in range(args.initial, args.initial + args.count) :
                 print(make_page(str(i), options))

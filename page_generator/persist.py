@@ -4,6 +4,8 @@ import io
 import zipfile
 import json
 
+from PIL import Image
+
 class AbstractPersistence(object) :
     def __init__(self, name, options) :
         self.options = options
@@ -58,7 +60,7 @@ class AbstractPersistence(object) :
         image = image.convert("HSV")
         # cannot directly save HSV as a PNG/JPG with PIL so create a
         # new image and tell PIL the images raw bytes are RGB
-        return PIL.Image.frombytes("RGB", image.size, image.tobytes())
+        return Image.frombytes("RGB", image.size, image.tobytes())
            
     @abc.abstractmethod
     def save_image(self, image, frames) :
