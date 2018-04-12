@@ -76,10 +76,14 @@ class Page(object):
     
             else :
                 if not self.fragment_frames :
-                    message = "Empty page, name '{}' with seed '{}'".format(self.name, self.seed)
-                    logging.error(message)
+                    message = "Could not add fragment to page, name '{}' with seed '{}'".format(self.name, self.seed)
+                    logging.warn(message)
     
-                self.mark_page_as_full()        
+                self.mark_page_as_full()   
+                
+        if not self.fragment_frames :
+            message = "Empty page, name '{}' with seed '{}'".format(self.name, self.seed)
+            logging.error(message)
                
     def save(self) :
         tiler = ImageTiler(self)

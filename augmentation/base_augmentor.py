@@ -66,6 +66,11 @@ class AbstractAugmentor(object) :
         else :
             return self.image, self.frames
         
+    #def __remove_augmented_frames_outside_image(self) :
+    #    frames = []
+    # #   for frame in augmented_frames :
+    #        if frame.
+        
     def draw_debug_rects(self) :
         if not self.options.get("draw_final_rects") :
             return

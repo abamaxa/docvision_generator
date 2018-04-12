@@ -45,6 +45,10 @@ class Frame(Bounds) :
     
     def normal_height(self, height) :
         return (self.height / height)
+    
+    def within_image(self, width, height) :
+        return self._x >= 0 and self._y >= 0 and \
+               self.normal_width(width) <= 1 and self.normal_height(height) <= 1
         
     def __repr__(self) :
         return "class: {} {} {}".format(self._label, str(self._origin), str(self._size))      

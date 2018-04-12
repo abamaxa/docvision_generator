@@ -11,6 +11,7 @@ class ImgAugAugmentor(AbstractAugmentor) :
     def __init__(self, page, tiler, options) :
         super(ImgAugAugmentor, self).__init__(page, tiler, options)
         
+        ia.seed(abs(page.seed.__hash__()) % 0xFFFFFFFF)
         self.pipeline = None
         self.label_boxes = []
         self.image_np = None
