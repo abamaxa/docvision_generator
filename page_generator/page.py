@@ -2,6 +2,7 @@ import os
 import random
 import json
 import zipfile
+import time
 from io import BytesIO
 import abc
 import logging
@@ -18,6 +19,10 @@ class Page(object):
         self.name = str(name)
         self.options = options
         self.persister = persister
+        self.seed = None
+        
+        self.seed_random_number_generator()
+        
         self._params = PageParameters(self.name, self.options)
         
         self.frames = []   
@@ -27,6 +32,16 @@ class Page(object):
 
         self.generate_page()
         
+    def seed_random_number_generator(self) :
+        if self.options["random_seed"] :
+            self.seed = self.options["random_seed"]
+        elif self.options["deterministic"] :
+            self.seed = self.name
+        else :
+            self.seed= "{}-{}".format(time.time(), self.name)
+        
+        random.seed(self.seed)
+                    
     def generate_page(self):        
         self.parameters.generate_random_parameters()
         
@@ -42,22 +57,28 @@ class Page(object):
 
             self.frames.append(rect)    
 
-    def create_page(self):
-        self.draw_columns()
-        
+    def create_page(self) :
+        try :
+            self.draw_columns()
+            self.create_page_fragments()     
+            self.draw_fragment_frames()
+            
+        except Exception as general_error :
+            message = "Creating page name '{}' with seed '{}'".format(self.name, self.seed)
+            logging.exception(message)
+            
+    def create_page_fragments(self) :
         while not self.is_page_full() :
             new_rect = self.create_fragment()
-
+    
             if self.rect_fits_in_current_frame(new_rect):
                 self.update_current_write_location(new_rect)
-                
+    
             else :
                 if not self.fragment_frames :
                     logging.error("Created an empty page")
-                    
-                self.mark_page_as_full()
-                
-        self.draw_fragment_frames()
+    
+                self.mark_page_as_full()        
                
     def save(self) :
         tiler = ImageTiler(self)

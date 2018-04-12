@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Question Generator Daemon Status</title>
+    <title>Page Generator Daemon Status</title>
   </head>
   <body>
     <div class="container">
-      <h3>Question Generator Daemon Status</h3>
+      <h3>Page Generator Daemon Status</h3>
       <hr>
       {% if error_message %}
       <div class="alert alert-danger" role="alert">
@@ -32,10 +32,17 @@
           </div>
         </div>
         <div class="form-group row">
-          <label for="image_number" class="col-sm-6 col-form-label">Images Generated</label>
+          <label for="image_number" class="col-sm-6 col-form-label">Tasks Completed</label>
           <div class="col-sm-6">
             <input type="text" class="form-control" id="image_number" name="image_number"
             placeholder="{{ image_number }}" readonly>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="image_count" class="col-sm-6 col-form-label">Images Downloaded</label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="image_count" name="image_count"
+            placeholder="{{ image_count }}" readonly>
           </div>
         </div>
         <div class="form-group row">
@@ -63,11 +70,29 @@
           </div>
         </div>
         <div class="form-group row">
-          <label for="save_tiles" class="col-sm-6 col-form-label">Split Image Into 3 Square Tiles</label>
+          <label for="color_model" class="col-sm-6 col-form-label">Color Model</label>
+          <div class="col-sm-6">
+            <select class="form-control" id="color_model" name="color_model"
+            placeholder="Enter the file format to generate">
+            <option {% if color_model=="RGB" %} selected {% endif %}>RGB</option>
+            <option {% if color_model=="HSV" %} selected {% endif %}>HSV</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="chop" class="col-sm-6 col-form-label">Chop Images into Tiles</label>
           <div class="col-sm-6">
             <input type="checkbox" class="form-control align-bottom form-control-lg" 
-            id="save_tiles" name="save_tiles"
-            placeholder="Enter the file format to generate"{% if save_tiles %} checked {% endif %}">
+            id="chop" name="chop"
+            placeholder="Chop"{% if chop %} checked {% endif %}">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="augment" class="col-sm-6 col-form-label">Augment Images</label>
+          <div class="col-sm-6">
+            <input type="checkbox" class="form-control align-bottom form-control-lg" 
+            id="augment" name="augment"
+            placeholder="Whether to augment images"{% if augment %} checked {% endif %}">
           </div>
         </div>
         <div class="form-group row">
@@ -80,7 +105,7 @@
         <hr>
         <div class="row">
           <div class="col">
-             <a class="btn btn-primary float-right col-lg-6" href="/question">Download</a>
+             <a class="btn btn-primary float-right col-lg-6" href="/page">Download</a>
           </div>
           <div class="col">
             <button type="submit" class="btn btn-primary col-lg-6">Save</button>

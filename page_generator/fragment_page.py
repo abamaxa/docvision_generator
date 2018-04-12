@@ -18,32 +18,36 @@ class FragmentPage(Page) :
     def create_fragment(self) :            
         for self.attempts in range(4) :
             try :
-                self.get_area_for_next_fragment()
-                if self.area_for_next_fragment is None:
-                    logging.debug("No space available")
-                    break
-    
-                self.get_template()
-                self.prepare_fragment()
-                new_rect = self.get_fragment_area()
-                
-                if self.rect_fits_in_current_frame(new_rect):
-                    self.set_measure_only_mode(False)
-                    logging.info("Rendering %s to %s", self.current_fragment.type, 
-                             self.current_fragment.bounds)
-                    self.current_fragment.render(self.draw)
-                    self.add_detection_frame(self.current_fragment.frame)
-                    return new_rect
-                else :
-                    logging.info("Could not render %s, %s into %s", self.current_fragment.type, 
-                             self.current_fragment.bounds, self.area_for_next_fragment.size)                    
-
-            except BoundsError as e :
+                return self.__create_a_fragment()      
+            
+            except BoundsError as bounds :
                 # Ran out of space
                 logging.info("Ran out of space %s %s %s", self.current_fragment.type, 
                              self.current_fragment.bounds.size,
                              self.area_for_next_fragment.size)
-            
+          
+    def __create_a_fragment(self) :
+        self.get_area_for_next_fragment()
+        if self.area_for_next_fragment is None:
+            logging.debug("No space available")
+            return
+    
+        self.get_template()
+        self.prepare_fragment()
+        new_rect = self.get_fragment_area()
+        
+        if self.rect_fits_in_current_frame(new_rect):
+            self.set_measure_only_mode(False)
+            logging.info("Rendering %s to %s", self.current_fragment.type, 
+                     self.current_fragment.bounds)
+            self.current_fragment.render(self.draw)
+            self.add_detection_frame(self.current_fragment.frame)
+            return new_rect
+        
+        else :
+            logging.info("Could not render %s, %s into %s", self.current_fragment.type, 
+                     self.current_fragment.bounds, self.area_for_next_fragment.size)      
+        
     def get_area_for_next_fragment(self) :
         self.area_for_next_fragment = None
         rect = self.get_current_write_location()

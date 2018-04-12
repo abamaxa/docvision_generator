@@ -1,6 +1,7 @@
 import multiprocessing as mp
 import queue
 import os
+import logging
 
 from aiohttp import web
 import aiohttp_jinja2
@@ -12,22 +13,23 @@ class WebserverError(Exception) :
     pass
 
 class Webserver :
-    def __init__(self, num_process, queue_size, port, first_image_number, options) :
-        self.queue_size = queue_size
-        self.options = options
-        self.num_process = num_process
+    def __init__(self, options) :
+        self.queue_size = options["count"]  
+        self.options = options   
+        self.num_process = options["cpus"]
         self.app = self.task_queue = self.done_queue = None
-        self.image_number = first_image_number
-        self.port = port
+        self.image_number = options["initial"]
+        self.port = options["port"]
         self.image_count = 0
     
     async def get_a_page(self, request):   
         try :
             # Don't block, this method can sometimes raise a queue.Empty
             # exception while waiting for the multiprocess background thread
-            # to finish flushing the queue. If problematic use
-            # __get_a_page_using_filesystem instead.
-            zip_file_object, filename = self.done_queue.get_nowait()
+            # to finish flushing the queue.
+            zip_file_object, filename, num_images = self.done_queue.get_nowait()
+            
+            self.image_count += num_images
             
             # Add a request for another image to the queue.  
             self.__request_page()            
@@ -41,24 +43,6 @@ class Webserver :
             "Content-Disposition" : 'attachment; filename="{}"'.format(filename)
         }
         return web.Response(content_type="application/zip", body=zip_bytes, headers=headers)
-    
-    async def get_a_page_using_filesystem(self, request) :
-        try :
-            # Don't block
-            filename = self.done_queue.get_nowait()
-            # Make sure there is work in the queue  
-            self.__request_page()            
-        except queue.Empty :
-            # No files available
-            return web.Response(status=404, text="No images ready")
-
-        headers = {
-            "Content-Type" : "application/zip",
-            "Cache-Control": "no-cache, no-store",
-            "Content-Disposition" : 'attachment; filename="{}"'.format(os.path.basename(filename))
-        }
-
-        return web.FileResponse(filename, headers=headers)
     
     @aiohttp_jinja2.template('status.html')
     async def status(self, request) :
@@ -79,11 +63,14 @@ class Webserver :
             
             tile_size = int(data["tile_size"])
             if tile_size < 100 or tile_size > 4000 :
-                raise WebserverError("Tile size must be between 100 and 4000")              
-            
+                raise WebserverError("Tile size must be between 100 and 4000") 
+
             self.options["dimensions"] = (width, length)
             self.options["outputSize"] = (tile_size, tile_size)
             self.options["format"] = data["format"]
+            self.options["color_model"] = data["color_model"]
+            self.options["chop"] = data.get("chop", False)
+            self.options["augment"] = data.get("augment", False)
             
         except Exception as exception :
             error_message = str(exception)
@@ -107,10 +94,14 @@ class Webserver :
             "task_queue_size": task_size,
             "done_queue_size": done_size,
             "image_number" : self.image_number,
+            "image_count" : self.image_count,
             "width" : self.options["dimensions"][0],
             "height" : self.options["dimensions"][1],
             "tile_size" : self.options["outputSize"][0],
-            "format" : self.options["format"]
+            "format" : self.options["format"],
+            "chop" : self.options["chop"],
+            "augment" : self.options["augment"],
+            "color_model" : self.options["color_model"]
         }
 
         return display        
@@ -158,5 +149,7 @@ class Webserver :
         page.create_page()
         page.save()
 
-        print("Completed:", persister.get_zip_filename())
-        return persister.get_zip_buffer(), persister.get_zip_filename()
+        logging.info("Completed:", persister.get_zip_filename())
+        return persister.get_zip_buffer(), \
+               persister.get_zip_filename(), \
+               persister.get_count()

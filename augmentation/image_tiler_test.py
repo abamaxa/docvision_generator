@@ -71,7 +71,7 @@ class ImageTilerTest(TestCase) :
         DOC_SIZE = (1000,2000)        
         self.create_tiler(DOC_SIZE, FRAMES)
         
-        tile = self.image_tiler._ImageTiler__get_page_tile(FRAMES[0])
+        tile = self.image_tiler._ImageTiler__get_fragment_tile(FRAMES[0])
         self.assertIsInstance(tile, tuple)
         
         frame_bounds = self.__bounds_from_call(tile)

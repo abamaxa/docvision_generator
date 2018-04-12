@@ -1,4 +1,5 @@
 import time
+import os
 import argparse
 import multiprocessing as mp
 import logging
@@ -24,7 +25,11 @@ def make_page(idno, options):
         
     return (persister.get_count(), time.time() - start)
 
-def generate_pages(num_process, options, start_no, end_no):
+def generate_pages(options):
+    num_process = options["cpus"]
+    start_no = options["initial"]
+    end_no = options["initial"] + options["count"]
+    
     start = time.time()
 
     tasks = [(make_page, (i, options)) for i in range(start_no, end_no + 1)]
@@ -59,7 +64,7 @@ def generate_pages(num_process, options, start_no, end_no):
     print("Generated {} images in {:.2f} seconds".format(
         end_no - start_no, time.time() - start))
 
-def main():
+def get_args() :
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -74,7 +79,7 @@ def main():
         action="store_true") 
     parser.add_argument(
         "-o",
-        "--output",
+        "--outputDir",
         help="Directory to write images to",
         default="output")
     parser.add_argument(
@@ -102,11 +107,10 @@ def main():
         help="Index of first image",
         default=1)
     parser.add_argument(
-        "-n",
-        "--num_processes",
+        "--cpus",
         type=int,
-        help="Number of processes to spawn",
-        default=4)
+        help="Number of processes to spawn, defaults to the number of CPUs available",
+        default=0)
     parser.add_argument(
         "-p",
         "--port",
@@ -150,32 +154,46 @@ def main():
         action="store_true")  
     parser.add_argument(
         "--random_seed",
+        help="Seeds the random number generator with a particular value for EACH PAGE, "
+        "creating identical pages. For debugging single pages only.")     
+    parser.add_argument(
+        "--deterministic",
+        help="Seeds the random number generator with known values, creating same data sets on each run",
+        action="store_true")         
+    parser.add_argument(
+        "--log_level",
         type=int,
-        help="Value to seed the random number generator, for creating same data sets")     
+        help="Set the level of debug logging, with 4 as most detailed through to 0 as least detailed, default 2",
+        choices=[0,1,2,3,4],
+        default=2)
     
     parser.add_argument("count", type=int, help="Number of images to create or queue size if in daemon mode")
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    options = {
+def setup_logging(args) :
+    log_levels = [logging.FATAL, logging.ERROR, logging.WARN, logging.INFO, logging.DEBUG]
+    logging.basicConfig(level=log_levels[args.log_level])    
+
+def main():
+    args = get_args()
+    
+    setup_logging(args)
+    
+    options = dict(args.__dict__)
+    options.update({
         "format": args.format.strip(),
-        "outputDir": args.output,
         "dimensions": (args.width, args.height),
         "outputSize": (args.dimension, args.dimension),
-        "augmentation_file" : args.augmentation_file,
-        "augment" : args.augment,
-        "chop" : args.chop,
         "draw_debug_rects" : False,
         "draw_final_rects" : False,
-        "template" : args.template,
-        "single" : args.single,
         "color_model" : args.color_model.upper()
-    }
-
-    print("Image dimensions: {dimensions} format: {format}".format_map(options))
-    
-    if args.random_seed :
-        random.seed(args.random_seed)
+    })
+        
+    if not args.cpus :
+        options["cpus"] = os.cpu_count()
+        
+    logging.info("Image dimensions: {dimensions} format: {format}".format_map(options))
 
     if args.profile :
         pr = cProfile.Profile()
@@ -190,28 +208,21 @@ def main():
             pr.clear()
         
     elif args.daemon :     
-        print("Starting webserver, queue size {}".format(args.count))
-        server = Webserver(args.num_processes, args.count, 
-                                     args.port, args.initial, options)
+        logging.info("Starting webserver, queue size {}".format(args.count))
+        server = Webserver(options)
         server.start_server()
     else :
-        print("Writing images to: {outputDir}".format_map(options))
-        print("Generating {} images starting at {}".format(args.count, args.initial))
+        logging.info("Writing images to: {outputDir}".format_map(options))
+        logging.info("Generating {} images starting at {}".format(args.count, args.initial))
         
-        if args.num_processes == 0:    
-            #logging.basicConfig(level=logging.INFO)
+        if options["cpus"] == 1 :    
             for i in range(args.initial, args.initial + args.count) :
-                print(make_page(str(i), options))
+                num, elapsed = make_page(str(i), options)
+                print("{} - {} images in {:.2f} seconds".format(i, num, elapsed))
                 
         else:
             mp.freeze_support()
-    
-            generate_pages(
-                args.num_processes,
-                options,
-                args.initial,
-                args.initial +
-                args.count)
+            generate_pages(options)
 
 if __name__ == '__main__':
     main()
