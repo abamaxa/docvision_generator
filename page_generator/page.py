@@ -76,7 +76,8 @@ class Page(object):
     
             else :
                 if not self.fragment_frames :
-                    logging.error("Created an empty page")
+                    message = "Empty page, name '{}' with seed '{}'".format(self.name, self.seed)
+                    logging.error(message)
     
                 self.mark_page_as_full()        
                
