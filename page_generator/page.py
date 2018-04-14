@@ -75,10 +75,6 @@ class Page(object):
                 self.update_current_write_location(new_rect)
     
             else :
-                if not self.fragment_frames :
-                    message = "Could not add fragment to page, name '{}' with seed '{}'".format(self.name, self.seed)
-                    logging.warn(message)
-    
                 self.mark_page_as_full()   
                 
         if not self.fragment_frames :

@@ -16,6 +16,8 @@ def main() :
                       default="images", help='the file name to use for the record sets')  
     parser.add_argument('--force', dest='force', action='store_true',
                       help='Force overwriting existing files without warning')   
+    parser.add_argument('--single', dest='single', action='store_true',
+                      help='Use single class to classify objects')       
     parser.add_argument('export_type', help="Specify the type of data to export.\n" \
                         "One of 'tensorflow' or 'yolo", choices=("tensorflow", "yolo"))
 

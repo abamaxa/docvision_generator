@@ -36,6 +36,9 @@ class Exporter(object) :
     
     @property
     def overwrite_existing(self) : return self.args.force
+    
+    @property
+    def single(self) : return self.args.single
         
     def make_output_path(self, suffix) :
         return os.path.join(self._output_dir, self.base_name + suffix)    
@@ -107,7 +110,8 @@ class Exporter(object) :
             label = obj["label"]
             if not label in self.label_map.keys() :
                 self.label_map[label] = self._label_number
-                self._label_number += 1
+                if not self.single :
+                    self._label_number += 1
 
     def __partition_data(self) :
         random.shuffle(self._image_list)
