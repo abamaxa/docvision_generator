@@ -53,7 +53,7 @@ def generate_pages(options):
         count, time_taken = done_queue.get()
         total_time += float(time_taken)
         counter += count
-        if counter % 500 == 0:
+        if counter % 500 == 0 and counter:
             print(
                 "Generated {} images, average {:.2f} seconds per image".format(
                     counter, total_time / counter))

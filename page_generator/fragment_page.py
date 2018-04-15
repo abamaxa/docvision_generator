@@ -16,7 +16,7 @@ class FragmentPage(Page) :
         self.attempts = 0
                       
     def create_fragment(self) :            
-        for self.attempts in range(4) :
+        for self.attempts in range(8) :
             try :
                 return self.__create_a_fragment()      
             
