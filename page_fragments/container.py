@@ -6,6 +6,7 @@ from .formula import Formula
 from .graph import Graph
 from .diagram import Diagram
 from .layout import VerticalLayout, GridLayout
+from .math_text import MathText
 
 from graphics import Bounds, Size
 

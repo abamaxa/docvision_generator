@@ -39,4 +39,8 @@ class DiagramTest(unittest.TestCase) :
     def test_cross(self) :
         self.diagram.render_cross()
         self.__debug_save("cross.png") 
+        
+    def test_random(self) :
+        self.diagram.render_cross()
+        self.__debug_save("random_diagram.png")         
    

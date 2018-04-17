@@ -37,7 +37,8 @@ class VerticalLayout(Layout) :
     def layout(self) :
         bounds = self.bounds
         for child in self.children :
-            child.layout(bounds)   
+            new_bounds = Bounds(bounds.x, bounds.y, bounds.width, child.bounds.height)
+            child.layout(new_bounds)   
             bounds = child.bounds.move(0, child.bounds.height)   
     
 class GridLayout(Layout) :
@@ -57,7 +58,8 @@ class GridLayout(Layout) :
         self.height = 0
         
         for child in self.children :
-            child_bounds = Bounds(x, y, self.cell_width, self.cell_height)
+            height = min(child.bounds.height, self.cell_height)
+            child_bounds = Bounds(x, y, self.cell_width, height)
             child.layout(child_bounds)   
             max_height = max(max_height, child.bounds.height)
             col += 1

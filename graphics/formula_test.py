@@ -53,3 +53,6 @@ class FormulaTest(unittest.TestCase) :
 
     def test_trig(self) :
         self.__test_many_times("trig")    
+        
+    def test_matrix(self) :
+        self.__test_many_times("matrix")            

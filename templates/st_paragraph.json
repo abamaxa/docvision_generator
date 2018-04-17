@@ -1,6 +1,6 @@
 {
-"name" : "paragraph",
-"test" : 1,
+"name" : "paragraph1",
+"group" : "Oxford",
 "question" : {
     "border_probability" : 0.1,
     "numerator" : {
@@ -18,10 +18,9 @@
         },
         {
             "class" : "Text",
-            "words" : {"min": 3, "max": 6},
-            "bold_words_probability" : 0.1,
-            "bold_words_count" : 0.1,
-            "repeat" : [2,4],
+            "words" : {"min": 3, "max": 12},
+            "probability" : 0.5,
+            "repeat" : [1,3],
             "number_level" : 1
         }
     ]

@@ -45,6 +45,7 @@ class PageParameters(dict):
         self.margin_left_right = 0
         self.margin_top_bottom = 0
         self.inter_question_gap = 0
+        self.end_text = False
         
         self.generator = TextGen.get_generator()
         
@@ -90,9 +91,12 @@ class PageParameters(dict):
         
         self.text_align = pick_from_list(((0.9, TextRenderer.AlignLeft), 
                                           (1.0, TextRenderer.AlignJustify)))
+        
+        if 1 or random.random() < 0.1 :
+            self.end_text = True
 
     def generate_margins_and_padding(self) :
-        self.left_margin = self.width * (0.05 * random.random())
+        self.left_margin = self.width * (0.03 + (0.05 * random.random()))
         self.right_margin = self.width * (0.03 + (0.05 * random.random()))
         self.top_margin = self.height * (0.04 + (0.05 * random.random()))
         self.bottom_margin = self.height * (0.04 + (0.05 * random.random()))

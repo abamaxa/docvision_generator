@@ -18,7 +18,9 @@ class FragmentPage(Page) :
     def create_fragment(self) :            
         for self.attempts in range(8) :
             try :
-                return self.__create_a_fragment()      
+                rect = self.__create_a_fragment()    
+                if rect :
+                    return rect
             
             except BoundsError as bounds :
                 # Ran out of space
@@ -71,8 +73,8 @@ class FragmentPage(Page) :
         logging.info("Current template is '%s'", self.current_fragment.type)
     
     def prepare_fragment(self) :
-        self.current_fragment.update_page_parameters(self)
         self.current_fragment.set_numerator(self._numerator)
+        self.current_fragment.update_page_parameters(self)
         self.current_fragment.calculate_dimensions(self.draw, 
                                                    self.area_for_next_fragment.size)
         self.current_fragment.layout(self.area_for_next_fragment)       
@@ -84,8 +86,9 @@ class FragmentPage(Page) :
         numerator_parameters = {
             "probability" : 0.97,
             "style" : {
-                "0" : [[0.9, "decimal"], [1.0, "letter"]],
-                "1" : ["roman", "letter", "decimal"]
+                "0" : [[0.8, "decimal"], [1.0, "letter"]],
+                "1" : [[0.8, "letter"], [1.0, "roman"]],
+                "2" : [[0.8, "roman"], [1.0, "decimal"]],
             }
         }
         

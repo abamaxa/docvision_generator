@@ -56,7 +56,11 @@ class Draw:
 
     def draw_rectangle(self, points, fill=None, outline=None):
         if not self.measure_only_mode:
-            self.draw.rectangle(points, fill, outline)
+            _color = outline
+            if _color is None :
+                _color = self.params.border_color
+                
+            self.draw.rectangle(points, fill, _color)
 
     def draw_line(self, points, width=1, color = None, style=None):
         if self.measure_only_mode:

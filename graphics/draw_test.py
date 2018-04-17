@@ -73,7 +73,7 @@ class DrawTest(unittest.TestCase) :
         
         self.assertEqual(len(self.pil_draw.mock_calls), 1) 
         self.assertEqual(self.pil_draw.mock_calls[0], 
-                        call.Draw().rectangle((POINT1, POINT2), None, None) ) 
+                        call.Draw().rectangle((POINT1, POINT2), None, '#383838') ) 
         
         self.pil_draw.reset_mock()
         self.draw.measure_only_mode = True

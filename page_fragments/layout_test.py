@@ -41,7 +41,7 @@ class LayoutTest(unittest.TestCase) :
         expected_x = self.bounds.x
         for child in self.children :
             self.assertEqual(child.bounds.width, expected_width)
-            self.assertEqual(child.bounds.height, self.bounds.height)
+            self.assertEqual(child.bounds.height, expected_width)
             self.assertEqual(child.bounds.y, self.bounds.y)
             self.assertEqual(child.bounds.x, expected_x)
             expected_x += expected_width

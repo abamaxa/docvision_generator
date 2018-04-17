@@ -78,4 +78,23 @@ class TextTest(DrawableTest) :
         self.assertEqual(bounds.y, padding_and_margin)
         self.assertEqual(bounds.width, BOUNDS_WIDTH - (2 * padding_and_margin))
         self.assertEqual(bounds.height, LINE_HEIGHT * LINE_SPACING)
+        
+    def test_end_markers(self) :
+        json ={
+            "class" : "Text",
+            "sentences" : 1,
+            "end_markers" : True
+        }
+        
+        self._create_drawable(json) 
+        self.update_drawable() 
+        
+        padding_and_margin = MARGIN + PADDING        
+        bounds = self.drawable.inner_bounds 
+    
+        self.assertTrue(isinstance(bounds, Bounds))
+        self.assertEqual(bounds.x, padding_and_margin)
+        self.assertEqual(bounds.y, padding_and_margin)
+        self.assertEqual(bounds.width, BOUNDS_WIDTH - (2 * padding_and_margin))
+        self.assertEqual(bounds.height, LINE_HEIGHT * LINE_SPACING)    
     

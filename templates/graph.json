@@ -18,7 +18,7 @@
             "class" : "Container",
             "layout" : {
                 "class" : "GridLayout",
-                "cols" : [2,3]
+                "cols" : [1,2]
             },
             "border" : {
                 "probability" : 0.1,
@@ -28,7 +28,6 @@
             "elements" : [
                 {
                     "class" : "Graph",
-                    "repeat" : 1,
                     "type" : [[0.8, "line"], [0.9, "bar"], [1.0, "pie"]],
                     "padding" : {"min" : "1%", "max" : "2%"}
                 }

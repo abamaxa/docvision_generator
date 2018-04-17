@@ -65,7 +65,7 @@ class Formula :
         self.__render_formula(formula)
         
     def generate_intergral(self) :
-        formula = "\int "
+        formula = "\displaystyle \int "
         
         styles = [
             "x{trig} {a}x dx",
@@ -80,7 +80,7 @@ class Formula :
             "\\sqrt{{{a}x^2 {op1} {b}x {op2}}} dx"            
         ]
         
-        formula += random.choice(styles).format_map(self.values)
+        formula += random.choice(styles).format_map(self.values) #+ "}"
         self.__render_formula(formula)
         
     def generate_inequalities(self) :
@@ -140,6 +140,12 @@ class Formula :
         formula = "{}^\circ \leq \\theta \leq {}^\circ".format(random.randint(20,50), random.randint(50,80))
         
         self.__render_formula(formula)     
+        
+    def generate_matrix(self) :
+        formula = "{c} \\\ {b} \\\ {a}x^2 {op1} {b}x".format_map(self.values)
+        formula= "\overrightarrow{AB} = \\begin{pmatrix}" + formula + "\\end{pmatrix}"
+        self.__render_formula(formula)   
+        
         
     def __calculate_random_value_dict(self) :
         self. values = {

@@ -1,0 +1,40 @@
+{
+"name" : "paragraph2",
+"group" : "Oxford",
+"question" : {
+    "border_probability" : 0.1,
+    "elements" : [
+        {
+            "class" : "Text",
+            "padding_top" : 0,
+            "sentences" : {"min": 1, "max": 2} 
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 6, "max": 12},
+            "number_level" : 1
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 3, "max": 12},
+            "repeat" : [0, 2],
+            "number_level" : 2
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 6, "max": 12},
+            "number_level" : 1
+        },
+        {
+            "class" : "Text",
+            "sentences" : {"min": 1, "max": 2} 
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 3, "max": 12},
+            "repeat" : [2,4],
+            "number_level" : 1
+        }
+    ]
+}
+}

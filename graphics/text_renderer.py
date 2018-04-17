@@ -4,7 +4,15 @@ class TextRenderer :
     AlignCenter = 2
     AlignJustify = 3
     
-    def __init__(self, draw, text, text_color, align=AlignLeft) :
+    def __init__(
+        self, 
+        draw, 
+        text, 
+        text_color, 
+        align=AlignLeft, 
+        leave_spaces = {},
+        end_text = ""
+    ) :
         self.__draw = draw
         self.__align = align
         self.__text_color = text_color
@@ -15,6 +23,11 @@ class TextRenderer :
         self.__counter = 0
         self.__bounds = None
         self.__word_lengths = {}
+        self.__leave_spaces = leave_spaces
+        self.__current_line = 0
+        self.__end_text = end_text
+        self.__last_line_width = 0
+        self.__last_line_height = 0
         
     def calculate_text_height(self, bounds) :
         try :
@@ -31,6 +44,9 @@ class TextRenderer :
         self.__clear_render_list()
         self.__counter = 0
         self.__total_height = 0 
+        self.__current_line = 0
+        self.__last_line_width = 0
+        self.__last_line_height = 0
         
     def get_height(self) :
         return self.__total_height
@@ -42,6 +58,9 @@ class TextRenderer :
         for word in self.__words:
             self.__counter += 1
             self.__add_word_and_render_line_if_fits(word)
+            
+        self.__render_any_remaining_text()
+        self.__render_end_markers()
 
     def __add_word_and_render_line_if_fits(self, word) :
         test_text = " ".join(self.__render_list + [word])
@@ -50,20 +69,27 @@ class TextRenderer :
         if self.__should_render_text(text_width) :
             if self.__is_room_on_line_for_word(text_width):
                 self.__add_word_to_render_list(word)
+                word = ""
             
             self.__render_line()
 
-            line_height = self.__calculate_total_line_height(text_height)
-            self.__bounds = self.__bounds.move(0, line_height)
-            self.__total_height += line_height
-
-            self.__clear_render_list()        
-            if self.__last_word_not_rendered(text_width):
-                self.__add_word_to_render_list(word)
-                self.__render_line()
-                self.__total_height += line_height
-
-        self.__add_word_to_render_list(word)    
+        if word :
+            self.__add_word_to_render_list(word)    
+            
+    def __render_any_remaining_text(self) :
+        if self.__render_list : 
+            self.__render_line()
+            
+    def __update_state_for_next_line(self) :      
+        self.__last_line_width, text_height = self.__measure_render_list_size()
+        self.__last_line_height = self.__calculate_total_line_height(text_height)
+        self.__move_render_positions(self.__last_line_height)
+        self.__total_height += self.__last_line_height   
+        self.__current_line += 1
+        self.__clear_render_list() 
+        
+    def __move_render_positions(self, yoffset) :
+        self.__bounds = self.__bounds.move(0, yoffset)
     
     def __get_line_width(self) :
         width = self.__bounds.width
@@ -94,6 +120,10 @@ class TextRenderer :
         return len(self.__render_list)
     
     def __calculate_total_line_height(self, text_height) :
+        reserved_height = self.__leave_spaces.get(self.__current_line, 0)
+        if reserved_height > text_height :
+            text_height = reserved_height
+            
         return int(text_height * self.__draw.line_spacing)  
     
     def __last_word_not_rendered(self, text_width) :
@@ -105,8 +135,10 @@ class TextRenderer :
         if self.__should_justify_render_list() :
             self.__output_justifed_line(write_position)
         else:
-            self.__output_line(write_position, self.__render_list_to_text())    
-            
+            self.__output_line(write_position, self.__render_list_to_text())   
+
+        self.__update_state_for_next_line()        
+
     def __get_aligned_position(self) :
         x, y = self.__bounds.origin
         
@@ -155,6 +187,9 @@ class TextRenderer :
     def __measure_text_size(self, text) :
         return self.__measure_text_size_fast_inaccurate(text)
     
+    def __measure_render_list_size(self) :
+        return self.__measure_text_size_fast_inaccurate(self.__render_list_to_text())    
+    
     def __measure_text_width(self, text) :
         return self.__measure_text_size(text)[0]
     
@@ -194,9 +229,24 @@ class TextRenderer :
     def __list_width_words(self) :
         word_widths = []
         for word in self.__render_list:
-            #word_width = self.__measure_text_width(word)
             word_width, _ = self.__measure_word(word)
             word_widths.append(word_width)   
             
         return word_widths
-            
+                    
+    def __render_end_markers(self) :
+        if not self.__end_text or self.__align != TextRenderer.AlignLeft :
+            return
+
+        marker_width = self.__measure_text_width(" " + self.__end_text)
+        if marker_width + self.__last_line_width < self.__bounds.width :
+            yoffset = -self.__last_line_height
+            self.__move_render_positions(yoffset)
+        else :
+            self.__total_height += self.__last_line_height
+           
+        current_pos = self.__get_aligned_position() 
+        position = (self.__bounds.x2 - marker_width, current_pos[1])
+        self.__output_line(position, self.__end_text) 
+       
+        

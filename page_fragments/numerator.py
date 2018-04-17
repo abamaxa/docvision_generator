@@ -3,8 +3,8 @@ import random
 from graphics import Size
 from .parameter_parser import ParameterParser
 
-ROMAN_DIGITS = ["i", "ii", "iii", "iv", "v","vi", "vii", "viii",
-    "ix", "x", "xi""xii", "xiii", "xiv",  "xv"]
+ROMAN_DIGITS = ["i", "ii", "iii", "iv", "v","vi", "vii", "vii",
+    "ix", "x", "xi""xii", "xii", "xi",  "xv"]
 
 class Numerator :
     def __init__(self, parameters, question_number) :
@@ -17,6 +17,7 @@ class Numerator :
        self._circles = parser.realize_parameter("probability_circles")
        self._current_level = 0
        self._sublevel_numbers = {}
+       self.scale = (0.75 + (0.5 * random.random()))
        
        self.__create_styles(parameters)
        self.reset()
@@ -67,6 +68,7 @@ class Numerator :
         style = self._styles.get(str(self._current_level))
         if not style :
             style = random.choice(("letter", "roman", "decimal"))
+            self._styles[str(self._current_level)] = style
             
         return style
        
@@ -88,25 +90,27 @@ class SectionNumber :
             self._style = numerator.get_current_style()  
             
     def get_width(self) :
-        # TODO need to calculate this
-        if self._number is None :
+        if not self._level :
             return 0
-        elif self._style == "letter" :
-            return 40
-        elif self._style == "decimal" :
-            return 50        
         else :
-            return 60
+            width = int(self.default_width() * self._numerator.scale * self._level)
+            #print(self._level, self.default_width(), width)
+            return width
+    
+    def default_width(self) :
+        return 25
         
     def render(self, draw) :
         if not self._numerator or not self._number :
             return
         
         number_length = draw.text_size(self._number + "  ")
-        
+        width = self.get_width()
         inner_bounds = self._drawable.inner_bounds
-        #pos = (inner_bounds.x - number_length[0], inner_bounds.y)
-        pos = (inner_bounds.x - int(self.get_width() * 0.75), inner_bounds.y)
+        pos = (inner_bounds.x - number_length[0], inner_bounds.y)
+        
+        #width = self.get_width()
+        #pos = (inner_bounds.x - int(width * 0.75), inner_bounds.y)
         
         if self._level == 0 and self._numerator.circles :
             draw_question_circle(pos)

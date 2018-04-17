@@ -1,0 +1,31 @@
+{
+"name" : "top_diagram",
+"group" : "Oxford",
+"question" : {
+    "elements" : [
+        {
+            "class" : "Diagram",
+            "type" : ["triangle", "circle", "quadrilateral", "cross", "random"],
+            "padding_top" : 0,
+            "padding_left_right" : {"min": "5%", "max": "10%"}
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 12, "max": 25},
+            "bold_words_probability" : 0.1,
+            "bold_words_count" : 0.1,
+            "padding_top_bottom" : ["0.5%", "1%", "2%"]
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 4, "max": 16},
+            "bold_words_probability" : 0.1,
+            "bold_words_count" : 0.1,
+            "repeat" : [0,1,2],
+            "number_level" : 1,
+            "padding_top_bottom" : ["0.5%", "1%"],
+            "padding_left_right" : ["1%","2%", "5%"]
+        }
+    ]
+    }
+}

@@ -1,0 +1,48 @@
+{
+"name" : "matrix",
+"group" : "Oxford",
+"question" : {
+    "elements" : [
+        {
+            "class" : "Text",
+            "words" : {"min": 4, "max": 16}
+        },
+        {
+            "class" : "Container",
+            "padding_left_right" : ["10%", "20%"],
+            "layout" : {
+                "class" : "GridLayout",
+                "cols" : [2,3]
+            },
+            "elements" : [
+                {
+                    "class" : "Formula",
+                    "type" : ["intergral", "matrix"],
+                    "padding_left_right" : ["0.5%", "1%", "2%"]
+                }
+            ]
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 4, "max": 16},
+            "repeat" : [0,1],
+            "number_level" : 1,
+            "padding_top_bottom" : ["0.5%", "1%"],
+            "end_text_probability" : 1
+        },
+        {
+            "class" : "MathText",
+            "words" : {"min": 3, "max": 7},
+            "padding_top_bottom" : ["0.5%", "1%", "2%"]
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 4, "max": 16},
+            "repeat" : [0,1],
+            "number_level" : 1,
+            "padding_top_bottom" : ["0.5%", "1%"],
+            "end_text_probability" : 1
+        }
+    ]
+    }
+}

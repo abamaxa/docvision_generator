@@ -154,7 +154,7 @@ class Drawable(AbstractDrawable) :
             self._section_number.render(draw)
                     
     def layout(self, bounds) :
-        self._bounds = Bounds(bounds.x, bounds.y, bounds.width, self._bounds.height)       
+        self._bounds = Bounds(bounds.x, bounds.y, bounds.width, bounds.height) # self._bounds.height)       
             
     def realize_required_parameter(self, parameter_name, default = None) :
         if not parameter_name in self.parameters :
