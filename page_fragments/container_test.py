@@ -1,7 +1,3 @@
-import unittest
-import random
-from unittest.mock import patch, call, MagicMock
-
 from page_fragments.drawable_test import DrawableTest
 from page_fragments.container import Container
 

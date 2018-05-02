@@ -1,0 +1,24 @@
+{
+"name" : "1formula",
+"question" : {
+    "border_probability" : 0.1,    
+    "elements" : [
+        {
+            "class" : "Container",
+            "layout" : {
+                "class" : "GridLayout",
+                "cols" : [1,2,3]
+            },
+            "elements" : [
+                {
+                    "class" : "Formula",
+                    "repeat" : [0,1,2],
+                    "number_level" : [[0.65, 1], [0.85, 2], [1.0, 0]],
+                    "type" : ["matrix", "quadratic", "intergral", "inequalities", "surds", "trig", "factorizations", "angle_ranges"],
+                    "padding_top_bottom" : 10
+                }
+            ]
+        }
+    ]
+}
+}

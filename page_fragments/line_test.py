@@ -1,10 +1,5 @@
-import unittest
-import random
-from unittest.mock import patch, call, MagicMock
-
-from graphics import Bounds, Draw
 from page_fragments.drawable_test import DrawableTest
-from page_fragments import *
+from page_fragments import HorizontalLine, VerticalLine
 
 class HorizontalLineTest(DrawableTest) :
     def _create_drawable(self, parameters = {}) :

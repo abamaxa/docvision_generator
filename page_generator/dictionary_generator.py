@@ -82,7 +82,7 @@ class TextGen:
             #words = [w for w in words.split(' ') if len(w) > 2]
             for word in words.split(' '):
                 if re.search(nononalpha, word):
-                    word_test = w.replace(".", "").replace(",", "")
+                    word_test = word.replace(".", "").replace(",", "")
                     if re.search(nononalpha, word_test):
                         continue
 
@@ -126,7 +126,7 @@ def test():
     print(
         "Generator created in {:.2f} seconds, average time to generate a " \
         "paragraph: {:.2f} seconds".format(
-        load_time - start_time, finish_time - load_time))
+            load_time - start_time, finish_time - load_time))
 
 
 if __name__ == '__main__':

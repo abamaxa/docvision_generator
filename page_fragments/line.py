@@ -3,8 +3,8 @@ from graphics import Size
 
 class BaseLine(Drawable) :
     def __init__(self, parameters) :
-       Drawable.__init__(self, parameters)
-       self.line_size = 1
+        Drawable.__init__(self, parameters)
+        self.line_size = 1
         
     def render(self, draw) :
         super().render(draw)

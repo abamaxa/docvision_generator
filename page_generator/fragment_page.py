@@ -1,14 +1,16 @@
 import logging
 
 from graphics import Bounds, BoundsError
+from page_fragments import Numerator
+
+from .parameter_parser import ParameterParser
 from .page import Page
 from .fragment_factory import FragmentFactory
-from page_fragments import ParameterParser, Numerator
 
 class FragmentPage(Page) :
     def __init__(self, name, options, persister):
         super().__init__(name, options, persister)
-        self.factory = FragmentFactory()
+        self.factory = FragmentFactory(self)
         self.current_fragment = None
         self.area_for_next_fragment = None
         self._numerator = None
@@ -22,7 +24,7 @@ class FragmentPage(Page) :
                 if rect :
                     return rect
             
-            except BoundsError as bounds :
+            except BoundsError :
                 # Ran out of space
                 logging.info("Ran out of space %s %s %s", self.current_fragment.type, 
                              self.current_fragment.bounds.size,
@@ -41,14 +43,14 @@ class FragmentPage(Page) :
         if self.rect_fits_in_current_frame(new_rect):
             self.set_measure_only_mode(False)
             logging.info("Rendering %s to %s", self.current_fragment.type, 
-                     self.current_fragment.bounds)
+                         self.current_fragment.bounds)
             self.current_fragment.render(self.draw)
             self.add_detection_frame(self.current_fragment.frame)
             return new_rect
         
         else :
             logging.info("Could not render %s, %s into %s", self.current_fragment.type, 
-                     self.current_fragment.bounds, self.area_for_next_fragment.size)      
+                         self.current_fragment.bounds, self.area_for_next_fragment.size)      
         
     def get_area_for_next_fragment(self) :
         self.area_for_next_fragment = None
@@ -61,9 +63,9 @@ class FragmentPage(Page) :
         
     def get_template(self) :
         if self.attempts >= 2 :
-            name = "paragraph"
+            name = "1paragraph"
         else :
-            name = self.options.get("template")
+            name = self.options.get("test_template")
             
         if name :
             self.current_fragment = self.factory.create_fragment_from_template(name)           

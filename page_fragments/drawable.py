@@ -1,7 +1,6 @@
-import random
+from page_generator import ParameterParser, ParameterError
 
-from graphics import Bounds, Size, Origin
-from .parameter_parser import ParameterParser, ParameterError
+from graphics import Bounds, Size
 from .abstract_drawable import AbstractDrawable
 from .numerator import SectionNumber
 from .spacing_parser import SpacingParser
@@ -69,11 +68,6 @@ class Drawable(AbstractDrawable) :
         top = self._bounds.y + self._margin_top + self._padding_top
         
         return Bounds(left, top, size.width, size.height)   
-    
-    @property 
-    def inner_width(self) : 
-        dx = self._margin_left + self._padding_left + self._margin_right + self._padding_right
-        self._bounds.width - dx
         
     @property 
     def _total_margin_left_right(self) : 
@@ -98,12 +92,12 @@ class Drawable(AbstractDrawable) :
         return 0
             
     def update_page_parameters(self, page) :
-        self.update_border(page)
+        self.update_border()
         self.update_margins(page)
         self.update_padding(page)
         self.update_colors(page) 
                         
-    def update_border(self, page) :
+    def update_border(self) :
         border_dict = self.parameters.get("border")
         if not border_dict :
             return

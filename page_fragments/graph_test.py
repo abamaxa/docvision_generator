@@ -1,10 +1,7 @@
-import unittest
 import random
-from unittest.mock import patch, call, MagicMock
 
-from graphics import Bounds, Draw
-from page_fragments.drawable_test import DrawableTest, create_test_page
-from page_fragments import *
+from page_fragments.drawable_test import DrawableTest
+from page_fragments import Graph
 
 graph_parameters = {
     "type" : random.choice(["bar", "line", "pie"])

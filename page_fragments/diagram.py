@@ -1,4 +1,3 @@
-from .drawable import Drawable
 from .rectangular_content import RectangularContent
 
 import graphics

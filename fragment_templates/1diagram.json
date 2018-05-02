@@ -1,0 +1,15 @@
+{
+"name" : "1diagram",
+"question" : {
+    "border_probability" : 0.1,
+    "elements" : [
+        {
+            "class" : "Diagram",
+            "type" : ["triangle", "circle", "quadrilateral", "cross"],
+            "number_level" : [[0.65, 1], [0.85, 2], [1.0, 0]],
+            "margin" : {"min": "2%", "max": "5%"},
+            "padding" : {"min": "2%", "max": "5%"}
+        }
+    ]
+}
+}

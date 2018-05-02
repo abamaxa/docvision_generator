@@ -8,6 +8,7 @@ class TextGenTest(unittest.TestCase) :
         
     def test_get_sentence(self) :
         _, length, sentence = self.generator.generate_sentence()
+        self.assertGreater(length, 0)
         self.assertTrue(sentence.endswith("."))
         words = sentence.split(' ')
         self.assertGreaterEqual(len(words), 3)

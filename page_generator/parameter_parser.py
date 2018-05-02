@@ -28,9 +28,8 @@ class ParameterParser :
         
         elif isinstance(value, dict) :
             return self.realize_dict(value)
-        
-        else :
-            return self.as_value(value)
+
+        return self.as_value(value)
         
     def realize_dict(self, dict_value) :
         rand_value = None
@@ -112,3 +111,4 @@ class ParameterParser :
             value = self.__convert_percentage_value(value)
             
         return value
+    

@@ -79,7 +79,7 @@ def get_args() :
         action="store_true") 
     parser.add_argument(
         "-o",
-        "--outputDir",
+        "--output_directory",
         help="Directory to write images to",
         default="output")
     parser.add_argument(
@@ -166,6 +166,9 @@ def get_args() :
         help="Set the level of debug logging, with 4 as most detailed through to 0 as least detailed, default 2",
         choices=[0,1,2,3,4],
         default=2)
+    parser.add_argument(
+        "--test_template",
+        help="Path to a fragment template to test.")    
     
     parser.add_argument("count", type=int, help="Number of images to create or queue size if in daemon mode")
 
@@ -212,7 +215,7 @@ def main():
         server = Webserver(options)
         server.start_server()
     else :
-        logging.info("Writing images to: {outputDir}".format_map(options))
+        logging.info("Writing images to: {output_directory}".format_map(options))
         logging.info("Generating {} images starting at {}".format(args.count, args.initial))
         
         if options["cpus"] == 1 :    

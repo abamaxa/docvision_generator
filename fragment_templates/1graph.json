@@ -1,0 +1,33 @@
+{
+"name" : "1graph",
+
+"question" : {
+    "border" : {
+        "probability" : 0.1,
+        "style" : 1,
+        "width" : {"min" : 1, "max" : 8}
+    },   
+    "elements" : [
+        {
+            "class" : "Container",
+            "number_level" : [[0.65, 1], [0.85, 2], [1.0, 0]],
+            "layout" : {
+                "class" : "GridLayout",
+                "cols" : [1,2]
+            },
+            "border" : {
+                "probability" : 0.1,
+                "style" : 1,
+                "width" : {"min" : 1, "max" : 2}
+            },
+            "elements" : [
+                {
+                    "class" : "Graph",
+                    "type" : [[0.8, "line"], [0.9, "bar"], [1.0, "pie"]],
+                    "padding" : {"min" : "1%", "max" : "2%"}
+                }
+            ]
+        }
+    ]
+}
+}

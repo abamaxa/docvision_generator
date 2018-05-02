@@ -1,11 +1,10 @@
 import unittest
 import random
-from unittest.mock import patch, call, MagicMock
+from unittest.mock import MagicMock
 
 from graphics import draw_test
 from graphics.bounds import Bounds, Size
 from page_generator.page import Page
-from page_generator.page_params import PageParameters
 from page_fragments.drawable import Drawable
 
 border_parameters = {

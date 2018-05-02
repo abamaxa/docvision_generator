@@ -1,16 +1,16 @@
 import logging
 
-from .drawable import Drawable
 from .rectangular_content import RectangularContent
 
 import graphics
 
 class Graph(RectangularContent) :
     def __init__(self, parameters) :
-       super().__init__(parameters)
-       self._graphic_type = None
-       self._proxy = None
-    
+        super().__init__(parameters)
+        self._graphic_type = None
+        self._proxy = None
+        self.labels = None
+     
     @property
     def graphic_type(self) :
         return self._graphic_type

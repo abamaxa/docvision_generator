@@ -1,11 +1,13 @@
-from graphics import Bounds, Size, Origin
-from .drawable import Drawable
+from abc import abstractmethod
+
+from graphics import Bounds, Size
 
 class Layout :
     def __init__(self, bounds, children, cols = 1) :
         self.children = children
         self._cols = cols
         self.update_bounds(bounds)
+        self.height = 0
                 
     def update_bounds(self, bounds) :
         self.bounds = bounds
@@ -25,11 +27,12 @@ class Layout :
             bounds = bounds.merge(self.children[i].bounds)
  
         return bounds.size
+    
+    @abstractmethod
+    def layout(self) :
+        pass
   
-class VerticalLayout(Layout) :
-    def __init__(self, bounds, children) :
-        super().__init__(bounds, children)
-                
+class VerticalLayout(Layout) :               
     def update_bounds(self, bounds) :
         super().update_bounds(bounds)
         self.height = int(bounds.width * 0.5)   

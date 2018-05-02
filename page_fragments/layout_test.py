@@ -1,9 +1,9 @@
 import unittest
 import random
-from unittest.mock import patch, call, MagicMock
+from unittest.mock import MagicMock
 
-from graphics import Bounds, Draw
-from page_fragments.drawable_test import create_test_page, page_parameters
+from graphics import Bounds
+from page_fragments.drawable_test import create_test_page
 from page_fragments.drawable import Drawable
 from page_fragments.layout import VerticalLayout, GridLayout
 
@@ -21,7 +21,7 @@ class LayoutTest(unittest.TestCase) :
         layout = VerticalLayout(self.bounds, self.children)  
         layout.layout()
         
-        size = layout.get_element_size()
+        layout.get_element_size()
         
         expected_y = self.bounds.y
         for child in self.children :
@@ -35,7 +35,7 @@ class LayoutTest(unittest.TestCase) :
         layout = GridLayout(self.bounds, self.children,3)  
         layout.layout()
         
-        size = layout.get_element_size()    
+        layout.get_element_size()    
         
         expected_width = self.bounds.width // len(self.children)
         expected_x = self.bounds.x

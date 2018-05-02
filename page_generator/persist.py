@@ -10,7 +10,7 @@ class AbstractPersistence(object) :
     def __init__(self, name, options) :
         self.options = options
         self.counter = 0
-        self.dirname = options.get("outputDir", "output")
+        self.dirname = options.get("output_directory", "output")
         self.name = str(name)
         self.image_format = options.get("format", "png")
         
@@ -53,8 +53,7 @@ class AbstractPersistence(object) :
     def __convert_to_rgb(self, image) :
         if image.mode == "RGB" :
             return image
-        else :
-            return image.convert("RGB")    
+        return image.convert("RGB")    
         
     def __convert_to_hsv(self, image) :
         image = image.convert("HSV")
@@ -99,10 +98,7 @@ class ZipBufferPersistence(AbstractPersistence) :
     def get_zip_filename(self) :
         return self.zip_filename
                
-class FilePersistence(AbstractPersistence) :
-    def __init__(self, name, options) :
-        super(FilePersistence, self).__init__(name, options)
-        
+class FilePersistence(AbstractPersistence) :        
     def save_image(self, image, frames) :
         image = self.prepare_image(image)
         

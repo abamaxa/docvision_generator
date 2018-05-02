@@ -1,7 +1,5 @@
 from .drawable import Drawable
 from .container import Container
-from .parameter_parser import ParameterParser
-from .numerator import Numerator
 from graphics import Frame
 
 class Question(Container) :

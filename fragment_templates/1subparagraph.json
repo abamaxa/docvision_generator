@@ -1,0 +1,23 @@
+{
+"name" : "1subparagraph",
+"group" : "Oxford",
+"question" : {
+    "border_probability" : 0.1,
+    "numerator" : {
+        "probability" : 0.5,
+        "style" : [
+            ["decimal","letter"],
+            ["roman", "letter", "decimal"]
+        ]
+    },        
+    "elements" : [
+        {
+            "class" : "Text",
+            "words" : {"min": 3, "max": 12},
+            "repeat" : [[0.15, 1], [0.4, 2], [0.65, 3],[0.89, 4], [0.93, 5], [0.97, 6], [1.0, 7]],
+            "number_level" : [[0.65, 1], [0.85, 2], [1.0, 0]],
+            "padding_left_right" : {"min": "5%", "max": "25%"}
+        }
+    ]
+}
+}

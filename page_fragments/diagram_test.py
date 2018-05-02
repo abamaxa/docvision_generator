@@ -1,10 +1,10 @@
-import unittest
 import random
-from unittest.mock import patch, call, MagicMock
 
-from graphics import Bounds, Draw
-from page_fragments.drawable_test import *
-from page_fragments import *
+from graphics import Bounds
+from page_generator import ParameterError
+from page_fragments.drawable_test import DrawableTest, BOUNDS_HEIGHT, \
+     BOUNDS_WIDTH, create_test_page
+from page_fragments import Diagram
 
 diagram_parameters = {
     "type" : random.choice(["triangle", "circle", "quadrilateral", "cross"])

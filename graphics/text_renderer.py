@@ -145,6 +145,7 @@ class TextRenderer :
         if not self.__align in (TextRenderer.AlignLeft, TextRenderer.AlignJustify):
             text = self.__render_list_to_text()
             last_text_width = self.__measure_text_width(text)
+            line_width = self.__get_line_width()
             
             if self.__align == TextRenderer.AlignRight:
                 x += line_width - last_text_width

@@ -1,6 +1,7 @@
 import unittest
 import random
-from page_fragments.parameter_parser import ParameterParser
+
+from page_generator import ParameterParser
 
 test_params = {
     "int" : 1,
@@ -84,5 +85,5 @@ class ParameterParserTest(unittest.TestCase) :
         
     def test_invalid_dict(self) :
         with self.assertRaises(NotImplementedError) :
-            value = self.parser.realize_parameter("invalid_dict")
+            self.parser.realize_parameter("invalid_dict")
         

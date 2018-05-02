@@ -1,26 +1,24 @@
 import random
 
-from graphics import Size
-from .parameter_parser import ParameterParser
+from page_generator import ParameterParser
 
 ROMAN_DIGITS = ["i", "ii", "iii", "iv", "v","vi", "vii", "vii",
     "ix", "x", "xi""xii", "xii", "xi",  "xv"]
 
 class Numerator :
     def __init__(self, parameters, question_number) :
-       self._styles = {}
-       
-       parser = ParameterParser(parameters)
-       default_start = random.randint(1,10)
-       self._start_number = question_number
-       self._bold = parser.realize_parameter("probability_bold")
-       self._circles = parser.realize_parameter("probability_circles")
-       self._current_level = 0
-       self._sublevel_numbers = {}
-       self.scale = (0.75 + (0.5 * random.random()))
-       
-       self.__create_styles(parameters)
-       self.reset()
+        self._styles = {}
+        
+        parser = ParameterParser(parameters)
+        self._start_number = question_number
+        self._bold = parser.realize_parameter("probability_bold")
+        self._circles = parser.realize_parameter("probability_circles")
+        self._current_level = 0
+        self._sublevel_numbers = {}
+        self.scale = (0.75 + (0.5 * random.random()))
+        
+        self.__create_styles(parameters)
+        self.reset()
        
     @property
     def bold(self) : return self._bold
@@ -105,7 +103,6 @@ class SectionNumber :
             return
         
         number_length = draw.text_size(self._number + "  ")
-        width = self.get_width()
         inner_bounds = self._drawable.inner_bounds
         pos = (inner_bounds.x - number_length[0], inner_bounds.y)
         
@@ -113,7 +110,7 @@ class SectionNumber :
         #pos = (inner_bounds.x - int(width * 0.75), inner_bounds.y)
         
         if self._level == 0 and self._numerator.circles :
-            draw_question_circle(pos)
+            draw.draw_question_circle(pos)
             draw.draw_text_line(pos, self._number)
             
         else :

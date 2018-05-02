@@ -1,7 +1,8 @@
+from page_generator import ParameterParser, ParameterError
+
 from .drawable import Drawable
 from .text import Text
 from .line import HorizontalLine
-from .parameter_parser import ParameterParser, ParameterError
 from .formula import Formula
 from .graph import Graph
 from .diagram import Diagram
@@ -24,8 +25,7 @@ class Container(Drawable) :
         if self._children :
             self.layout_policy.update_bounds(self.inner_bounds)
             return self.layout_policy.get_element_size()    
-        else :
-            return super().get_element_size()
+        return super().get_element_size()
     
     def create_children(self, parameters) :
         for element in parameters.get("elements", []) :
@@ -99,8 +99,7 @@ class Container(Drawable) :
             klass = globals()[class_name]
             values = parser.realize_as_dict()
             return klass(parent_bounds, self._children, **values)
-        
-        else :
-            return VerticalLayout(parent_bounds, self._children)
+
+        return VerticalLayout(parent_bounds, self._children)
             
             

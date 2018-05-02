@@ -2,7 +2,7 @@ import random
 
 from .text import Text
 from .drawable import Drawable
-from graphics import Bounds, Size, Origin, TextRenderer, Formula
+from graphics import Bounds, Origin, Formula
 
 # Maybe better to segment this into multiple lines
 class MathText(Text) :
@@ -45,10 +45,7 @@ class MathText(Text) :
         
         image_bounds = Origin(inner_bounds.x + self.text_size[0], inner_bounds.y)
         draw.blit(self.image, (int(image_bounds.x),int(image_bounds.y)))       
-                
-    def _set_text(self, page) :
-        super()._set_text(page)
-        
+
     def __get_formulas(self, page) :
         self.formula = Formula(page.parameters.font_size)
         if random.random() < 0.5 :

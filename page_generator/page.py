@@ -1,16 +1,12 @@
-import os
 import random
-import json
-import zipfile
 import time
-from io import BytesIO
 import abc
 import logging
 
-from .dictionary_generator import TextGen
 from graphics import Draw
-from .page_params import PageParameters
 from augmentation import ImgAugAugmentor, ImageTiler
+
+from .page_params import DefaultPageParameters, JsonPageParameters
 
 class Page(object):
     def __init__(self, name, options, persister):
@@ -20,19 +16,18 @@ class Page(object):
         self.options = options
         self.persister = persister
         self.seed = None
-        
-        self.seed_random_number_generator()
-        
-        self._params = PageParameters(self.name, self.options)
-        
+        self._params = None
         self.frames = []   
         self.fragment_frames = []        
         self.draw_debug_rects = False
-        self.current_fragment_number = random.randint(1, 20)
-
-        self.generate_page()
+                
+        self._seed_random_number_generator()
         
-    def seed_random_number_generator(self) :
+        self.current_fragment_number = random.randint(1, 20)
+        self._load_parameters()
+        self._generate_page()
+        
+    def _seed_random_number_generator(self) :
         if self.options["random_seed"] :
             self.seed = self.options["random_seed"]
         elif self.options["deterministic"] :
@@ -41,8 +36,14 @@ class Page(object):
             self.seed= "{}-{}".format(time.time(), self.name)
         
         random.seed(self.seed)
+        
+    def _load_parameters(self) :
+        if self.options["template"] :
+            self._params = JsonPageParameters(self.name, self.options)
+        else :
+            self._params = DefaultPageParameters(self.name, self.options)
                     
-    def generate_page(self):        
+    def _generate_page(self):        
         self.parameters.generate_random_parameters()
         
         self._draw = Draw(self.parameters)
@@ -59,11 +60,10 @@ class Page(object):
 
     def create_page(self) :
         try :
-            self.draw_columns()
             self.create_page_fragments()     
             self.draw_fragment_frames()
             
-        except Exception as general_error :
+        except Exception :
             message = "Creating page name '{}' with seed '{}'".format(self.name, self.seed)
             logging.exception(message)
             
@@ -87,23 +87,6 @@ class Page(object):
     
         for aug_image, aug_frames in augmentor :
             self.persister.save_image(aug_image, aug_frames)
-           
-    def draw_columns(self):
-        params = self.parameters
-        column = 1
-
-        for rect in self.frames:
-            if self.parameters.has_left_column_line(column) :
-                line = (rect[0], (rect[0][0], rect[1][1]))
-                self._draw.draw_line(line, params.vertical_line_width,
-                                    style=params.vertical_linestyle)
- 
-            if self.parameters.has_right_column_line(column) :
-                line = ((rect[1][0], rect[0][1]), rect[1])
-                self._draw.draw_line(line, params.vertical_line_width,
-                                    style=params.vertical_linestyle)
-                
-            column += 1
             
     def get_current_write_location(self):
         """

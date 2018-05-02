@@ -1,4 +1,4 @@
-from .parameter_parser import ParameterParser
+from page_generator import ParameterParser
 
 class SpacingParser :
     def __init__(self, name, drawable, page) :
@@ -36,8 +36,7 @@ class SpacingParser :
     def __get_top_default(self) :
         if self.drawable_default is None :
             return self.page_top_default
-        else :
-            return self.drawable_default
+        return self.drawable_default
             
     def __assign_side_attribute_group(self) :
         param_name = self.__get_left_name()
@@ -48,8 +47,7 @@ class SpacingParser :
     def __get_left_default(self) :
         if self.drawable_default is None :
             return self.page_left_default
-        else :
-            return self.drawable_default    
+        return self.drawable_default    
             
     def __assign_attribute(self, name, default) :
         param_name = self.name + "_" + name

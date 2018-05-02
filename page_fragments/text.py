@@ -1,7 +1,7 @@
 import random
 
 from .drawable import Drawable
-from graphics import Bounds, Size, Origin, TextRenderer
+from graphics import Bounds, Size, TextRenderer
 
 # Maybe better to segment this into multiple lines
 class Text(Drawable) :
@@ -44,7 +44,6 @@ class Text(Drawable) :
             self.text = page.get_sentences(num_sentences)
 
         self._set_end_text(page)
-        draw = page.draw
         
     def _set_end_text(self, page) :
         if not page.parameters.end_text or not self.get_section_number_width() :

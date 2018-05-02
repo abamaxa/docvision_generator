@@ -1,6 +1,4 @@
-import unittest
-import random
-from unittest.mock import patch, call, MagicMock
+from unittest.mock import MagicMock
 
 from graphics import Bounds, Draw
 from graphics.text_renderer_test import draw_attrs, CHAR_WIDTH, LINE_HEIGHT, LINE_SPACING

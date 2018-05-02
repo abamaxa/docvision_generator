@@ -16,3 +16,4 @@ class RectangularContent(Drawable) :
         self._bounds = graphics.Bounds(bounds.x, bounds.y, bounds.width, bounds.height)     
         size = self.get_element_size()
         self._bounds = graphics.Bounds(bounds.x, bounds.y, size.width, size.height)      
+        
