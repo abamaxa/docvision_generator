@@ -81,7 +81,7 @@ class SectionNumber :
             if "numerator" in drawable.parameters :
                 default = 0
                 
-            self._level = drawable.realize_parameter("number_level", default)  
+            self._level = drawable.get_number_level(default)  
             
         if not self._level is None :
             self._number = numerator.get_next_number(self._level)  

@@ -31,6 +31,7 @@ class Drawable(AbstractDrawable) :
         
         self._section_number = None
         self._primary_element = None
+        self._number_level = None
         
     @property
     def parameters(self) :  return self._parameters
@@ -161,3 +162,11 @@ class Drawable(AbstractDrawable) :
         parser = ParameterParser(self.parameters)
         return parser.realize_parameter(parameter_name, default)
     
+    def get_number_level(self, default) :
+        if self.primary_element :
+            return self.primary_element.get_number_level(default)
+        
+        if self._number_level is None :
+            self._number_level = self.realize_parameter("number_level", default)  
+    
+        return self._number_level

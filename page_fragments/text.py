@@ -16,7 +16,11 @@ class Text(Drawable) :
                  
     def update_page_parameters(self, page) :
         super().update_page_parameters(page)
-        self.align = self.realize_parameter("align", page.parameters.text_align)
+        if self.primary_element :
+            pass
+        else :
+            self.align = self.realize_parameter("align", page.parameters.text_align)
+            
         self._set_text(page)
         self.color = page.parameters.text_color
         
