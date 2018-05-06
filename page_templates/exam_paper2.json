@@ -1,6 +1,9 @@
 {
 "fragment_templates_dir" : "fragment_templates",
-"fragments" : ["1multiparagraph"],
+"fragments" : ["1multiparagraph",
+    "1graph",
+    "1diagram",
+    "1formula"],
 "line_height" : {"min" : "1.4%", "max" : "2%"},
      
 "line_spacing" : [[0.65, 1.2], [0.85, 1.3], [1.0, 1.5]],

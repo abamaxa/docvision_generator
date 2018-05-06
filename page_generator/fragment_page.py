@@ -18,7 +18,7 @@ class FragmentPage(Page) :
         self.attempts = 0
                       
     def create_fragment(self) :            
-        for self.attempts in range(8) :
+        for self.attempts in range(3) :
             try :
                 rect = self.__create_a_fragment()    
                 if rect :
@@ -62,7 +62,7 @@ class FragmentPage(Page) :
                         x2 = rect[1][0], y2 = rect[1][1])         
         
     def get_template(self) :
-        if self.attempts >= 2 :
+        if self.attempts >= 20 :
             name = "1paragraph"
         else :
             name = self.options.get("test_template")
