@@ -2,18 +2,23 @@
 Provides a tool for downloading and saving images from the daemon version
 of the page generator (launched uing the --daemon command line).
 """
-
 import aiohttp
 import asyncio
 import re
 import zipfile
 import os
+import sys
 import io
 import requests
 import time
 import argparse
 import json
 import logging
+
+from cloud import GoogleCloud
+
+class WebclientException(Exception) :
+    pass
 
 class DaemonClient :
     MAX_ACTIVE_REQUESTS = 100
@@ -25,10 +30,10 @@ class DaemonClient :
         self.images_downloaded = 0
         self.image_filename = 1
         self.verbose = verbose
+        self.loop = None
         
         os.makedirs(save_to_directory, exist_ok=True)
         
-
     async def __download_image(self, http_session) :
         if self.__has_finished() :
             return
@@ -158,25 +163,74 @@ class DaemonClient :
         self.image_filename = first_image_filename
         self.number_of_images_to_get = number_of_images_to_get
         self.images_downloaded = 0
-        
-        try :
-            start_time = time.time()
-            loop = asyncio.get_event_loop()
 
-            while self.images_downloaded  < self.number_of_images_to_get :
-                future = asyncio.ensure_future(self.__runner())
-                loop.run_until_complete(future)                        
-                                                 
-            logging.info("Downloaded {} images in {:.2f} seconds".format(
-                number_of_images_to_get, time.time() - start_time))
+        start_time = time.time()
+        self.loop = asyncio.get_event_loop()
+
+        while self.images_downloaded  < self.number_of_images_to_get :
+            future = asyncio.ensure_future(self.__runner())
+            self.loop.run_until_complete(future)                        
+                                             
+        logging.info("Downloaded {} images in {:.2f} seconds".format(
+            number_of_images_to_get, time.time() - start_time))
+        
+    def shutdown(self) :
+        if self.loop :
+            self.loop.close()
+            self.loop = None
             
-        except aiohttp.client_exceptions.ClientConnectionError as connect_error :
-            logging.error("Unable to connect to an image server at", self.image_server_url)
-            
-        finally :
-            loop.close()
-            
+def start_client(args) :
+    cloud = None
+    url = None
+    attempts = 1
+    client = None
     
+    try :
+        if args.instance and args.project and args.zone :
+            cloud = GoogleCloud(dict(args._get_kwargs()))
+            status, ip_list = cloud.get_instance_ip()
+            if status != "RUNNING" :
+                cloud.start_instance()
+                status, ip_list = cloud.wait_until_running()
+                
+            if not ip_list :
+                print("Unable to start Google cloud instance", args.instance)
+                sys.exit(2)
+
+            url = "http://{}/page".format(ip_list[0])
+            
+        elif args.url :
+            url = args.url
+            
+        else :
+            print("Must either pass the url for the server or a google cloud compute instance, "
+                  "zone and project to run server on.")
+            sys.exit(1)        
+        
+        client = DaemonClient(url, args.output_dir, args.verbose)
+        while attempts < 10 :
+            try :
+                client.download_images(args.start, args.count)
+                break
+            except aiohttp.client_exceptions.ClientConnectionError as connect_error :
+                if cloud and attempts < 10 :
+                    logging.info("Unable to connect to server at: %s, waiting 10 seconds", url)
+                    time.sleep(10)
+                    attempts += 1
+                else :
+                    logging.error("Unable to connect to an image server at: %s", url)
+                    break
+              
+    except Exception as ex :
+        logging.exception(ex)
+        
+    finally:
+        if cloud :
+            cloud.stop_instance()
+            
+        if client :
+            client.shutdown()
+        
 if __name__ == '__main__' :
     parser = argparse.ArgumentParser()
     
@@ -186,13 +240,18 @@ if __name__ == '__main__' :
                         help="Integer filename of first image (images are names in a sequence 1.png, 2.png etc)")
     parser.add_argument("-c", "--count", type=int, default=1, 
                         help="Number of images to download")
-    parser.add_argument("url",  help="url to download images from")
+    parser.add_argument("--output_dir", default="www_output", 
+                        help="Directory to download images to")    
+    parser.add_argument("--instance", help="Start an instance with this name on Google "
+                        "cloud with the specified zone and project name.")   
+    parser.add_argument("--project", help="Google project name")   
+    parser.add_argument("--zone", help="Google compute zone")    
+    parser.add_argument("-u", "--url", "--url",  help="url to download images from")
     
-    args = parser.parse_args()    
-    
+    args = parser.parse_args()  
+        
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
     
-    client = DaemonClient(args.url, "www_output", args.verbose)
-    client.download_images(args.start, args.count)
+    start_client(args)

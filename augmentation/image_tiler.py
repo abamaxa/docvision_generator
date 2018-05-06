@@ -104,8 +104,10 @@ class ImageTiler :
     def __postprocess(self, tile) :
         if self.erode_by :
             image = postprocessor.postprocess(tile[0], self.erode_by)   
-        return (image, tile[1])
-    
+            return (image, tile[1])
+        else :
+            return tile
+        
     def get_frames(self) :
         return self.frames
     
