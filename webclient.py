@@ -24,12 +24,14 @@ class DaemonClient :
     MAX_ACTIVE_REQUESTS = 100
     MAX_PENDING_REQUESTS = 10000
     
-    def __init__(self, image_server_url, save_to_directory, verbose = False) :
+    def __init__(self, image_server_url, save_to_directory, first_image_filename, number_of_images_to_get, verbose = False) :
         self.image_server_url = image_server_url
         self.save_to_directory = save_to_directory
         self.images_downloaded = 0
         self.image_filename = 1
         self.verbose = verbose
+        self.image_filename = first_image_filename
+        self.number_of_images_to_get = number_of_images_to_get
         self.loop = None
         
         os.makedirs(save_to_directory, exist_ok=True)
@@ -43,7 +45,7 @@ class DaemonClient :
                 self.__extract_files_from_zip(
                     io.BytesIO(await response.read()), response.headers)
             elif response.status == 200 :
-                logging.info("Request for image failed:", response.status, response.content_type)
+                logging.warn("Request for image failed:", response.status, response.content_type)
                  
     def __extract_files_from_zip(self, zip_bytes_file_obj, headers) :   
         if self.__has_finished() :
@@ -98,7 +100,7 @@ class DaemonClient :
             self.__save_image_file(zip_item_bytes, save_as_filename)
         
         if self.verbose :
-            logging.info("Extracting {} to {}".format(zip_item.filename, save_as_filename))                
+            logging.warn("Extracting {} to {}".format(zip_item.filename, save_as_filename))                
     
     def __update_json_filename_entry(self, zip_item_bytes, save_as_filename_map) :
         json_data = json.loads(zip_item_bytes)
@@ -116,7 +118,7 @@ class DaemonClient :
         self.images_downloaded += 1
         
         if self.images_downloaded % 100 == 0 :
-            logging.info("Downloaded {} images".format(self.images_downloaded))
+            logging.warn("Downloaded {} images".format(self.images_downloaded))
             
     def __save_json_file(self, json_string, save_as_filename) :
         with open(save_as_filename, "w") as output_file :
@@ -132,7 +134,7 @@ class DaemonClient :
         if response.status_code == 200 :
             self.__save_image_zip(io.BytesIO(response.content), response.headers)
         else :
-            logging.info(response.text)
+            logging.warn(response.text)
             
     def __has_finished(self) :
         return self.number_of_images_to_get < self.images_downloaded
@@ -159,11 +161,7 @@ class DaemonClient :
             responses = asyncio.gather(*tasks)
             await responses
             
-    def download_images(self, first_image_filename, number_of_images_to_get) : 
-        self.image_filename = first_image_filename
-        self.number_of_images_to_get = number_of_images_to_get
-        self.images_downloaded = 0
-
+    def download_images(self) : 
         start_time = time.time()
         self.loop = asyncio.get_event_loop()
 
@@ -171,7 +169,7 @@ class DaemonClient :
             future = asyncio.ensure_future(self.__runner())
             self.loop.run_until_complete(future)                        
                                              
-        logging.info("Downloaded {} images in {:.2f} seconds".format(
+        logging.warn("Downloaded {} images in {:.2f} seconds".format(
             number_of_images_to_get, time.time() - start_time))
         
     def shutdown(self) :
@@ -207,14 +205,14 @@ def start_client(args) :
                   "zone and project to run server on.")
             sys.exit(1)        
         
-        client = DaemonClient(url, args.output_dir, args.verbose)
+        client = DaemonClient(url, args.output_dir, args.start, args.count, args.verbose)
         while attempts < 10 :
             try :
-                client.download_images(args.start, args.count)
+                client.download_images()
                 break
             except aiohttp.client_exceptions.ClientConnectionError as connect_error :
                 if cloud and attempts < 10 :
-                    logging.info("Unable to connect to server at: %s, waiting 10 seconds", url)
+                    logging.warn("Unable to connect to server at: %s, waiting 10 seconds", url)
                     time.sleep(10)
                     attempts += 1
                 else :
@@ -250,7 +248,7 @@ if __name__ == '__main__' :
     
     args = parser.parse_args()  
         
-    logging.basicConfig(level=logging.INFO,
+    logging.basicConfig(level=logging.WARN,
                         format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
     

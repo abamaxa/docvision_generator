@@ -36,12 +36,12 @@ class GoogleCloud(AbstractCloudProvider) :
             request = self.service.instances().list_next(previous_request=request, previous_response=response) 
     
     def start_instance(self) :
-        logging.info("Starting Google compute instance %s for project %s in zone %s", self.name,
+        logging.warn("Starting Google compute instance %s for project %s in zone %s", self.name,
                      self.project, self.zone)
         request = self.__instance_request("start", {"instance" : self.name})
         response = request.execute()     
         status = response.get("status") 
-        logging.info("Start request for instance %s has status %s", self.name, status)        
+        logging.warn("Start request for instance %s has status %s", self.name, status)        
         return status
     
     def wait_until_running(self, max_wait_seconds = 30) :
@@ -52,7 +52,7 @@ class GoogleCloud(AbstractCloudProvider) :
             seconds += 1
             time.sleep(1)
             status, ip_list = self.get_instance_ip()
-            logging.info("Instance %s has status: %s ips: %s", self.name, status, ip_list)
+            logging.warn("Instance %s has status: %s ips: %s", self.name, status, ip_list)
             
         return status, ip_list
     
@@ -75,12 +75,12 @@ class GoogleCloud(AbstractCloudProvider) :
         return ip_list    
 
     def stop_instance(self) :
-        logging.info("Stopping Google compute instance %s for project %s in zone %s", self.name,
+        logging.warn("Stopping Google compute instance %s for project %s in zone %s", self.name,
                      self.project, self.zone)        
         request = self.__instance_request("stop", {"instance" : self.name})
         response = request.execute()  
         status = response.get("status") 
-        logging.info("Stop request for instance %s has status %s", self.name, status)        
+        logging.warn("Stop request for instance %s has status %s", self.name, status)        
         return status
         
 if __name__ == "__main__" :	
