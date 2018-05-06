@@ -1,0 +1,22 @@
+{
+"name" : "1multiparagraph",
+"question" : {
+    "border_probability" : 0.1,       
+    "elements" : [
+        {
+            "class" : "Text",
+            "padding_top" : 0,
+            "sentences" : {"min": 1, "max": 2} ,
+            "number_level" : [[0.65, 1], [0.85, 2], [1.0, 0]]
+        },
+        {
+            "class" : "Text",
+            "words" : {"min": 3, "max": 12},
+            "repeat" : [[0.15, 1], [0.4, 2], [0.65, 3],[0.89, 4], [0.93, 5], [0.97, 6], [1.0, 7]],
+            "number_level" : [[0.65, 1], [1.0, 2]],
+            "padding_top_bottom" : {"min": "0%", "max": "2%"},
+            "padding_left_right" : {"min": "5%", "max": "20%"}
+        }
+    ]
+}
+}

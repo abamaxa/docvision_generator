@@ -1,7 +1,11 @@
 import abc
 import json
 
+import cv2
+import numpy as np
 from PIL import Image, ImageDraw
+
+import augmentation.postprocessor as postprocessor
 
 CROP = "crop"
 CROP_AND_PAD = "crop_and_pad"
@@ -21,7 +25,6 @@ ROTATE = "rotate"
 SHEAR = "shear"
 ORDER = "order"
 
-
 class AbstractAugmentor(object) :
     def __init__(self, page, tiler, options) :
         self.options = options
@@ -30,6 +33,7 @@ class AbstractAugmentor(object) :
         self.tiler = tiler
         
         self.image = None 
+        self.image_np = None
         self.frames = None
         
         self.augmented_image = None
@@ -38,7 +42,7 @@ class AbstractAugmentor(object) :
         
         self.current = 0
         self.load_augmentation_options()
-        
+                        
     def __iter__(self):
         return self
 
@@ -53,7 +57,7 @@ class AbstractAugmentor(object) :
             self.generate_augmented_image()
         else :
             self.resize_image()
-            
+                        
         self.draw_debug_rects()
         
         self.current += 1
@@ -65,11 +69,6 @@ class AbstractAugmentor(object) :
             return self.augmented_image, self.augmented_frames 
         else :
             return self.image, self.frames
-        
-    #def __remove_augmented_frames_outside_image(self) :
-    #    frames = []
-    # #   for frame in augmented_frames :
-    #        if frame.
         
     def draw_debug_rects(self) :
         if not self.options.get("draw_final_rects") :
@@ -86,6 +85,12 @@ class AbstractAugmentor(object) :
             draw.rectangle(frame.rectangle, outline="green") 
             
         del draw
+        
+    def convert_image_to_numpy(self) :
+        self.image_np = postprocessor.convert_image_to_numpy(self.image)
+                    
+    def set_augmented_image_from_numpy(self, np_image) :
+        self.augmented_image = Image.fromarray(np_image)
     
     def get_parameter(self, augmentation_name, parameter, default = None) :
         section = self.augmentation_options.get(augmentation_name)

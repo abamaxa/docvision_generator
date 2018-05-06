@@ -3,11 +3,13 @@ import random
 from PIL import Image, ImageDraw
 from .compositor import PageCompositor
 from graphics import Frame, Bounds
+import augmentation.postprocessor as postprocessor
 
 class ImageTiler :
     def __init__(self, page) :
         self.image = page.get_image()
         self.frames = page.get_frames()
+        self.erode_by = page.options["erode"]
         self.returned_whole_page = False
         self.current = 0
         self.chop = page.options["chop"]
@@ -18,7 +20,7 @@ class ImageTiler :
             self.num_page_tiles = 1
         elif page.options["augment"] :
             self.num_page_tiles = 3
-                
+              
     def get_tile(self) :
         num_frames = len(self.frames) 
         if num_frames == 0 :
@@ -41,7 +43,7 @@ class ImageTiler :
             raise StopIteration
 
         self.current += 1
-        return tile
+        return self.__postprocess(tile)
     
     def __should_create_fragment_tiles(self) :
         num_frames = len(self.frames)
@@ -98,6 +100,11 @@ class ImageTiler :
     
     def __extract_image_region(self, bounds) :
         return PageCompositor.copy_image_from_rect(self.image, bounds)
+    
+    def __postprocess(self, tile) :
+        if self.erode_by :
+            image = postprocessor.postprocess(tile[0], self.erode_by)   
+        return (image, tile[1])
     
     def get_frames(self) :
         return self.frames

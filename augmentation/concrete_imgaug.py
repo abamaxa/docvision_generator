@@ -14,7 +14,6 @@ class ImgAugAugmentor(AbstractAugmentor) :
         ia.seed(abs(page.seed.__hash__()) % 0xFFFFFFFF)
         self.pipeline = None
         self.label_boxes = []
-        self.image_np = None
         
         self.prepare_pipeline()
         
@@ -92,13 +91,7 @@ class ImgAugAugmentor(AbstractAugmentor) :
         final_size = self.options.get("outputSize")
         return iaa.Scale({"height": final_size[0], "width": final_size[1]},
                          interpolation=cv2.INTER_CUBIC)
-                        
-    def convert_image_to_numpy(self) :
-        (im_width, im_height) = self.image.size
-        array_shape = (im_height, im_width, 3)
-        array_data = self.image.getdata()
-        self.image_np = np.array(array_data).reshape(array_shape).astype(np.uint8)    
-    
+   
     def prepare_frames(self) :
         self.label_boxes = self.convert_frames_to_boxes(self.frames)
         
@@ -155,7 +148,7 @@ class ImgAugAugmentor(AbstractAugmentor) :
             label_boxes_aug = seq_det.augment_bounding_boxes([self.label_boxes])[0]
             self.augmented_frames = self.convert_boxes_to_frames(label_boxes_aug)          
         
-        self.augmented_image = Image.fromarray(image_aug)
+        self.set_augmented_image_from_numpy(image_aug)
                 
     def prepare_pipeline_a(self) :
         # Define our sequence of augmentation steps that will be applied to every image.

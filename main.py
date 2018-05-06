@@ -143,10 +143,15 @@ def get_args() :
         choices=["jpg", "png"],
         default="jpg")    
     parser.add_argument(
-        "-e",
         "--profile",
         help="Profile code",
-        action="store_true")    
+        action="store_true")   
+    parser.add_argument(
+        "--erode",
+        help="Erode images",
+        choices=[0, 3, 5, 7, 9],    
+        type=int,
+        default=0)     
     parser.add_argument(
         "-s",
         "--single",
