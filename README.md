@@ -1,4 +1,4 @@
-# Docvision Synth
+# Docvision Generator
 
 ## Introduction
 
@@ -33,21 +33,21 @@ See the built in help for more options.
 A docker image can be built for running the webserver using the provided Dockerfile:
 
 ```shell
-$ docker build -t doc_vision_synth .
+$ docker build -t docvision_gen .
 ```
 
 The following commands tests the docker build by downloading 20 images:
 
 ```shell
-$ docker run -p 4000:80 doc_vision_synth --daemon -d 600 -l 600 -w 600 25
+$ docker run -p 4000:80 docvision_gen --daemon -d 600 -l 600 -w 600 25
 $ python webclient.py --url=http://localhost:4000/page --count=20
 ```
 
 You can uploaded the docker image to your account on docker's public repository:
 
 ```shell
-$ docker tag doc_vision_synth your_account_name/doc_vision_synth:v2.0
-$ docker push your_account_name/doc_vision_synth:v2.0
+$ docker tag docvision_gen your_account_name/docvision_gen:v2.0
+$ docker push your_account_name/docvision_gen:v2.0
 ```
 The webclient supports starting and stopping a Google cloud compute instance running the docker image.
 
