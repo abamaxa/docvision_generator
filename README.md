@@ -59,7 +59,7 @@ $ python webclient.py --zone=zone_hosting_your_instance \ --project=your_google_
 --count=20000
 ```
 
-##Export
+## Export
 
 Images can be exported for use with Tensorflow by using the following command (note this script requires the Tensorflow [object_detection](https://github.com/tensorflow/models/tree/master/research/object_detection) and [slim](https://github.com/tensorflow/models/tree/master/research/slim) modules to be on the python path
 
@@ -79,7 +79,7 @@ $ python export/main.py --image_dir=directory_containing_images \
 yolo
 ```
 
-##Tests
+## Tests
 
 A comprehensive set of tests can be run using the following command.
 
@@ -87,7 +87,7 @@ A comprehensive set of tests can be run using the following command.
 $ python -m unittest discover -p "*_test.py"
 ```
 
-##License
+## License
 
 This software is released under the MIT licence.
 
