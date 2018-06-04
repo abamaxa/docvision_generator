@@ -19,7 +19,8 @@ def main() :
     parser.add_argument('--single', dest='single', action='store_true',
                       help='Use single class to classify objects')       
     parser.add_argument('export_type', help="Specify the type of data to export.\n" \
-                        "One of 'tensorflow' or 'yolo", choices=("tensorflow", "yolo"))
+                        "One of 'tensorflow', 'yolo' or 'keras_ssd'", 
+                        choices=("tensorflow", "yolo", "keras_ssd"))
 
     args = parser.parse_args()
     exporter = Exporter(args)
@@ -29,7 +30,8 @@ def main() :
         exporter.create_tensorflow_records()
     elif args.export_type == "yolo" :
         exporter.create_yolo_files()
-    
+    elif args.export_type == "keras_ssd" :
+        exporter.create_keras_ssd_files()    
 
 if __name__ == '__main__':
     main()

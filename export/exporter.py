@@ -40,9 +40,12 @@ class Exporter(object) :
     @property
     def single(self) : return self.args.single
         
-    def make_output_path(self, suffix) :
-        return os.path.join(self._output_dir, self.base_name + suffix)    
-    
+    def make_output_path(self, suffix = None) :
+        if suffix :
+            return os.path.join(self._output_dir, self.base_name + suffix)    
+        else :
+            return self._output_dir
+        
     def prepare(self) :
         self.__make_list_of_json_files()
         self.__load_json_data()
@@ -151,3 +154,19 @@ class Exporter(object) :
             
         except YoloException as yolo_except :
             logging.warn(yolo_except)
+            
+    def create_keras_ssd_files(self) :
+        from export_keras_ssd import KerasSSDException, KerasSSDImageExport, KerasSSDLabelExport
+        
+        try :
+            keras_training = KerasSSDImageExport(self, is_training=True)
+            keras_training.export()
+            
+            keras_evaluate = KerasSSDImageExport(self, is_training=False)
+            keras_evaluate.export()    
+            
+            keras_labels = KerasSSDLabelExport(self)
+            keras_labels.export()
+            
+        except KerasSSDException as keras_except :
+            logging.warn(keras_except)        
