@@ -64,6 +64,8 @@ class AbstractAugmentor(object) :
         
         self.current += 1
         
+        self.reset()
+        
         return self.__images_to_return()
 
     def __images_to_return(self) :

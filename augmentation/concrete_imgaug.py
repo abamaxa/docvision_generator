@@ -13,11 +13,14 @@ class ImgAugAugmentor(AbstractAugmentor) :
         
         ia.seed(abs(page.seed.__hash__()) % 0xFFFFFFFF)
         self.pipeline = None
-        self.ia_boxes = None
-        self.ia_keypoints = []
-        self.frozen_pipeline = None
+        self.reset()
         
         self.prepare_pipeline()
+        
+    def reset(self) :
+        self.ia_boxes = None
+        self.ia_keypoints = []
+        self.frozen_pipeline = None        
         
     def prepare_pipeline(self) :
         self.pipeline = iaa.Sequential(
