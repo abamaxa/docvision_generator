@@ -1,8 +1,11 @@
 import os
+import re
+import string
 
 from PIL import Image, ImageDraw, ImageFont
-
 from .text_renderer import TextRenderer
+from .bounds import Bounds
+from .frame import Frame, RotatedFrame
 
 class Draw:
     AlignLeft = 0
@@ -18,6 +21,7 @@ class Draw:
         self.font_italic = None
         self.draw = None
         self._measure_only = False
+        self.word_boxes = []
 
     def init_image(self):
         self.image = Image.new('RGBA', self.get_image_size(), (0,0,0,0))
@@ -105,10 +109,34 @@ class Draw:
             font = self.font_bold
         else :
             font = self.font
+         
+        if self.params.options["wordboxes"] :   
+            self.__text_with_word_boxes(position, text, _color, font)
+        else :  
+            self.draw.text(position, text, _color, font)
+        
+    def __text_with_word_boxes(self, position, text, color, font) :
+        #word_list = re.split(r'([\W]+)', text)
+        word_list = re.split(r'([\W]+)', text)
+        x, y = position
+        
+        space_width = self.draw.textsize(" ", font=font)
+        for word in word_list :
+            word = word.strip()
+            if not word :
+                continue
             
-        self.draw.text(position, text, _color, font)
+            sz = self.draw.textsize(word, font=font)
+                        
+            if not word in string.punctuation :
+                box = (x - 1, y + 2, x + sz[0] +1, y + sz[1] + 2)
+                self.__add_text_box(box, word)
+                
+            self.draw.text((x,y), word, color, font)
+            
+            x += sz[0] + space_width[0]
     
-    def draw_question_circle(self, top_left):
+    def draw_question_circle(self, top_left) :
         if not self.measure_only_mode:
             extra = int(self.params.font_size * 0.2)
             point = ((top_left[0] - extra,
@@ -156,7 +184,13 @@ class Draw:
             
     def get_image(self) :
         return self.image
-    
+       
+    def blit_text(self, image, points) :
+        self.blit(image, points)
+        box = list(points)
+        box[2] = min(box[0] + image.size[0], points[2])
+        self.__add_text_box(box, '###')
+        
     def blit(self, image, points) :
         width, height = image.size
         if len(points) == 4 and \
@@ -181,7 +215,24 @@ class Draw:
         img.paste(img_src, (0,0), img_src)
         
         return img
-
+    
+    def __add_text_box(self, box, label) :
+        if not self.params.options["wordboxes"] :
+            return
+        
+        #self.draw_rectangle(box, outline="red")
+        #bounds = Bounds(x=box[0], y=box[1],
+        #                x2=box[2], y2=box[3])
+        points = (box[0], box[1], 
+                  box[2], box[1],
+                  box[2], box[3],
+                  box[0], box[3])
+        
+        #self.draw.polygon(points, outline="red")
+        
+        frame = RotatedFrame(points, label)
+        self.word_boxes.append(frame)
+        
     def cleanup(self):
         if self.draw:
             del self.draw

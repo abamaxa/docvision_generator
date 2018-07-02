@@ -60,7 +60,8 @@ class Page(object):
 
     def create_page(self) :
         try :
-            self.create_page_fragments()     
+            self.create_page_fragments()
+            self.copy_text_boxes()
             self.draw_fragment_frames()
             
         except Exception :
@@ -80,6 +81,13 @@ class Page(object):
         if not self.fragment_frames :
             message = "Empty page, name '{}' with seed '{}'".format(self.name, self.seed)
             logging.error(message)
+            
+    def copy_text_boxes(self) :
+        if not self.options["wordboxes"] :
+            return
+        
+        for frame in self.draw.word_boxes :
+            self.add_detection_frame(frame)
                
     def save(self) :
         tiler = ImageTiler(self)

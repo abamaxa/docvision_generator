@@ -250,4 +250,39 @@ class TextRenderer :
         position = (self.__bounds.x2 - marker_width, current_pos[1])
         self.__output_line(position, self.__end_text) 
        
+       
+class LineSplitter :
+    def __init__(self, text) :
+        self.__render_list = text
+        self.word_widths = []
         
+    def split(self) :
+        self.__list_width_words()
+        inter_word_space = self.__calculate_inter_word_space()
+        line_width = self.__get_line_width()
+
+        x, y = position
+        count = 0
+
+        for word, word_width in zip(self.__render_list, self.word_widths):
+            count += 1
+            if count == self.__size_render_list() :
+                x = position[0] + line_width - word_width
+
+            self.__output_line((x, y), word)
+
+            x += word_width + inter_word_space
+
+    def __calculate_inter_word_space(self) :
+        return (self.__get_line_width() - sum(self.word_widths)) / (self.__size_render_list() - 1)        
+
+    def __list_width_words(self) :
+        self.word_widths = []
+        for word in self.__render_list:
+            word_width, _ = self.__measure_word(word)
+            self.word_widths.append(word_width)   
+            
+    def __size_render_list(self) :
+        return len(self.__render_list)        
+  
+    

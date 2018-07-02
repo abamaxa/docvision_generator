@@ -36,7 +36,7 @@ class Formula(Drawable) :
         
     def render(self, draw) :
         super().render(draw)        
-        draw.blit(self._proxy.image, (
+        draw.blit_text(self._proxy.image, (
             int(self.inner_bounds.x),
             int(self.inner_bounds.y),                         
             int(self.inner_bounds.x2), 

@@ -7,6 +7,8 @@ from PIL import Image, ImageDraw
 
 import augmentation.postprocessor as postprocessor
 
+from graphics import Bounds, Frame, RotatedFrame
+
 CROP = "crop"
 CROP_AND_PAD = "crop_and_pad"
 AFFINE = "affine"
@@ -79,11 +81,14 @@ class AbstractAugmentor(object) :
         draw = ImageDraw.Draw(image)
         
         for frame in frames :
-            if frame.x == -1 and frame.y == -1 :
-                continue
+            #if frame.x == -1 and frame.y == -1 :
+            #    continue
             
-            draw.rectangle(frame.rectangle, outline="green") 
-            
+            if isinstance(frame, Frame) :
+                draw.rectangle(frame.rectangle, outline="green") 
+            else :
+                draw.polygon(frame.points, outline="green") 
+                
         del draw
         
     def convert_image_to_numpy(self) :

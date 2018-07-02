@@ -10,6 +10,7 @@ class ImageTiler :
         self.image = page.get_image()
         self.frames = page.get_frames()
         self.erode_by = page.options["erode"]
+        self.wordboxes = page.options["wordboxes"] 
         self.returned_whole_page = False
         self.current = 0
         self.chop = page.options["chop"]
@@ -46,6 +47,9 @@ class ImageTiler :
         return self.__postprocess(tile)
     
     def __should_create_fragment_tiles(self) :
+        if self.wordboxes :
+            return False
+        
         num_frames = len(self.frames)
         return self.current <= num_frames and self.chop and self.columns > 1
         

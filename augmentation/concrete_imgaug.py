@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 
 from .base_augmentor import *
-from graphics import Bounds, Frame
+from graphics import Bounds, Frame, RotatedFrame
 
 class ImgAugAugmentor(AbstractAugmentor) :
     def __init__(self, page, tiler, options) :
@@ -13,9 +13,28 @@ class ImgAugAugmentor(AbstractAugmentor) :
         
         ia.seed(abs(page.seed.__hash__()) % 0xFFFFFFFF)
         self.pipeline = None
-        self.label_boxes = []
+        self.ia_boxes = None
+        self.ia_keypoints = None
+        self.frozen_pipeline = None
         
         self.prepare_pipeline()
+        
+    def prepare_pipeline(self) :
+        self.pipeline = iaa.Sequential(
+            [
+                self.crop_and_pad(),
+                iaa.OneOf([
+                    self.perspective(),
+                    self.affine()
+                ]),
+                self.resize(),
+                self.piecewise_affine(),
+                
+                #iaa.Fliplr(0.5)
+            ],
+            # do all of the above augmentations in random order
+            random_order=False
+        )    
         
     def sometimes(self, name, augmentation) :
         probability = self.get_parameter(name, PROBABILITY, 0.0)
@@ -91,202 +110,95 @@ class ImgAugAugmentor(AbstractAugmentor) :
         final_size = self.options.get("outputSize")
         return iaa.Scale({"height": final_size[0], "width": final_size[1]},
                          interpolation=cv2.INTER_CUBIC)
-   
-    def prepare_frames(self) :
-        self.label_boxes = self.convert_frames_to_boxes(self.frames)
+       
+    def generate_augmented_image(self) : 
+        self.convert_image_to_numpy()
+        self.freeze_pipeline()
+        self.prepare_frames()
+                
+        self.augment_image()
+        self.augment_frames()
+                
+                
+    def freeze_pipeline(self) :
+        self.frozen_pipeline = self.pipeline.to_deterministic()
         
-    def convert_frames_to_boxes(self, frames) :
+    def prepare_frames(self) :
+        self.__convert_frames_to_keypoints()
+        self.__convert_frames_to_boxes()
+            
+    def __convert_frames_to_keypoints(self) :
+        keypoints = []
+        for frame in self.frames :
+            if isinstance(frame, Frame) :
+                continue
+            
+            for point in frame :
+                keypoints.append(ia.Keypoint(x=int(point[0]),  y=int(point[1])))
+
+        self.ia_keypoints = ia.KeypointsOnImage(keypoints, shape=self.image_np.shape)     
+            
+    def __convert_frames_to_boxes(self) :
         boxes = []
-        for frame in frames :
+        for frame in self.frames :
+            if isinstance(frame, RotatedFrame) :
+                continue
+            
             box = ia.BoundingBox(x1=int(frame.x),  y1=int(frame.y),
                                  x2=int(frame.x2), y2=int(frame.y2))
             boxes.append(box)
 
-        return ia.BoundingBoxesOnImage(boxes, shape=self.image_np.shape)
-
-    def convert_boxes_to_frames(self, bbs) :
-        frames = []   
-        for box, frame in zip(bbs.bounding_boxes, self.frames) :
-            bounds = Bounds(box.x1, box.y1, x2 = box.x2, y2 = box.y2)
-            frames.append(Frame(bounds, frame.label))
-            
-        return frames
-    
-    def prepare_pipeline(self) :
-        self.pipeline = iaa.Sequential(
-            [
-                self.crop_and_pad(),
-                iaa.OneOf([
-                    self.perspective(),
-                    self.affine()
-                ]),
-                self.resize(),
-                self.piecewise_affine(),
-                
-                #iaa.Fliplr(0.5)
-            ],
-            # do all of the above augmentations in random order
-            random_order=False
-        )
-
-    def generate_augmented_image(self) : 
-        self.convert_image_to_numpy()
-        self.prepare_frames()
+        self.ia_boxes = ia.BoundingBoxesOnImage(boxes, shape=self.image_np.shape)
         
-        seq_det = self.pipeline.to_deterministic()
-        
+    def augment_image(self) :
         # Augment BBs and images.
         # As we only have one image and list of BBs, we use
         # [image] and [bbs] to turn both into lists (batches) for the
         # functions and then [0] to reverse that. In a real experiment, your
         # variables would likely already be lists.
-        image_aug = seq_det.augment_images([self.image_np])[0]
+        image_aug = self.frozen_pipeline.augment_images([self.image_np])[0]
+        self.set_augmented_image_from_numpy(image_aug)
         
+    def augment_frames(self) :
         self.augmented_frames = []
 
-        if self.frames :
-            label_boxes_aug = seq_det.augment_bounding_boxes([self.label_boxes])[0]
-            self.augmented_frames = self.convert_boxes_to_frames(label_boxes_aug)          
+        if self.ia_boxes and self.ia_boxes.bounding_boxes :
+            self.ia_boxes = self.frozen_pipeline.augment_bounding_boxes([self.ia_boxes])[0]
+            self.augmented_frames = self.__convert_boxes_to_frames()
         
-        self.set_augmented_image_from_numpy(image_aug)
-                
-    def prepare_pipeline_a(self) :
-        # Define our sequence of augmentation steps that will be applied to every image.
-        self.pipeline = iaa.Sequential(
-            [
-                #
-                # Apply the following augmenters to most images.
-                #
-                iaa.Fliplr(0.5), # horizontally flip 50% of all images
-                iaa.Flipud(0.2), # vertically flip 20% of all images
+        if self.ia_keypoints and self.ia_keypoints.keypoints :
+            self.ia_keypoints = self.frozen_pipeline.augment_keypoints([self.ia_keypoints])[0]
+            self.augmented_frames.extend(self.__convert_keypoints_to_frames())
         
-                # crop some of the images by 0-10% of their height/width
-                self.sometimes(CROP, iaa.Crop(percent=(0, 0.1))),
-        
-                # Apply affine transformations to some of the images
-                # - scale to 80-120% of image height/width (each axis independently)
-                # - translate by -20 to +20 relative to height/width (per axis)
-                # - rotate by -45 to +45 degrees
-                # - shear by -16 to +16 degrees
-                # - order: use nearest neighbour or bilinear interpolation (fast)
-                # - mode: use any available mode to fill newly created pixels
-                #         see API or scikit-image for which modes are available
-                # - cval: if the mode is constant, then use a random brightness
-                #         for the newly created pixels (e.g. sometimes black,
-                #         sometimes white)
-                sometimes(iaa.Affine(
-                    scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
-                    translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},
-                    rotate=(-45, 45),
-                    shear=(-16, 16),
-                    order=[0, 1],
-                    cval=(0, 255),
-                    mode=ia.ALL
-                )),
-        
-                #
-                # Execute 0 to 5 of the following (less important) augmenters per
-                # image. Don't execute all of them, as that would often be way too
-                # strong.
-                #
-                iaa.SomeOf((0, 5),
-                    [
-                        # Convert some images into their superpixel representation,
-                        # sample between 20 and 200 superpixels per image, but do
-                        # not replace all superpixels with their average, only
-                        # some of them (p_replace).
-                        sometimes(
-                            iaa.Superpixels(
-                                p_replace=(0, 1.0),
-                                n_segments=(20, 200)
-                            )
-                        ),
-        
-                        # Blur each image with varying strength using
-                        # gaussian blur (sigma between 0 and 3.0),
-                        # average/uniform blur (kernel size between 2x2 and 7x7)
-                        # median blur (kernel size between 3x3 and 11x11).
-                        iaa.OneOf([
-                            iaa.GaussianBlur((0, 3.0)),
-                            iaa.AverageBlur(k=(2, 7)),
-                            iaa.MedianBlur(k=(3, 11)),
-                        ]),
-        
-                        # Sharpen each image, overlay the result with the original
-                        # image using an alpha between 0 (no sharpening) and 1
-                        # (full sharpening effect).
-                        iaa.Sharpen(alpha=(0, 1.0), lightness=(0.75, 1.5)),
-        
-                        # Same as sharpen, but for an embossing effect.
-                        iaa.Emboss(alpha=(0, 1.0), strength=(0, 2.0)),
-        
-                        # Search in some images either for all edges or for
-                        # directed edges. These edges are then marked in a black
-                        # and white image and overlayed with the original image
-                        # using an alpha of 0 to 0.7.
-                        sometimes(iaa.OneOf([
-                            iaa.EdgeDetect(alpha=(0, 0.7)),
-                            iaa.DirectedEdgeDetect(
-                                alpha=(0, 0.7), direction=(0.0, 1.0)
-                            ),
-                        ])),
-        
-                        # Add gaussian noise to some images.
-                        # In 50% of these cases, the noise is randomly sampled per
-                        # channel and pixel.
-                        # In the other 50% of all cases it is sampled once per
-                        # pixel (i.e. brightness change).
-                        iaa.AdditiveGaussianNoise(
-                            loc=0, scale=(0.0, 0.05*255), per_channel=0.5
-                        ),
-        
-                        # Either drop randomly 1 to 10% of all pixels (i.e. set
-                        # them to black) or drop them on an image with 2-5% percent
-                        # of the original size, leading to large dropped
-                        # rectangles.
-                        iaa.OneOf([
-                            iaa.Dropout((0.01, 0.1), per_channel=0.5),
-                            iaa.CoarseDropout(
-                                (0.03, 0.15), size_percent=(0.02, 0.05),
-                                per_channel=0.2
-                            ),
-                        ]),
-        
-                        # Invert each image's chanell with 5% probability.
-                        # This sets each pixel value v to 255-v.
-                        iaa.Invert(0.05, per_channel=True), # invert color channels
-        
-                        # Add a value of -10 to 10 to each pixel.
-                        iaa.Add((-10, 10), per_channel=0.5),
-        
-                        # Change brightness of images (50-150% of original value).
-                        iaa.Multiply((0.5, 1.5), per_channel=0.5),
-        
-                        # Improve or worsen the contrast of images.
-                        iaa.ContrastNormalization((0.5, 2.0), per_channel=0.5),
-        
-                        # Convert each image to grayscale and then overlay the
-                        # result with the original with random alpha. I.e. remove
-                        # colors with varying strengths.
-                        iaa.Grayscale(alpha=(0.0, 1.0)),
-        
-                        # In some images move pixels locally around (with random
-                        # strengths).
-                        sometimes(
-                            iaa.ElasticTransformation(alpha=(0.5, 3.5), sigma=0.25)
-                        ),
-        
-                        # In some images distort local areas with varying strength.
-                        sometimes(iaa.PiecewiseAffine(scale=(0.01, 0.05)))
-                    ],
-                    # do all of the above augmentations in random order
-                    random_order=True
-                )
-            ],
-            # do all of the above augmentations in random order
-            random_order=True
-        )
-        
-        images_aug = seq.augment_images(images)        
+    def __convert_boxes_to_frames(self) :
+        frames = []   
+        for box, frame in zip(self.ia_boxes.bounding_boxes, self.frames) :
+            if box.x1 == -1 and box.y1 == -1 :
+                continue
+            
+            bounds = Bounds(box.x1, box.y1, x2 = box.x2, y2 = box.y2)
+            frames.append(Frame(bounds, frame.label))
+            
+        return frames
 
+    def __convert_keypoints_to_frames(self) :
+        frames = []   
+        points = []
+        counter = 0
+        invalid_frame = False
+        for idx, keypoint in enumerate(self.ia_keypoints.keypoints) :
+            points.append((float(keypoint.x), float(keypoint.y)))
+            if keypoint.x == -1 and keypoint.y == -1 :
+                invalid_frame = True
+                
+            if idx % 4 == 3 :
+                if not invalid_frame :
+                    frames.append(RotatedFrame(points, self.frames[counter].label))
+                    
+                points = []
+                counter += 1
+                invalid_frame = False
+
+        return frames        
+ 
    

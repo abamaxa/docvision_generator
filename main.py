@@ -147,6 +147,10 @@ def get_args() :
         help="Profile code",
         action="store_true")   
     parser.add_argument(
+        "--wordboxes",
+        help="Output bounding boxes of words",
+        action="store_true")       
+    parser.add_argument(
         "--erode",
         help="Erode images",
         choices=[0, 3, 5, 7, 9],    
@@ -194,7 +198,7 @@ def main():
         "dimensions": (args.width, args.height),
         "outputSize": (args.dimension, args.dimension),
         "draw_debug_rects" : False,
-        "draw_final_rects" : False,
+        "draw_final_rects" : True,
         "color_model" : args.color_model.upper()
     })
         
