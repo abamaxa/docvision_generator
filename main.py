@@ -198,7 +198,7 @@ def main():
         "dimensions": (args.width, args.height),
         "outputSize": (args.dimension, args.dimension),
         "draw_debug_rects" : False,
-        "draw_final_rects" : True,
+        "draw_final_rects" : False,
         "color_model" : args.color_model.upper()
     })
         
