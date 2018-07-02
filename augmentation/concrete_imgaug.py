@@ -14,7 +14,7 @@ class ImgAugAugmentor(AbstractAugmentor) :
         ia.seed(abs(page.seed.__hash__()) % 0xFFFFFFFF)
         self.pipeline = None
         self.ia_boxes = None
-        self.ia_keypoints = None
+        self.ia_keypoints = []
         self.frozen_pipeline = None
         
         self.prepare_pipeline()
@@ -135,8 +135,13 @@ class ImgAugAugmentor(AbstractAugmentor) :
             
             for point in frame :
                 keypoints.append(ia.Keypoint(x=int(point[0]),  y=int(point[1])))
-
-        self.ia_keypoints = ia.KeypointsOnImage(keypoints, shape=self.image_np.shape)     
+                
+            if len(keypoints) >= 20 :
+                self.ia_keypoints.append(ia.KeypointsOnImage(keypoints, shape=self.image_np.shape))
+                keypoints = []
+                
+        if keypoints :
+            self.ia_keypoints.append(ia.KeypointsOnImage(keypoints, shape=self.image_np.shape))        
             
     def __convert_frames_to_boxes(self) :
         boxes = []
@@ -166,8 +171,8 @@ class ImgAugAugmentor(AbstractAugmentor) :
             self.ia_boxes = self.frozen_pipeline.augment_bounding_boxes([self.ia_boxes])[0]
             self.augmented_frames = self.__convert_boxes_to_frames()
         
-        if self.ia_keypoints and self.ia_keypoints.keypoints :
-            self.ia_keypoints = self.frozen_pipeline.augment_keypoints([self.ia_keypoints])[0]
+        if self.ia_keypoints :
+            self.ia_keypoints = self.frozen_pipeline.augment_keypoints(self.ia_keypoints)[0]
             self.augmented_frames.extend(self.__convert_keypoints_to_frames())
         
     def __convert_boxes_to_frames(self) :
