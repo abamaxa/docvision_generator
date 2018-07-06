@@ -83,7 +83,16 @@ class RotatedFrame(DimensionObject) :
         return RotatedFrame(tuple(offset_points), self.label)    
     
     def as_dict(self) : 
-        dic = { "label":self._label, "type": "rotatedbox" }
+        bounds = self.bounds
+        dic = { 
+            "label":self._label, 
+            "type": "rotatedbox",
+            "xmin": bounds.x,
+            "ymin": bounds.y,
+            "xmax": bounds.x2,
+            "ymax": bounds.y2 
+        }
+        
         for i, value in enumerate(self.points) :
             if i % 2 == 0 :
                 field = "x{}".format(i // 2)

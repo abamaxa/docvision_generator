@@ -219,10 +219,7 @@ class Draw:
     def __add_text_box(self, box, label) :
         if not self.params.options["wordboxes"] :
             return
-        
-        #self.draw_rectangle(box, outline="red")
-        #bounds = Bounds(x=box[0], y=box[1],
-        #                x2=box[2], y2=box[3])
+
         points = (box[0], box[1], 
                   box[2], box[1],
                   box[2], box[3],

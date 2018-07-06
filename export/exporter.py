@@ -111,10 +111,12 @@ class Exporter(object) :
     def __add_missing_labels(self, data) :
         for obj in data.get("frames", []) :
             label = obj["label"]
-            if not label in self.label_map.keys() :
-                self.label_map[label] = self._label_number
-                if not self.single :
-                    self._label_number += 1
+            if label in self.label_map.keys() :
+                continue
+            
+            self.label_map[label] = self._label_number
+            if not self.single :
+                self._label_number += 1
 
     def __partition_data(self) :
         random.shuffle(self._image_list)
@@ -170,3 +172,16 @@ class Exporter(object) :
             
         except KerasSSDException as keras_except :
             logging.warn(keras_except)        
+            
+    def create_icdar_files(self) :
+        from export_idcar import ICDARException, ICDARImageExport
+        
+        try :
+            training = ICDARImageExport(self, is_training=True)
+            training.export()
+            
+            evaluate = ICDARImageExport(self, is_training=False)
+            evaluate.export()    
+            
+        except ICDARException as _except :
+            logging.warn(_except)            

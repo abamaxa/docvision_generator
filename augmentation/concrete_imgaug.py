@@ -194,8 +194,10 @@ class ImgAugAugmentor(AbstractAugmentor) :
         points = []
         counter = 0
         invalid_frame = False
-        for idx, keypoint in enumerate(self.ia_keypoints.keypoints) :
-            points.append((float(keypoint.x), float(keypoint.y)))
+        for idx, keypoint in enumerate(self.ia_keypoints.keypoints) :     
+            points.append(float(keypoint.x))
+            points.append(float(keypoint.y))
+            
             if keypoint.x == -1 and keypoint.y == -1 :
                 invalid_frame = True
                 
