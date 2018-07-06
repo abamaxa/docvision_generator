@@ -12,6 +12,12 @@ Dependancies can be installed by running the following command.
 $ pip install -r requirements.txt
 ```
 
+The tool also relies on latex, lmodern and dvipng when can be installed on Ubuntu/Debian based systems with the following command:
+
+```shell
+$ sudo apt-get install -y texlive-latex-base dvipng lmodern
+```
+
 ## Usage
 
 The style and layout of the generated documents are specified in a set of JSON configuration files. A top-level page configuration controls page level parameters such as margins, paddings and fonts. At a lower level, individual blocks of text or graphics (referred to as fragments) are specified in separate JSON files. Each fragment maps to a class of object for use when training an object detection net.
