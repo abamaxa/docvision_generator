@@ -61,8 +61,9 @@ class ICDARImage :
         self.__create_label_records()
         
     def write(self) :
-        self.__create_symlink_to_image()
-        self.__write_label_records()
+        if self.labels_records :            
+            self.__create_symlink_to_image()
+            self.__write_label_records()
     
     def __create_label_records(self) :        
         for frame in self.json_data["frames"] :
@@ -71,9 +72,7 @@ class ICDARImage :
 
             label_text = u"{x0},{y0},{x1},{y1},{x2},{y2},{x3},{y3},{label}".format_map(frame)
             self.labels_records.append(label_text)
-            
-        self.labels_records.append("\n")
-        
+
     def __create_symlink_to_image(self) :
         dest_path = self.get_symlink_path()   
         shutil.copyfile(self.json_data["filepath"], dest_path)
